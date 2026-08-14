@@ -13,6 +13,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "SharedLogic"
             isStatic = true
+            export(libs.kotlinx.datetime)
         }
     }
 
@@ -28,6 +29,10 @@ kotlin {
     }
 
     sourceSets {
+        commonMain.dependencies {
+            api(libs.kotlinx.datetime)
+        }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
