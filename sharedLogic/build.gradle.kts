@@ -8,34 +8,26 @@ plugins {
 kotlin {
     listOf(
         iosArm64(),
-        iosSimulatorArm64()
+        iosSimulatorArm64(),
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "SharedLogic"
             isStatic = true
         }
     }
-    
+
     android {
-       namespace = "com.rafario.miscosas.sharedLogic"
-       compileSdk = libs.versions.android.compileSdk.get().toInt()
-       minSdk = libs.versions.android.minSdk.get().toInt()
-    
-       compilerOptions {
-           jvmTarget = JvmTarget.JVM_11
-       }
-       androidResources {
-           enable = true
-       }
-       withHostTest {
-           isIncludeAndroidResources = true
-       }
-    }
-    
-    sourceSets {
-        commonMain.dependencies {
-            // put your Multiplatform dependencies here
+        namespace = "com.rafario.miscosas.sharedlogic"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
         }
+        withHostTest {}
+    }
+
+    sourceSets {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }

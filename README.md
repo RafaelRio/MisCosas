@@ -2,7 +2,7 @@
 
 MisCosas será un pasaporte digital personal y familiar para registrar objetos, conservar su documentación y controlar compras, garantías, devoluciones y mantenimiento.
 
-El proyecto se encuentra en la **Fase 1**: el baseline Kotlin Multiplatform está configurado y las interfaces de Android e iOS ya viven en sus respectivas aplicaciones. Todavía no se han implementado modelos de negocio, persistencia, autenticación ni sincronización.
+La **Fase 1** está completada: el baseline Kotlin Multiplatform está configurado y las interfaces de Android e iOS viven en sus respectivas aplicaciones. Todavía no se han implementado modelos de negocio, persistencia, autenticación ni sincronización.
 
 ## Decisiones de plataforma
 
@@ -20,6 +20,18 @@ La lógica que aporte valor compartir se escribirá en Kotlin Multiplatform. Las
 - `sharedLogic`: código Kotlin compartido entre Android e iOS.
 
 `androidApp` depende directamente de `sharedLogic`, mientras que `iosApp` consume su framework. `sharedLogic` no depende de Jetpack Compose ni de SwiftUI.
+
+## Convenciones de paquetes
+
+- `presentation` pertenece a cada aplicación nativa: Jetpack Compose en Android y SwiftUI en iOS.
+- `domain` contendrá modelos, reglas, validaciones y contratos de repositorio independientes de la plataforma.
+- `data` contendrá persistencia, adaptadores e implementaciones de los repositorios definidos por dominio.
+- `domain` no dependerá de `data`; `data` sí podrá depender de `domain`.
+- Los source sets `androidMain` e `iosMain` se usarán solo cuando una implementación específica de plataforma aporte valor real.
+
+Los paquetes y abstracciones se crearán cuando aparezca su primer tipo real. No se mantendrán carpetas vacías ni interfaces que solo reenvíen llamadas.
+
+Hasta que la Fase 2 introduzca el primer tipo de dominio, `sharedLogic` conserva un archivo fuente sin declaraciones. Kotlin/Native necesita al menos una fuente para generar el framework que integra Xcode; ese anclaje temporal no expone ninguna API.
 
 ## Toolchain del baseline
 
@@ -66,12 +78,8 @@ Si Android Studio muestra `destination not found` después de actualizar Xcode, 
 
 Para ejecutar en un iPhone físico será necesario seleccionar un equipo de desarrollo en `Signing & Capabilities`; no hace falta para el simulador.
 
-## Tests del baseline
+## Tests
 
-```bash
-./gradlew \
-  :sharedLogic:testAndroidHostTest \
-  :sharedLogic:iosSimulatorArm64Test
-```
+Los tests aritméticos generados por la plantilla se han eliminado porque no comprobaban comportamiento del producto. La suite compartida comenzará con los primeros modelos y reglas de dominio.
 
-El siguiente paso de la Fase 1 será retirar el código de demostración de la plantilla y fijar las convenciones de paquetes para `presentation`, `domain` y `data`. Los paquetes se crearán cuando aparezcan sus primeros tipos reales, sin añadir carpetas o abstracciones vacías.
+El siguiente paso es la **Fase 2: fundamentos y modelos de dominio**. Se introducirán los tipos de uno en uno, junto con sus invariantes y tests reales.

@@ -16,7 +16,7 @@ struct ContentView: View {
                     Image(systemName: "swift")
                         .font(.system(size: 200))
                         .foregroundColor(.accentColor)
-                    Text("SwiftUI: \(Greeting().greet())")
+                    Text("\(Bundle.main.appDisplayName)")
                 }
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
@@ -29,5 +29,13 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+    }
+}
+
+extension Bundle {
+    var appDisplayName: String {
+        (object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)
+            ?? (object(forInfoDictionaryKey: "CFBundleName") as? String)
+            ?? "MisCosas"
     }
 }
