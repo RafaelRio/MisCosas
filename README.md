@@ -2,7 +2,7 @@
 
 MisCosas será un pasaporte digital personal y familiar para registrar objetos, conservar su documentación y controlar compras, garantías, devoluciones y mantenimiento.
 
-El proyecto se encuentra al final de la **Fase 0**: el esqueleto Kotlin Multiplatform compila y se ha fijado el baseline técnico. Todavía no se han implementado modelos de negocio, persistencia, autenticación ni sincronización.
+El proyecto se encuentra en la **Fase 1**: el baseline Kotlin Multiplatform está configurado y las interfaces de Android e iOS ya viven en sus respectivas aplicaciones. Todavía no se han implementado modelos de negocio, persistencia, autenticación ni sincronización.
 
 ## Decisiones de plataforma
 
@@ -15,12 +15,11 @@ La lógica que aporte valor compartir se escribirá en Kotlin Multiplatform. Las
 
 ## Estructura actual
 
-- `androidApp`: punto de entrada de Android.
+- `androidApp`: aplicación Android y presentación nativa con Jetpack Compose.
 - `iosApp`: aplicación nativa SwiftUI e integración con el framework Kotlin `SharedLogic`.
 - `sharedLogic`: código Kotlin compartido entre Android e iOS.
-- `sharedUI`: módulo Compose de la plantilla, actualmente solo Android y provisional.
 
-En la Fase 1, el contenido Android de `sharedUI` se trasladará a `androidApp`. No se compartirá la interfaz entre Android e iOS.
+`androidApp` depende directamente de `sharedLogic`, mientras que `iosApp` consume su framework. `sharedLogic` no depende de Jetpack Compose ni de SwiftUI.
 
 ## Toolchain del baseline
 
@@ -29,6 +28,7 @@ En la Fase 1, el contenido Android de `sharedUI` se trasladará a `androidApp`. 
 - Android Gradle Plugin 9.0.1.
 - Daemon de Gradle con Azul JDK 21.
 - Android `compileSdk` y `targetSdk` 36.
+- Jetpack Compose Android alineado mediante BOM 2026.05.01.
 - Baseline iOS verificado localmente con Xcode 26.6 en un Mac con Apple Silicon.
 
 ## Ejecutar Android
@@ -71,8 +71,7 @@ Para ejecutar en un iPhone físico será necesario seleccionar un equipo de desa
 ```bash
 ./gradlew \
   :sharedLogic:testAndroidHostTest \
-  :sharedLogic:iosSimulatorArm64Test \
-  :sharedUI:testAndroidHostTest
+  :sharedLogic:iosSimulatorArm64Test
 ```
 
-La siguiente etapa es la **Fase 1: módulos y paquetes**. En ella se definirá la estructura inicial `presentation`, `domain` y `data` sin crear todavía todas las funcionalidades del producto.
+El siguiente paso de la Fase 1 será retirar el código de demostración de la plantilla y fijar las convenciones de paquetes para `presentation`, `domain` y `data`. Los paquetes se crearán cuando aparezcan sus primeros tipos reales, sin añadir carpetas o abstracciones vacías.
