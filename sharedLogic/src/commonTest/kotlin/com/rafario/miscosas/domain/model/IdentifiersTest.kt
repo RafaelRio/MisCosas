@@ -120,4 +120,40 @@ class IdentifiersTest {
         assertEquals(id.value, parsedUuid.toString())
         assertNotEquals(Uuid.NIL, parsedUuid)
     }
+
+    @Test
+    fun acceptsCanonicalWarrantyId() {
+        val id = WarrantyId(
+            value = "550e8400-e29b-41d4-a716-446655440000"
+        )
+
+        assertEquals("550e8400-e29b-41d4-a716-446655440000", id.value)
+    }
+
+    @Test
+    fun rejectsMalformedWarrantyId() {
+        assertFailsWith<IllegalArgumentException> {
+            WarrantyId(
+                value = "not-a-uuid"
+            )
+        }
+    }
+
+    @Test
+    fun generatesCanonicalNonNilWarrantyId() {
+        val id = WarrantyId.generate()
+        val parsedUuid = Uuid.parseHexDash(id.value)
+
+        assertEquals(id.value, parsedUuid.toString())
+        assertNotEquals(Uuid.NIL, parsedUuid)
+    }
+
+    @Test
+    fun returnsWarrantyIdValueAsString() {
+        val id = WarrantyId(
+            value = "550e8400-e29b-41d4-a716-446655440000"
+        )
+
+        assertEquals(id.value, id.toString())
+    }
 }
