@@ -13,6 +13,7 @@ junit = "4.13.2"
 kotlin = "2.4.10"
 kotlinx-datetime = "0.8.0"
 desugar-jdk-libs = "2.1.5"
+navigationCompose = "2.9.6"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -32,7 +33,9 @@ androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar-jdk-libs" }
-
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+androidx-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
+androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
