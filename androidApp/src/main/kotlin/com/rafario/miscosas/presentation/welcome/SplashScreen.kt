@@ -3,12 +3,15 @@ package com.rafario.miscosas.presentation.welcome
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.visible
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -24,13 +27,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rafario.miscosas.R
+import com.rafario.miscosas.ui.TextTertiary
 import com.rafario.miscosas.ui.customViews.PrimaryButton
 import com.rafario.miscosas.ui.customViews.SecondaryButton
+import com.rafario.miscosas.ui.customViews.SocialLoginButton
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -53,14 +59,17 @@ fun SplashScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary),
+            .background(MaterialTheme.colorScheme.primary)
+            .padding(horizontal = 30.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(stringResource(R.string.app_name), color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.headlineLarge)
         Text(
-            text = "Tu pasaporte digital para todo lo que posees",
+            stringResource(R.string.app_name), color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.headlineLarge
+        )
+        Text(
+            text = stringResource(R.string.app_subtitle),
             fontSize = 17.sp,
             lineHeight = 25.5.sp,
             color = Color.White.copy(alpha = 0.8f),
@@ -74,6 +83,7 @@ fun SplashScreen(
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = {},
+            containerColor = MaterialTheme.colorScheme.background,
             sheetState = bottomSheetState,
             sheetGesturesEnabled = false,
             dragHandle = null,
@@ -93,9 +103,40 @@ fun SplashScreen(
                     showBottomSheet = false
                     onLoginClick()
                 }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 18.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    HorizontalDivider(
+                        modifier = Modifier.weight(1f),
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+
+                    Text(
+                        text = "o",
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = TextTertiary
+                    )
+
+                    HorizontalDivider(
+                        modifier = Modifier.weight(1f),
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                }
+
+                SocialLoginButton(
+                    text = stringResource(R.string.continue_google),
+                    icon = painterResource(R.drawable.ic_google)
+                ) {
+                }
             }
-
         }
-    }
 
+    }
 }

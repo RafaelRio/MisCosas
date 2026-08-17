@@ -14,6 +14,7 @@ private object AppRoute {
 
     const val SPLASH = "splash"
     const val LOGIN = "login"
+    const val REGISTER = "register"
 }
 
 @Composable
@@ -42,7 +43,13 @@ fun AppNavGraph() {
         composable(AppRoute.LOGIN) {
             LoginScreen(onBackPressed = {
                 navController.popBackStack()
+            }, onRegisterClick = {
+                navController.navigate(AppRoute.REGISTER)
             })
+        }
+
+        composable(AppRoute.REGISTER) {
+
         }
     }
 }

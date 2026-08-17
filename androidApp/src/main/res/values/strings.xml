@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MisCosas</string>
+    <string name="app_subtitle">Tu pasaporte digital para todo lo que posees</string>
+    <string name="continue_google">Continuar con Google</string>
 </resources>
