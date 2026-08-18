@@ -1,4 +1,4 @@
-package com.rafario.miscosas.ui
+package com.rafario.miscosas.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

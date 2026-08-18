@@ -33,10 +33,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rafario.miscosas.R
-import com.rafario.miscosas.ui.TextTertiary
-import com.rafario.miscosas.ui.customViews.PrimaryButton
-import com.rafario.miscosas.ui.customViews.SecondaryButton
-import com.rafario.miscosas.ui.customViews.SocialLoginButton
+import com.rafario.miscosas.ui.theme.TextTertiary
+import com.rafario.miscosas.ui.components.PrimaryButton
+import com.rafario.miscosas.ui.components.SecondaryButton
+import com.rafario.miscosas.ui.components.SocialLoginButton
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -93,13 +93,14 @@ fun SplashScreen(
             )
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
-                PrimaryButton(text = "Crear cuenta") {
+                PrimaryButton(text = stringResource(R.string.create_account)) {
+                    showBottomSheet = false
                     onRegisterClick()
                 }
 
                 Spacer(Modifier.height(16.dp))
 
-                SecondaryButton(text = "Iniciar sesión") {
+                SecondaryButton(text = stringResource(R.string.login)) {
                     showBottomSheet = false
                     onLoginClick()
                 }

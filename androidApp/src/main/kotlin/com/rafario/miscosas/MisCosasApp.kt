@@ -1,8 +1,8 @@
-package com.rafario.miscosas.presentation
+package com.rafario.miscosas
 
 import androidx.compose.runtime.Composable
 import com.rafario.miscosas.navigation.AppNavGraph
-import com.rafario.miscosas.ui.MisCosasTheme
+import com.rafario.miscosas.ui.theme.MisCosasTheme
 
 @Composable
 fun MisCosasApp() {

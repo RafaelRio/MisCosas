@@ -2,4 +2,29 @@
     <string name="app_name">MisCosas</string>
     <string name="app_subtitle">Tu pasaporte digital para todo lo que posees</string>
     <string name="continue_google">Continuar con Google</string>
+
+
+<!--    REGISTER AND LOGIN SCREEN-->
+    <string name="login">Iniciar sesión</string>
+    <string name="create_account">Crear cuenta</string>
+    <string name="name_label">Nombre completo</string>
+    <string name="name_placeholder">Introduce tu nombre</string>
+    <string name="email_label">Correo electrónico</string>
+    <string name="email_placeholder">Introduce tu correo electrónico"</string>
+    <string name="password_label">Contraseña</string>
+    <string name="password_placeholder">Introduce tu contraseña</string>
+    <string name="confirm_password_label">Confirmar contraseña</string>
+    <string name="confirm_password_placeholder">Repite tu contraseña</string>
+    <string name="forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="no_account">¿Sin cuenta?</string>
+    <string name="with_account">¿Ya tienes cuenta?</string>
+    <string name="password_info">La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.</string>
+
+<!--    RECOVER PASSWORD SCREEN-->
+    <string name="recover_password">Recuperar contraseña</string>
+    <string name="recover_password_instructions">Introduce tu correo electrónico y te enviaremos un enlace para restablecerla</string>
+    <string name="send_link">Enviar enlace</string>
+    <string name="back_to_login">Volver al inicio de sesión</string>
+
+
 </resources>

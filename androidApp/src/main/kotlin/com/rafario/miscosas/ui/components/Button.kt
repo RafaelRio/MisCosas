@@ -1,4 +1,4 @@
-package com.rafario.miscosas.ui.customViews
+package com.rafario.miscosas.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues

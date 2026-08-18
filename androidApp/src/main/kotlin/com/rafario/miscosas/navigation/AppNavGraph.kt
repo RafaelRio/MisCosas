@@ -6,7 +6,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.rafario.miscosas.presentation.forgot_password.ForgotPasswordScreen
 import com.rafario.miscosas.presentation.login.LoginScreen
+import com.rafario.miscosas.presentation.on_boarding.OnBoardingCarousel
+import com.rafario.miscosas.presentation.register.RegisterScreen
 import com.rafario.miscosas.presentation.welcome.SplashScreen
 
 
@@ -15,6 +18,8 @@ private object AppRoute {
     const val SPLASH = "splash"
     const val LOGIN = "login"
     const val REGISTER = "register"
+    const val FORGOT_PASSWORD = "forgot_password"
+    const val ONBOARDING = "onboarding"
 }
 
 @Composable
@@ -35,7 +40,9 @@ fun AppNavGraph() {
                 onLoginClick = {
                     navController.navigate(AppRoute.LOGIN)
                 },
-                onRegisterClick = { },
+                onRegisterClick = {
+                    navController.navigate(AppRoute.REGISTER)
+                },
                 onGoogleLoginClick = { }
             )
         }
@@ -45,11 +52,48 @@ fun AppNavGraph() {
                 navController.popBackStack()
             }, onRegisterClick = {
                 navController.navigate(AppRoute.REGISTER)
+            }, onForgotPasswordClick = {
+                navController.navigate(AppRoute.FORGOT_PASSWORD)
             })
         }
 
         composable(AppRoute.REGISTER) {
+            RegisterScreen(onBackPressed = {
+                navController.popBackStack()
+            }, onCreateAccountClick = {
 
+            }, onLoginClick = {
+                navController.navigate(AppRoute.LOGIN) {
+                    popUpTo(AppRoute.REGISTER) {
+                        inclusive = true
+                    }
+                }
+            })
+        }
+
+        composable(AppRoute.FORGOT_PASSWORD) {
+            ForgotPasswordScreen(
+                onBackPressed = {
+                    navController.popBackStack()
+                },
+                onSendLinkClick = {
+                    navController.navigate(AppRoute.ONBOARDING)
+                },
+                onLoginClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(AppRoute.ONBOARDING) {
+            OnBoardingCarousel(
+                onFinish =  {
+                    navController.popBackStack()
+                },
+                onSkip = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

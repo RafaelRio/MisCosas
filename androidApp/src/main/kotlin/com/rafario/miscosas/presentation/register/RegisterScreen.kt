@@ -1,4 +1,4 @@
-package com.rafario.miscosas.presentation.login
+package com.rafario.miscosas.presentation.register
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,7 +29,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rafario.miscosas.R
 import com.rafario.miscosas.ui.theme.TextTertiary
-import com.rafario.miscosas.ui.components.CustomPasswordTextField
 import com.rafario.miscosas.ui.components.CustomTextButton
 import com.rafario.miscosas.ui.components.CustomTextField
 import com.rafario.miscosas.ui.components.CustomTopAppBar
@@ -36,18 +37,20 @@ import com.rafario.miscosas.ui.components.SocialLoginButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(
+fun RegisterScreen(
     modifier: Modifier = Modifier,
     onBackPressed: () -> Unit,
-    onRegisterClick: () -> Unit,
-    onForgotPasswordClick: () -> Unit
+    onCreateAccountClick: () -> Unit,
+    onLoginClick: () -> Unit
 ) {
-
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+
     Scaffold(topBar = {
         CustomTopAppBar(
-            title = stringResource(R.string.login),
+            title = stringResource(R.string.create_account),
             icon = Icons.Default.ArrowBackIosNew
         ) {
             onBackPressed()
@@ -55,40 +58,53 @@ fun LoginScreen(
     }) { innerPadding ->
         Column(
             Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(innerPadding)
+                .padding(horizontal = 24.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Top
         ) {
+            CustomTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = stringResource(R.string.name_label),
+                placeholder = stringResource(R.string.name_placeholder),
+                modifier = Modifier.padding(top = 24.dp)
+            )
+
             CustomTextField(
                 value = email,
                 onValueChange = { email = it },
                 label = stringResource(R.string.email_label),
-                placeholder = stringResource(R.string.email_placeholder)
+                placeholder = stringResource(R.string.email_placeholder),
+                modifier = Modifier.padding(top = 24.dp)
             )
 
-            CustomPasswordTextField(
+            CustomTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = stringResource(R.string.password_label),
                 placeholder = stringResource(R.string.password_placeholder),
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = 24.dp)
             )
 
-            CustomTextButton(
-                text = stringResource(R.string.forgot_password),
-                modifier = Modifier
-                    .align(Alignment.End)
-            ) {
-                onForgotPasswordClick()
-            }
+            CustomTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                label = stringResource(R.string.confirm_password_label),
+                placeholder = stringResource(R.string.confirm_password_placeholder),
+                modifier = Modifier.padding(top = 24.dp)
+            )
 
-            PrimaryButton(
-                text = stringResource(R.string.login),
-                modifier = Modifier.padding(top = 16.dp)
-            ) {
+            Text(
+                stringResource(R.string.password_info),
+                color = TextTertiary,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 8.dp)
+            )
 
+            PrimaryButton(text = stringResource(R.string.create_account), modifier = Modifier.padding(top = 16.dp)) {
+                onCreateAccountClick()
             }
 
             Row(
@@ -130,17 +146,15 @@ fun LoginScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    stringResource(R.string.no_account),
+                    stringResource(R.string.with_account),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(Modifier.width(8.dp))
-                CustomTextButton(text = stringResource(R.string.create_account)) {
-                    onRegisterClick()
+                CustomTextButton(text = stringResource(R.string.login)) {
+                    onLoginClick()
                 }
             }
-
         }
     }
 }
-
