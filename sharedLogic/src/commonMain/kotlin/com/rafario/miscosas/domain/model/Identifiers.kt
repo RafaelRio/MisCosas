@@ -78,6 +78,44 @@ data class DocumentId(
     }
 }
 
+data class MaintenanceTaskId(
+    val value: String,
+) {
+    init {
+        requireCanonicalNonNilUuid(
+            value = value,
+            identifierName = "MaintenanceTaskId",
+        )
+    }
+
+    override fun toString(): String = value
+
+    companion object {
+        fun generate(): MaintenanceTaskId {
+            return MaintenanceTaskId(value = Uuid.random().toString())
+        }
+    }
+}
+
+data class MaintenanceRecordId(
+    val value: String,
+) {
+    init {
+        requireCanonicalNonNilUuid(
+            value = value,
+            identifierName = "MaintenanceRecordId",
+        )
+    }
+
+    override fun toString(): String = value
+
+    companion object {
+        fun generate(): MaintenanceRecordId {
+            return MaintenanceRecordId(value = Uuid.random().toString())
+        }
+    }
+}
+
 private fun requireCanonicalNonNilUuid(
     value: String,
     identifierName: String,

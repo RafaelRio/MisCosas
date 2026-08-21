@@ -192,4 +192,76 @@ class IdentifiersTest {
 
         assertEquals(id.value, id.toString())
     }
+
+    @Test
+    fun acceptsCanonicalMaintenanceTaskId() {
+        val id = MaintenanceTaskId(
+            value = "550e8400-e29b-41d4-a716-446655440000"
+        )
+
+        assertEquals("550e8400-e29b-41d4-a716-446655440000", id.value)
+    }
+
+    @Test
+    fun rejectsMalformedMaintenanceTaskId() {
+        assertFailsWith<IllegalArgumentException> {
+            MaintenanceTaskId(
+                value = "not-a-uuid"
+            )
+        }
+    }
+
+    @Test
+    fun generatesCanonicalNonNilMaintenanceTaskId() {
+        val id = MaintenanceTaskId.generate()
+        val parsedUuid = Uuid.parseHexDash(id.value)
+
+        assertEquals(id.value, parsedUuid.toString())
+        assertNotEquals(Uuid.NIL, parsedUuid)
+    }
+
+    @Test
+    fun returnsMaintenanceTaskIdValueAsString() {
+        val id = MaintenanceTaskId(
+            value = "550e8400-e29b-41d4-a716-446655440000"
+        )
+
+        assertEquals(id.value, id.toString())
+    }
+
+    @Test
+    fun acceptsCanonicalMaintenanceRecordId() {
+        val id = MaintenanceRecordId(
+            value = "550e8400-e29b-41d4-a716-446655440000"
+        )
+
+        assertEquals("550e8400-e29b-41d4-a716-446655440000", id.value)
+    }
+
+    @Test
+    fun rejectsMalformedMaintenanceRecordId() {
+        assertFailsWith<IllegalArgumentException> {
+            MaintenanceRecordId(
+                value = "not-a-uuid"
+            )
+        }
+    }
+
+    @Test
+    fun generatesCanonicalNonNilMaintenanceRecordId() {
+        val id = MaintenanceRecordId.generate()
+        val parsedUuid = Uuid.parseHexDash(id.value)
+
+        assertEquals(id.value, parsedUuid.toString())
+        assertNotEquals(Uuid.NIL, parsedUuid)
+    }
+
+    @Test
+    fun returnsMaintenanceRecordIdValueAsString() {
+        val id = MaintenanceRecordId(
+            value = "550e8400-e29b-41d4-a716-446655440000"
+        )
+
+        assertEquals(id.value, id.toString())
+    }
 }
