@@ -156,4 +156,40 @@ class IdentifiersTest {
 
         assertEquals(id.value, id.toString())
     }
+
+    @Test
+    fun acceptsCanonicalDocumentId() {
+        val id = DocumentId(
+            value = "550e8400-e29b-41d4-a716-446655440000"
+        )
+
+        assertEquals("550e8400-e29b-41d4-a716-446655440000", id.value)
+    }
+
+    @Test
+    fun rejectsMalformedDocumentId() {
+        assertFailsWith<IllegalArgumentException> {
+            DocumentId(
+                value = "not-a-uuid"
+            )
+        }
+    }
+
+    @Test
+    fun generatesCanonicalNonNilDocumentId() {
+        val id = DocumentId.generate()
+        val parsedUuid = Uuid.parseHexDash(id.value)
+
+        assertEquals(id.value, parsedUuid.toString())
+        assertNotEquals(Uuid.NIL, parsedUuid)
+    }
+
+    @Test
+    fun returnsDocumentIdValueAsString() {
+        val id = DocumentId(
+            value = "550e8400-e29b-41d4-a716-446655440000"
+        )
+
+        assertEquals(id.value, id.toString())
+    }
 }

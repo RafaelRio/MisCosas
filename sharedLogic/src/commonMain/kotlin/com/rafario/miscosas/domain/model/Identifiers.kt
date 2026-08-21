@@ -59,6 +59,25 @@ data class WarrantyId(
     }
 }
 
+data class DocumentId(
+    val value: String,
+) {
+    init {
+        requireCanonicalNonNilUuid(
+            value = value,
+            identifierName = "DocumentId",
+        )
+    }
+
+    override fun toString(): String = value
+
+    companion object {
+        fun generate(): DocumentId {
+            return DocumentId(value = Uuid.random().toString())
+        }
+    }
+}
+
 private fun requireCanonicalNonNilUuid(
     value: String,
     identifierName: String,
