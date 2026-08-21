@@ -2,7 +2,7 @@
 
 MisCosas será un pasaporte digital personal y familiar para registrar objetos, conservar su documentación y controlar compras, garantías, devoluciones y mantenimiento.
 
-La **Fase 1** está completada: el baseline Kotlin Multiplatform está configurado y las interfaces de Android e iOS viven en sus respectivas aplicaciones. Todavía no se han implementado modelos de negocio, persistencia, autenticación ni sincronización.
+Las **Fases 1 y 2** están completadas: el baseline Kotlin Multiplatform está configurado, las interfaces son nativas y el dominio compartido contiene los modelos y reglas fundamentales del producto. Todavía no se han implementado persistencia local, repositorios, integración con autenticación ni sincronización remota.
 
 ## Decisiones de plataforma
 
@@ -24,14 +24,27 @@ La lógica que aporte valor compartir se escribirá en Kotlin Multiplatform. Las
 ## Convenciones de paquetes
 
 - `presentation` pertenece a cada aplicación nativa: Jetpack Compose en Android y SwiftUI en iOS.
-- `domain` contendrá modelos, reglas, validaciones y contratos de repositorio independientes de la plataforma.
+- `domain` contiene modelos, reglas y validaciones independientes de la plataforma, y alojará los contratos de repositorio cuando aparezca su primer consumidor.
 - `data` contendrá persistencia, adaptadores e implementaciones de los repositorios definidos por dominio.
 - `domain` no dependerá de `data`; `data` sí podrá depender de `domain`.
 - Los source sets `androidMain` e `iosMain` se usarán solo cuando una implementación específica de plataforma aporte valor real.
 
 Los paquetes y abstracciones se crearán cuando aparezca su primer tipo real. No se mantendrán carpetas vacías ni interfaces que solo reenvíen llamadas.
 
-Hasta que la Fase 2 introduzca el primer tipo de dominio, `sharedLogic` conserva un archivo fuente sin declaraciones. Kotlin/Native necesita al menos una fuente para generar el framework que integra Xcode; ese anclaje temporal no expone ninguna API.
+## Dominio compartido
+
+`sharedLogic` contiene modelos independientes de Android, iOS, Firebase y cualquier base de datos:
+
+- identidad, hogares y miembros;
+- objetos, categorías y compras;
+- garantías y periodos de devolución;
+- documentos y sus metadatos;
+- tareas y registros de mantenimiento;
+- historial relevante de los objetos.
+
+Las fechas civiles se representan mediante `LocalDate`, mientras que las marcas temporales de auditoría utilizan `Instant` UTC. El dinero se almacena en unidades mínimas enteras junto con su moneda.
+
+Los estados temporales de garantías, devoluciones y mantenimiento se calculan a partir de sus fechas. No se persisten alertas, estadísticas ni información derivada.
 
 ## Toolchain del baseline
 
@@ -80,6 +93,16 @@ Para ejecutar en un iPhone físico será necesario seleccionar un equipo de desa
 
 ## Tests
 
-Los tests aritméticos generados por la plantilla se han eliminado porque no comprobaban comportamiento del producto. La suite compartida comenzará con los primeros modelos y reglas de dominio.
+La suite compartida cubre las invariantes y cálculos del dominio y se ejecuta en Android e iOS:
 
-El siguiente paso es la **Fase 2: fundamentos y modelos de dominio**. Se introducirán los tipos de uno en uno, junto con sus invariantes y tests reales.
+```bash
+./gradlew :sharedLogic:allTests
+```
+
+Para comprobar también la exportación del framework utilizado por Swift:
+
+```bash
+./gradlew :sharedLogic:linkDebugFrameworkIosSimulatorArm64
+```
+
+El siguiente paso es la **Fase 3: persistencia local**. La base de datos local será la fuente principal para la interfaz y se diseñará antes de introducir Firebase o sincronización remota.
