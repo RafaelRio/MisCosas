@@ -18,10 +18,10 @@ struct SplashView: View {
                 Text("📦")
                     .font(.system(size: 64))
 
-                Text("Cosas")
+                Text("app_name")
                     .font(.system(size: 36, weight: .bold))
 
-                Text("Tu pasaporte digital para todo lo que posees")
+                Text("app_subtitle")
                     .font(.system(size: 17))
                     .multilineTextAlignment(.center)
                     .opacity(0.8)

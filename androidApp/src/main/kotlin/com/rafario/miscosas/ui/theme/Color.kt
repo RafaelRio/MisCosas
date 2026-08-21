@@ -2,21 +2,38 @@ package com.rafario.miscosas.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val OrangePastel100 = Color(0xFFFFF2E4)
-val OrangePastel200 = Color(0xFFFFD8B5)
-val OrangePastel300 = Color(0xFFFFBC82)
-val OrangePastel700 = Color(0xFF9B4A12)
+// Primary
+val PrimaryDarkMode = Color(0xFF5B9BFF)
+val PrimaryDarkDarkMode = Color(0xFFD6E4FF)
+val PrimaryContainerDarkMode = Color(0xFF003180)
 
-val PeachPastel100 = Color(0xFFFFE7DC)
-val White = Color(0xFFFFFFFF)
-val CreamPastel = Color(0xFFFFF8EF)
-val Black = Color(0xFF000000)
-val CocoaMuted = Color(0xFF76543D)
-val CocoaSurface = Color(0xFF4A2E1C)
-val WarmOutline = Color(0xFFD6B89F)
+// Backgrounds & surfaces
+val BackgroundDarkMode = Color(0xFF1C1C1E)
+val SurfaceDarkMode = Color(0xFF000000)
+val SurfaceVariantDarkMode = Color(0xFF2C2C2E)
 
-val OnPrimary = Color(0xFFFFFFFF)
+// Text
+val TextPrimaryDarkMode = Color(0xFFFFFFFF)
+val TextSecondaryDarkMode = Color(0x99EBEBF5)
 
+// Borders & dividers
+val DividerDarkMode = Color(0x66545458)
+val OutlineDarkMode = Color(0x99545458)
+
+// Success
+val SuccessDarkMode = Color(0xFF30D158)
+val SuccessDarkDarkMode = Color(0xFF30D158)
+val SuccessContainerDarkMode = Color(0xFF17351F)
+
+// Warning
+val WarningDarkMode = Color(0xFFFF9F0A)
+val WarningDarkDarkMode = Color(0xFFFF9F0A)
+val WarningContainerDarkMode = Color(0xFF3A2A0A)
+
+// Error
+val ErrorDarkMode = Color(0xFFFF453A)
+val ErrorDarkDarkMode = Color(0xFFFF453A)
+val ErrorContainerDarkMode = Color(0xFF3D1614)
 
 // Brand
 val Primary = Color(0xFF166FF5)
@@ -31,7 +48,6 @@ val SurfaceVariant = Color(0xFFF0F2F7)
 // Text
 val TextPrimary = Color(0xFF111827)
 val TextSecondary = Color(0xFF6B7280)
-val TextTertiary = Color(0xFF9CA3AF)
 
 // Borders & dividers
 val Divider = Color(0xFFE2E5ED)

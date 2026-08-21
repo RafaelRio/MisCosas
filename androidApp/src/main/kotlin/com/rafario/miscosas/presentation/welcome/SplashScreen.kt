@@ -33,7 +33,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rafario.miscosas.R
-import com.rafario.miscosas.ui.theme.TextTertiary
 import com.rafario.miscosas.ui.components.PrimaryButton
 import com.rafario.miscosas.ui.components.SecondaryButton
 import com.rafario.miscosas.ui.components.SocialLoginButton
@@ -121,7 +120,7 @@ fun SplashScreen(
                         text = "o",
                         modifier = Modifier.padding(horizontal = 16.dp),
                         style = MaterialTheme.typography.labelMedium,
-                        color = TextTertiary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     HorizontalDivider(

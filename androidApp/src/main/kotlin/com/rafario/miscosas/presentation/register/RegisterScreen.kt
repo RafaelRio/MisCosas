@@ -28,7 +28,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rafario.miscosas.R
-import com.rafario.miscosas.ui.theme.TextTertiary
 import com.rafario.miscosas.ui.components.CustomTextButton
 import com.rafario.miscosas.ui.components.CustomTextField
 import com.rafario.miscosas.ui.components.CustomTopAppBar
@@ -98,7 +97,7 @@ fun RegisterScreen(
 
             Text(
                 stringResource(R.string.password_info),
-                color = TextTertiary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp)
             )
@@ -123,7 +122,7 @@ fun RegisterScreen(
                     text = "o",
                     modifier = Modifier.padding(horizontal = 16.dp),
                     style = MaterialTheme.typography.labelMedium,
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 HorizontalDivider(

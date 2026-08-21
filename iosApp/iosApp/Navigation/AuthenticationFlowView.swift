@@ -36,7 +36,14 @@ struct AuthenticationFlowView: View {
         switch route {
 
         case .login:
-            EmptyView()
+            LoginView(
+                    onForgotPasswordClick: {
+                        path.append(.forgotPassword)
+                    },
+                    onLoginClick: {
+                        // Más adelante login real
+                    }
+                )
 
 
         case .register:

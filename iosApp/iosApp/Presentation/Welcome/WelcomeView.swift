@@ -37,24 +37,14 @@ struct WelcomeView: View {
                 Spacer()
                     .frame(height: 48)
 
-                Button {
+                PrimaryButton(onClick: {
                     onLoginClick()
-                } label: {
-                    Text("Iniciar sesión")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
+                }, text: "login")
                 .padding(.horizontal, 24)
 
-                Button {
+                SecondaryButton(onClick: {
                     onRegisterClick()
-                } label: {
-                    Text("Crear cuenta gratis")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.large)
+                }, text: "create_free_account")
                 .padding(.horizontal, 24)
                 .padding(.top, 12)
 
@@ -64,15 +54,6 @@ struct WelcomeView: View {
                     Text("¿Cómo funciona? Ver demo")
                 }
                 .padding(.top, 16)
-
-                Text(
-                    "Al continuar aceptas los Términos de uso y la Política de privacidad."
-                )
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 24)
             }
         }.navigationBarBackButtonHidden(true)
     }

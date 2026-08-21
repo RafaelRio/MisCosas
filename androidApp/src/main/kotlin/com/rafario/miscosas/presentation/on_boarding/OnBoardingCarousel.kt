@@ -21,7 +21,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,8 +29,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rafario.miscosas.R
 import com.rafario.miscosas.ui.components.PrimaryButton
 import kotlinx.coroutines.launch
 
@@ -49,26 +50,26 @@ fun OnBoardingCarousel(
     val scope = rememberCoroutineScope()
 
 
-        HorizontalPager(
-            state = pagerState,
-            modifier = modifier.fillMaxSize()
-        ) { page ->
+    HorizontalPager(
+        state = pagerState,
+        modifier = modifier.fillMaxSize()
+    ) { page ->
 
-            OnboardingPage(
-                page = page,
-                currentPage = pagerState.currentPage,
-                onNext = {
-                    if (page < 2) {
-                        scope.launch {
-                            pagerState.animateScrollToPage(page + 1)
-                        }
-                    } else {
-                        onFinish()
+        OnboardingPage(
+            page = page,
+            currentPage = pagerState.currentPage,
+            onNext = {
+                if (page < 2) {
+                    scope.launch {
+                        pagerState.animateScrollToPage(page + 1)
                     }
-                },
-                onSkip = onSkip
-            )
-        }
+                } else {
+                    onFinish()
+                }
+            },
+            onSkip = onSkip
+        )
+    }
 
 
 }
@@ -84,30 +85,30 @@ fun OnboardingPage(
     val data = when (page) {
         0 -> OnboardingData(
             emoji = "📦",
-            title = "Todo lo que tienes, en un solo lugar",
-            description = "Registra tus objetos con fotos, precio, garantía y documentos. Siempre a mano cuando los necesites.",
-            buttonText = "Siguiente"
+            title = stringResource(R.string.onboarding_step_one_title),
+            description = stringResource(R.string.onboarding_step_one_description),
+            buttonText = stringResource(R.string.next)
         )
 
         1 -> OnboardingData(
             emoji = "🛡️",
-            title = "No vuelvas a perder una garantía o factura",
-            description = "Te avisamos antes de que venza tu garantía. Tus facturas y manuales, siempre localizables en segundos.",
-            buttonText = "Siguiente"
+            title = stringResource(R.string.onboarding_step_two_title),
+            description = stringResource(R.string.onboarding_step_two_description),
+            buttonText = stringResource(R.string.next)
         )
 
         else -> OnboardingData(
             emoji = "🏠",
-            title = "Tu hogar también puede tenerlo todo controlado",
-            description = "Comparte el inventario con tu familia. Si algo se estropea, cualquiera puede encontrar la garantía al instante.",
-            buttonText = "Empezar"
+            title = stringResource(R.string.onboarding_step_three_title),
+            description = stringResource(R.string.onboarding_step_three_description),
+            buttonText = stringResource(R.string.start)
         )
     }
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF0F1B2E))
+            .background(Color(0xFF111827))
     ) {
 
         TextButton(
@@ -117,8 +118,8 @@ fun OnboardingPage(
                 .padding(top = 32.dp, end = 16.dp)
         ) {
             Text(
-                text = "Omitir",
-                color = Color.White.copy(alpha = 0.65f)
+                text = stringResource(R.string.skip),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -177,7 +178,8 @@ fun OnboardingBottomPanel(
 
         Text(
             text = data.title,
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(Modifier.height(12.dp))

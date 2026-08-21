@@ -7,20 +7,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rafario.miscosas.presentation.forgot_password.ForgotPasswordScreen
+import com.rafario.miscosas.presentation.house.create_home.CreateHomeScreen
+import com.rafario.miscosas.presentation.house.join_home.JoinHomeScreen
 import com.rafario.miscosas.presentation.login.LoginScreen
 import com.rafario.miscosas.presentation.on_boarding.OnBoardingCarousel
 import com.rafario.miscosas.presentation.register.RegisterScreen
 import com.rafario.miscosas.presentation.welcome.SplashScreen
-
-
-private object AppRoute {
-
-    const val SPLASH = "splash"
-    const val LOGIN = "login"
-    const val REGISTER = "register"
-    const val FORGOT_PASSWORD = "forgot_password"
-    const val ONBOARDING = "onboarding"
-}
 
 @Composable
 fun AppNavGraph() {
@@ -88,10 +80,32 @@ fun AppNavGraph() {
         composable(AppRoute.ONBOARDING) {
             OnBoardingCarousel(
                 onFinish =  {
-                    navController.popBackStack()
+                    navController.navigate(AppRoute.CREATE_HOME)
                 },
                 onSkip = {
+                    navController.navigate(AppRoute.CREATE_HOME)
+                }
+            )
+        }
+
+        composable(AppRoute.CREATE_HOME) {
+            CreateHomeScreen(
+                onJoinClick =  {
+                    navController.navigate(AppRoute.JOIN_HOME)
+                },
+                onCreateClick = {
+
+                }
+            )
+        }
+
+        composable(AppRoute.JOIN_HOME) {
+            JoinHomeScreen(
+                onBackPressed =  {
                     navController.popBackStack()
+                },
+                onJoinPressed = {
+
                 }
             )
         }

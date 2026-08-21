@@ -24,16 +24,14 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun PrimaryButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Button(
-        onClick = onClick,
-        modifier = modifier
+        onClick = onClick, modifier = modifier
             .fillMaxWidth()
             .clip(CircleShape)
             .height(55.dp)
 
     ) {
         Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge
+            text = text, style = MaterialTheme.typography.labelLarge
         )
     }
 }
@@ -44,63 +42,53 @@ fun SecondaryButton(text: String, modifier: Modifier = Modifier, onClick: () -> 
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(55.dp), colors = ButtonDefaults.outlinedButtonColors(
+            .height(55.dp),
+        colors = ButtonDefaults.outlinedButtonColors(
             contentColor = MaterialTheme.colorScheme.onSurface,
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline)
     ) {
         Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge
+            text = text, style = MaterialTheme.typography.labelLarge
         )
     }
 }
 
 @Composable
 fun SocialLoginButton(
-    text: String,
-    modifier: Modifier = Modifier,
-    icon: Painter,
-    onClick: () -> Unit
+    text: String, modifier: Modifier = Modifier, icon: Painter, onClick: () -> Unit
 ) {
     OutlinedButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(55.dp), colors = ButtonDefaults.outlinedButtonColors(
+            .height(55.dp),
+        colors = ButtonDefaults.outlinedButtonColors(
             contentColor = MaterialTheme.colorScheme.onSurface,
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline)
     ) {
         Icon(
-            painter = icon,
-            contentDescription = null,
-            tint = Color.Unspecified
+            painter = icon, contentDescription = null, tint = Color.Unspecified
         )
         Spacer(Modifier.width(16.dp))
         Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge
+            text = text, style = MaterialTheme.typography.labelLarge
         )
     }
 }
 
 @Composable
 fun CustomTextButton(
-    modifier: Modifier = Modifier,
-    text: String,
-    onClick: () -> Unit
+    modifier: Modifier = Modifier, text: String, onClick: () -> Unit
 ) {
     TextButton(
-        onClick = onClick,
-        modifier = modifier,
-        contentPadding = PaddingValues(0.dp)
+        onClick = onClick, modifier = modifier, contentPadding = PaddingValues(0.dp)
     ) {
         Text(
-            text = text,
-            style = MaterialTheme.typography.titleSmall
+            text = text, style = MaterialTheme.typography.titleSmall
         )
     }
 }

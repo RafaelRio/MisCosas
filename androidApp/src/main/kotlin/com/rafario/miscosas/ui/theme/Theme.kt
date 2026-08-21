@@ -8,23 +8,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
-    primary = OrangePastel300,
-    onPrimary = Black,
-    primaryContainer = OrangePastel700,
-    onPrimaryContainer = OrangePastel100,
-    secondary = White,
-    onSecondary = Black,
-    secondaryContainer = CocoaMuted,
-    onSecondaryContainer = OrangePastel100,
-    tertiary = OrangePastel200,
-    onTertiary = Black,
-    background = Black,
-    onBackground = OrangePastel100,
-    surface = CocoaSurface,
-    onSurface = OrangePastel100,
-    surfaceVariant = CocoaMuted,
-    onSurfaceVariant = OrangePastel200,
-    outline = WarmOutline
+    primary = PrimaryDarkMode,
+    onPrimary = Color.White,
+    primaryContainer = PrimaryContainerDarkMode,
+    onPrimaryContainer = PrimaryDarkDarkMode,
+
+    background = BackgroundDarkMode,
+    onBackground = TextPrimaryDarkMode,
+
+    surface = SurfaceDarkMode,
+    onSurface = TextPrimaryDarkMode,
+
+    surfaceVariant = SurfaceVariantDarkMode,
+    onSurfaceVariant = TextSecondaryDarkMode,
+
+    outline = OutlineDarkMode,
+    outlineVariant = DividerDarkMode,
+
+    error = ErrorDarkMode,
+    onError = Color.White,
+    errorContainer = ErrorContainerDarkMode,
+    onErrorContainer = ErrorDarkMode,
 )
 
 private val LightColorScheme = lightColorScheme(
