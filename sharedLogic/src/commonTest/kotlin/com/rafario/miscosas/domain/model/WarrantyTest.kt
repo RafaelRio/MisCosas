@@ -98,7 +98,12 @@ class WarrantyTest {
     fun rejectsWarrantyWithoutInformation() {
         assertFailsWith<IllegalArgumentException> {
             createWarranty(
-                startDate = null, endDate = null, type = null, providerName = null, notes = null
+                startDate = null,
+                endDate = null,
+                type = null,
+                providerName = null,
+                notes = null,
+                documentId = null
             )
         }
     }
@@ -307,13 +312,39 @@ class WarrantyTest {
         )
     }
 
+    @Test
+    fun keepsAssociatedDocumentId() {
+        val documentId = DocumentId("550e8400-e29b-41d4-a716-446655440002")
+
+        val warranty = createWarranty(documentId = documentId)
+
+        assertEquals(documentId, warranty.documentId)
+    }
+
+    @Test
+    fun allowsWarrantyWithOnlyDocument() {
+        val documentId = DocumentId(
+            value = "550e8400-e29b-41d4-a716-446655440002",
+        )
+        val warranty = createWarranty(
+            startDate = null,
+            endDate = null,
+            type = null,
+            providerName = null,
+            notes = null,
+            documentId = documentId,
+        )
+        assertEquals(documentId, warranty.documentId)
+    }
+
     private fun createWarranty(
         id: WarrantyId = WarrantyId(
-            value = "550e8400-e29b-41d4-a716-446655440000"
+            value = "550e8400-e29b-41d4-a716-446655440000",
         ),
         itemId: ItemId = ItemId(
-            value = "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+            value = "7c9e6679-7425-40de-944b-e07fc1f90ae7",
         ),
+        documentId: DocumentId? = null,
         startDate: LocalDate? = LocalDate(2025, 3, 15),
         endDate: LocalDate? = LocalDate(2028, 3, 15),
         type: WarrantyType? = WarrantyType.EXTENDED,
@@ -326,6 +357,7 @@ class WarrantyTest {
         return Warranty(
             id = id,
             itemId = itemId,
+            documentId = documentId,
             startDate = startDate,
             endDate = endDate,
             type = type,

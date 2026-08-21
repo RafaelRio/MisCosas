@@ -1,12 +1,13 @@
 package com.rafario.miscosas.domain.model
 
 import kotlinx.datetime.LocalDate
-import kotlin.time.Instant
 import kotlinx.datetime.daysUntil
+import kotlin.time.Instant
 
 data class Warranty(
     val id: WarrantyId,
     val itemId: ItemId,
+    val documentId: DocumentId?,
     val startDate: LocalDate?,
     val endDate: LocalDate?,
     val type: WarrantyType?,
@@ -45,7 +46,13 @@ data class Warranty(
             }
         }
 
-        require(startDate != null || endDate != null || type != null || providerName != null || notes != null) {
+        require(
+            startDate != null ||
+                endDate != null ||
+                type != null ||
+                providerName != null ||
+                notes != null ||
+                documentId != null) {
             "Warranty must contain at least one meaningful field"
         }
 
@@ -62,8 +69,7 @@ data class Warranty(
             "Warranty expiringSoonDays must be zero or greater"
         }
 
-        val knownEndDate = endDate
-            ?: return WarrantyStatus.UNKNOWN
+        val knownEndDate = endDate ?: return WarrantyStatus.UNKNOWN
 
         val daysUntilEnd = date.daysUntil(knownEndDate)
 
