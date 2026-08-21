@@ -172,6 +172,106 @@ class MaintenanceTaskTest {
         )
     }
 
+    @Test
+    fun returnsPositiveDaysBeforeMaintenanceIsDue() {
+        val task = createMaintenanceTask(
+            firstDueDate = LocalDate(2026, 9, 15),
+        )
+
+        val days = task.daysUntilDueOn(
+            date = LocalDate(2026, 9, 8),
+            lastCompletedOn = null,
+        )
+
+        assertEquals(7, days)
+    }
+
+    @Test
+    fun returnsZeroWhenMaintenanceIsDueToday() {
+        val dueDate = LocalDate(2026, 9, 15)
+        val task = createMaintenanceTask(firstDueDate = dueDate)
+
+        val days = task.daysUntilDueOn(
+            date = dueDate,
+            lastCompletedOn = null,
+        )
+
+        assertEquals(0, days)
+    }
+
+    @Test
+    fun returnsNegativeDaysWhenMaintenanceIsOverdue() {
+        val task = createMaintenanceTask(
+            firstDueDate = LocalDate(2026, 9, 15),
+        )
+
+        val days = task.daysUntilDueOn(
+            date = LocalDate(2026, 9, 16),
+            lastCompletedOn = null,
+        )
+
+        assertEquals(-1, days)
+    }
+
+    @Test
+    fun calculatesDaysUntilDueFromLastCompletion() {
+        val task = createMaintenanceTask(
+            interval = MaintenanceInterval(
+                amount = 3,
+                unit = MaintenanceIntervalUnit.MONTH,
+            ),
+            firstDueDate = LocalDate(2026, 3, 1),
+        )
+
+        val days = task.daysUntilDueOn(
+            date = LocalDate(2026, 11, 14),
+            lastCompletedOn = LocalDate(2026, 8, 21),
+        )
+
+        assertEquals(7, days)
+    }
+
+    @Test
+    fun returnsUpcomingStatusBeforeDueDate() {
+        val task = createMaintenanceTask(
+            firstDueDate = LocalDate(2026, 9, 15),
+        )
+
+        val status = task.statusOn(
+            date = LocalDate(2026, 9, 14),
+            lastCompletedOn = null,
+        )
+
+        assertEquals(MaintenanceStatus.UPCOMING, status)
+    }
+
+    @Test
+    fun returnsDueStatusOnDueDate() {
+        val dueDate = LocalDate(2026, 9, 15)
+        val task = createMaintenanceTask(firstDueDate = dueDate)
+
+        val status = task.statusOn(
+            date = dueDate,
+            lastCompletedOn = null,
+        )
+
+        assertEquals(MaintenanceStatus.DUE, status)
+    }
+
+    @Test
+    fun returnsOverdueStatusAfterDueDate() {
+        val task = createMaintenanceTask(
+            firstDueDate = LocalDate(2026, 9, 15),
+        )
+
+        val status = task.statusOn(
+            date = LocalDate(2026, 9, 16),
+            lastCompletedOn = null,
+        )
+
+        assertEquals(MaintenanceStatus.OVERDUE, status)
+    }
+
     private fun createMaintenanceTask(
         id: MaintenanceTaskId = MaintenanceTaskId("550e8400-e29b-41d4-a716-446655440000"),
         itemId: ItemId = ItemId("550e8400-e29b-41d4-a716-446655440001"),

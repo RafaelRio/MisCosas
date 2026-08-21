@@ -1,6 +1,7 @@
 package com.rafario.miscosas.domain.model
 
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.daysUntil
 import kotlin.time.Instant
 
 data class MaintenanceTask(
@@ -49,5 +50,26 @@ data class MaintenanceTask(
         }
 
         return interval.nextDateAfter(lastCompletedOn)
+    }
+
+    fun daysUntilDueOn(date: LocalDate, lastCompletedOn: LocalDate?): Int {
+        val dueDate = nextDueDate(lastCompletedOn)
+        return date.daysUntil(dueDate)
+    }
+
+    fun statusOn(
+        date: LocalDate,
+        lastCompletedOn: LocalDate?,
+    ): MaintenanceStatus {
+        val daysUntilDue = daysUntilDueOn(
+            date = date,
+            lastCompletedOn = lastCompletedOn,
+        )
+
+        return when {
+            daysUntilDue > 0 -> MaintenanceStatus.UPCOMING
+            daysUntilDue == 0 -> MaintenanceStatus.DUE
+            else -> MaintenanceStatus.OVERDUE
+        }
     }
 }
