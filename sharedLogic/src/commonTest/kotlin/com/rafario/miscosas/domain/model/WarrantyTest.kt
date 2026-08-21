@@ -62,10 +62,7 @@ class WarrantyTest {
 
         assertFailsWith<IllegalArgumentException> {
             createWarranty(
-                id = warrantyId,
-                itemId = itemId,
-                startDate = startDate,
-                endDate = endDate
+                id = warrantyId, itemId = itemId, startDate = startDate, endDate = endDate
             )
         }
     }
@@ -101,11 +98,7 @@ class WarrantyTest {
     fun rejectsWarrantyWithoutInformation() {
         assertFailsWith<IllegalArgumentException> {
             createWarranty(
-                startDate = null,
-                endDate = null,
-                type = null,
-                providerName = null,
-                notes = null
+                startDate = null, endDate = null, type = null, providerName = null, notes = null
             )
         }
     }
@@ -213,11 +206,105 @@ class WarrantyTest {
 
     @Test
     fun rejectsNegativeExpiringSoonDays() {
+        val warranty = createWarranty()
+
         assertFailsWith<IllegalArgumentException> {
-            createWarranty(
-                reminderDaysBeforeEnd = -1,
+            warranty.statusOn(
+                date = LocalDate(2026, 8, 16),
+                expiringSoonDays = -1,
             )
         }
+    }
+
+    @Test
+    fun returnsUnknownStatusWhenEndDateIsUnknown() {
+        val warranty = createWarranty(
+            endDate = null,
+        )
+
+        val status = warranty.statusOn(
+            date = LocalDate(2026, 8, 16),
+            expiringSoonDays = 30,
+        )
+
+        assertEquals(WarrantyStatus.UNKNOWN, status)
+    }
+
+    @Test
+    fun returnsActiveStatusOutsideExpiringSoonWindow() {
+        val warranty = createWarranty(
+            endDate = LocalDate(2026, 9, 15),
+        )
+
+        val status = warranty.statusOn(
+            date = LocalDate(2026, 8, 15),
+            expiringSoonDays = 30,
+        )
+
+        assertEquals(WarrantyStatus.ACTIVE, status)
+    }
+
+    @Test
+    fun returnsExpiringSoonStatusAtThreshold() {
+        val warranty = createWarranty(
+            endDate = LocalDate(2026, 9, 15),
+        )
+
+        val status = warranty.statusOn(
+            date = LocalDate(2026, 8, 16),
+            expiringSoonDays = 30,
+        )
+
+        assertEquals(WarrantyStatus.EXPIRING_SOON, status)
+    }
+
+    @Test
+    fun returnsExpiringSoonStatusOnEndDate() {
+        val warranty = createWarranty(
+            endDate = LocalDate(2026, 9, 15),
+        )
+
+        val status = warranty.statusOn(
+            date = LocalDate(2026, 9, 15),
+            expiringSoonDays = 30,
+        )
+
+        assertEquals(WarrantyStatus.EXPIRING_SOON, status)
+    }
+
+    @Test
+    fun returnsExpiredStatusAfterEndDate() {
+        val warranty = createWarranty(
+            endDate = LocalDate(2026, 9, 15),
+        )
+
+        val status = warranty.statusOn(
+            date = LocalDate(2026, 9, 16),
+            expiringSoonDays = 30,
+        )
+
+        assertEquals(WarrantyStatus.EXPIRED, status)
+    }
+
+    @Test
+    fun usesEndDateAsOnlyExpiringDayWhenThresholdIsZero() {
+        val endDate = LocalDate(2026, 9, 15)
+        val warranty = createWarranty(endDate = endDate)
+
+        assertEquals(
+            WarrantyStatus.ACTIVE,
+            warranty.statusOn(
+                date = LocalDate(2026, 9, 14),
+                expiringSoonDays = 0,
+            ),
+        )
+        assertEquals(
+            WarrantyStatus.EXPIRING_SOON,
+            warranty.statusOn(
+                date = endDate,
+                expiringSoonDays = 0,
+            ),
+        )
     }
 
     private fun createWarranty(

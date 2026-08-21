@@ -2,6 +2,7 @@ package com.rafario.miscosas.domain.model
 
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
+import kotlinx.datetime.daysUntil
 
 data class Warranty(
     val id: WarrantyId,
@@ -50,6 +51,26 @@ data class Warranty(
 
         require(updatedAt >= createdAt) {
             "Warranty updatedAt must not be before createdAt"
+        }
+    }
+
+    fun statusOn(
+        date: LocalDate,
+        expiringSoonDays: Int,
+    ): WarrantyStatus {
+        require(expiringSoonDays >= 0) {
+            "Warranty expiringSoonDays must be zero or greater"
+        }
+
+        val knownEndDate = endDate
+            ?: return WarrantyStatus.UNKNOWN
+
+        val daysUntilEnd = date.daysUntil(knownEndDate)
+
+        return when {
+            daysUntilEnd < 0 -> WarrantyStatus.EXPIRED
+            daysUntilEnd <= expiringSoonDays -> WarrantyStatus.EXPIRING_SOON
+            else -> WarrantyStatus.ACTIVE
         }
     }
 }
