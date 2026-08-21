@@ -31,7 +31,7 @@ data class ReturnPeriod(
         endingSoonThresholdDays: Int,
     ): ReturnWindowStatus {
         require(endingSoonThresholdDays >= 0) {
-            "Return period endingSoonDays must be zero or greater"
+            "Return period endingSoonThresholdDays must be zero or greater"
         }
 
         val daysRemaining = daysRemainingOn(date)

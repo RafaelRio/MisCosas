@@ -68,9 +68,9 @@ class ReturnPeriodTest {
     }
 
     @Test
-    fun rejectsUpdatedAtBeforeCreatedAtWithinSameMillisecond() {
-        val createdAt = Instant.parse("2026-08-21T08:00:00Z")
-        val updatedAt = Instant.parse("2026-08-20T09:00:00Z")
+    fun rejectsNegativeEndingSoonThresholdDays() {
+        val createdAt = Instant.parse("2026-08-21T08:00:00.000000500Z")
+        val updatedAt = Instant.parse("2026-08-21T08:00:00.000000400Z")
 
         assertFailsWith<IllegalArgumentException> {
             createReturnPeriod(
