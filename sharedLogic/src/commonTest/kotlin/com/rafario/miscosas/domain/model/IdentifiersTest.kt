@@ -264,4 +264,41 @@ class IdentifiersTest {
 
         assertEquals(id.value, id.toString())
     }
+
+    @Test
+    fun acceptsCanonicalItemHistoryEventId() {
+        val id = ItemHistoryEventId(
+            value = "550e8400-e29b-41d4-a716-446655440000",
+        )
+
+        assertEquals(
+            "550e8400-e29b-41d4-a716-446655440000",
+            id.value,
+        )
+    }
+
+    @Test
+    fun rejectsMalformedItemHistoryEventId() {
+        assertFailsWith<IllegalArgumentException> {
+            ItemHistoryEventId(value = "not-a-uuid")
+        }
+    }
+
+    @Test
+    fun generatesCanonicalNonNilItemHistoryEventId() {
+        val id = ItemHistoryEventId.generate()
+        val parsedUuid = Uuid.parseHexDash(id.value)
+
+        assertEquals(id.value, parsedUuid.toString())
+        assertNotEquals(Uuid.NIL, parsedUuid)
+    }
+
+    @Test
+    fun returnsItemHistoryEventIdValueAsString() {
+        val id = ItemHistoryEventId(
+            value = "550e8400-e29b-41d4-a716-446655440000",
+        )
+
+        assertEquals(id.value, id.toString())
+    }
 }

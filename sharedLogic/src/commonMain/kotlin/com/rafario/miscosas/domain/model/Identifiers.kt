@@ -116,6 +116,27 @@ data class MaintenanceRecordId(
     }
 }
 
+data class ItemHistoryEventId(
+    val value: String,
+) {
+    init {
+        requireCanonicalNonNilUuid(
+            value = value,
+            identifierName = "ItemHistoryEventId",
+        )
+    }
+
+    override fun toString(): String = value
+
+    companion object {
+        fun generate(): ItemHistoryEventId {
+            return ItemHistoryEventId(
+                value = Uuid.random().toString(),
+            )
+        }
+    }
+}
+
 private fun requireCanonicalNonNilUuid(
     value: String,
     identifierName: String,
