@@ -1,9 +1,6 @@
 package com.rafario.miscosas.data.local.database.dao
 
-import androidx.room3.Room
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.rafario.miscosas.data.local.database.MisCosasDatabase
-import com.rafario.miscosas.data.local.database.MisCosasDatabaseConstructor
+import com.rafario.miscosas.data.local.database.createTestDatabase
 import com.rafario.miscosas.data.local.database.entity.UserEntity
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -14,7 +11,7 @@ class UserDaoTest {
 
     @Test
     fun upsertsAndFindsUserById() = runTest {
-        val database = createDatabase()
+        val database = createTestDatabase()
 
         try {
             val entity = UserEntity(
@@ -38,7 +35,7 @@ class UserDaoTest {
 
     @Test
     fun upsertUpdatesExistingUser() = runTest {
-        val database = createDatabase()
+        val database = createTestDatabase()
 
         try {
             val original = UserEntity(
@@ -68,7 +65,7 @@ class UserDaoTest {
 
     @Test
     fun returnsNullWhenUserDoesNotExist() = runTest {
-        val database = createDatabase()
+        val database = createTestDatabase()
 
         try {
             val storedEntity = database.userDao()
@@ -78,14 +75,5 @@ class UserDaoTest {
         } finally {
             database.close()
         }
-    }
-
-    private fun createDatabase(): MisCosasDatabase {
-        return Room
-            .inMemoryDatabaseBuilder<MisCosasDatabase>(
-                factory = MisCosasDatabaseConstructor::initialize,
-            )
-            .setDriver(BundledSQLiteDriver())
-            .build()
     }
 }

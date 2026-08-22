@@ -1,13 +1,15 @@
 package com.rafario.miscosas.data.local.database.mapper
 
-import com.rafario.miscosas.data.local.database.entity.UserEntity
-import com.rafario.miscosas.domain.model.User
+import com.rafario.miscosas.data.local.database.entity.HouseholdEntity
+import com.rafario.miscosas.domain.model.Household
+import com.rafario.miscosas.domain.model.HouseholdId
 import com.rafario.miscosas.domain.model.UserId
 
-internal fun User.toEntity(): UserEntity {
-    return UserEntity(
+internal fun Household.toEntity(): HouseholdEntity {
+    return HouseholdEntity(
         id = id.value,
-        displayName = displayName,
+        name = name,
+        createdBy = createdBy.value,
         createdAtEpochSeconds = createdAt.epochSeconds,
         createdAtNanoseconds = createdAt.nanosecondsOfSecond,
         updatedAtEpochSeconds = updatedAt.epochSeconds,
@@ -15,19 +17,20 @@ internal fun User.toEntity(): UserEntity {
     )
 }
 
-internal fun UserEntity.toDomain(): User {
-    return User(
-        id = UserId(id),
-        displayName = displayName,
+internal fun HouseholdEntity.toDomain(): Household {
+    return Household(
+        id = HouseholdId(id),
+        name = name,
+        createdBy = UserId(createdBy),
         createdAt = instantFromEpochColumns(
             epochSeconds = createdAtEpochSeconds,
             nanosecondsOfSecond = createdAtNanoseconds,
-            fieldName = "UserEntity.createdAt",
+            fieldName = "HouseholdEntity.createdAt",
         ),
         updatedAt = instantFromEpochColumns(
             epochSeconds = updatedAtEpochSeconds,
             nanosecondsOfSecond = updatedAtNanoseconds,
-            fieldName = "UserEntity.updatedAt",
+            fieldName = "HouseholdEntity.updatedAt",
         ),
     )
 }
