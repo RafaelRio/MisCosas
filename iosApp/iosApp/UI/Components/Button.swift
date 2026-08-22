@@ -18,9 +18,10 @@ struct PrimaryButton: View {
             Text(text)
                 .frame(maxWidth: .infinity)
         }
-        .background(AppColors.primary)
+        .buttonStyle(.borderedProminent)
         .controlSize(.large)
         .buttonBorderShape(.roundedRectangle(radius: 14))
+        .tint(AppColors.primary)
         
     }
 }
@@ -36,8 +37,9 @@ struct SecondaryButton: View {
             Text(text)
                 .frame(maxWidth: .infinity)
         }
+        .buttonStyle(.bordered)
         .controlSize(.large)
         .buttonBorderShape(.roundedRectangle(radius: 14))
-        .background(AppColors.primary)
+
     }
 }
