@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "3dbf103489f5e5d25a808733e6f089f7",
+    "identityHash": "7836dffa55f4590cd750e0921eb4af85",
     "entities": [
       {
         "tableName": "users",
@@ -129,11 +129,101 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "household_members",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`household_id` TEXT NOT NULL, `user_id` TEXT NOT NULL, `role_code` TEXT NOT NULL, `joined_at_epoch_seconds` INTEGER NOT NULL, `joined_at_nanoseconds` INTEGER NOT NULL, `updated_at_epoch_seconds` INTEGER NOT NULL, `updated_at_nanoseconds` INTEGER NOT NULL, PRIMARY KEY(`household_id`, `user_id`), FOREIGN KEY(`household_id`) REFERENCES `households`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`user_id`) REFERENCES `users`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "householdId",
+            "columnName": "household_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "user_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "roleCode",
+            "columnName": "role_code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "joinedAtEpochSeconds",
+            "columnName": "joined_at_epoch_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "joinedAtNanoseconds",
+            "columnName": "joined_at_nanoseconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAtEpochSeconds",
+            "columnName": "updated_at_epoch_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAtNanoseconds",
+            "columnName": "updated_at_nanoseconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "household_id",
+            "user_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_household_members_user_id",
+            "unique": false,
+            "columnNames": [
+              "user_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_household_members_user_id` ON `${TABLE_NAME}` (`user_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "households",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "household_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "users",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "user_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3dbf103489f5e5d25a808733e6f089f7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7836dffa55f4590cd750e0921eb4af85')"
     ]
   }
 }
