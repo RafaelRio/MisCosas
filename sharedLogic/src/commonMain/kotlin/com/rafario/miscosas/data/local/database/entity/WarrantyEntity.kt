@@ -7,7 +7,7 @@ import androidx.room3.Index
 import androidx.room3.PrimaryKey
 
 @Entity(
-    tableName = "documents",
+    tableName = "warranties",
     foreignKeys = [
         ForeignKey(
             entity = ItemEntity::class,
@@ -15,28 +15,36 @@ import androidx.room3.PrimaryKey
             childColumns = ["item_id"],
             onDelete = ForeignKey.CASCADE,
         ),
+        ForeignKey(
+            entity = DocumentEntity::class,
+            parentColumns = ["id", "item_id"],
+            childColumns = ["document_id", "item_id"],
+            onDelete = ForeignKey.NO_ACTION,
+        ),
     ],
     indices = [
         Index(value = ["item_id"]),
-        Index(
-            value = ["id", "item_id"],
-            unique = true,
-        ),
+        Index(value = ["document_id", "item_id"]),
     ],
 )
-internal data class DocumentEntity(
+internal data class WarrantyEntity(
     @PrimaryKey
     val id: String,
     @ColumnInfo(name = "item_id")
     val itemId: String,
+    @ColumnInfo(name = "document_id")
+    val documentId: String?,
+    @ColumnInfo(name = "start_date_epoch_day")
+    val startDateEpochDay: Long?,
+    @ColumnInfo(name = "end_date_epoch_day")
+    val endDateEpochDay: Long?,
     @ColumnInfo(name = "type_code")
-    val typeCode: String,
-    @ColumnInfo(name = "file_name")
-    val fileName: String,
-    @ColumnInfo(name = "mime_type")
-    val mimeType: String,
-    @ColumnInfo(name = "size_bytes")
-    val sizeBytes: Long,
+    val typeCode: String?,
+    @ColumnInfo(name = "provider_name")
+    val providerName: String?,
+    val notes: String?,
+    @ColumnInfo(name = "reminder_days_before_end")
+    val reminderDaysBeforeEnd: Int?,
     @ColumnInfo(name = "created_at_epoch_seconds")
     val createdAtEpochSeconds: Long,
     @ColumnInfo(name = "created_at_nanoseconds")

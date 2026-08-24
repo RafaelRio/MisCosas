@@ -9,11 +9,13 @@ import com.rafario.miscosas.data.local.database.dao.HouseholdDao
 import com.rafario.miscosas.data.local.database.dao.HouseholdMemberDao
 import com.rafario.miscosas.data.local.database.dao.ItemDao
 import com.rafario.miscosas.data.local.database.dao.UserDao
+import com.rafario.miscosas.data.local.database.dao.WarrantyDao
 import com.rafario.miscosas.data.local.database.entity.DocumentEntity
 import com.rafario.miscosas.data.local.database.entity.HouseholdEntity
 import com.rafario.miscosas.data.local.database.entity.HouseholdMemberEntity
 import com.rafario.miscosas.data.local.database.entity.ItemEntity
 import com.rafario.miscosas.data.local.database.entity.UserEntity
+import com.rafario.miscosas.data.local.database.entity.WarrantyEntity
 
 @Database(
     entities = [
@@ -22,6 +24,7 @@ import com.rafario.miscosas.data.local.database.entity.UserEntity
         HouseholdMemberEntity::class,
         ItemEntity::class,
         DocumentEntity::class,
+        WarrantyEntity::class,
     ],
     version = 1,
     exportSchema = true,
@@ -34,6 +37,7 @@ internal abstract class MisCosasDatabase : RoomDatabase() {
     abstract fun householdMemberDao(): HouseholdMemberDao
     abstract fun itemDao(): ItemDao
     abstract fun documentDao(): DocumentDao
+    abstract fun warrantyDao(): WarrantyDao
 }
 
 @Suppress("KotlinNoActualForExpect")
