@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "c9f212fa7be9df36fb6f98623a29b15c",
+    "identityHash": "4a049facda209929fb6765a43e2764b1",
     "entities": [
       {
         "tableName": "users",
@@ -592,11 +592,83 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "return_periods",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`item_id` TEXT NOT NULL, `seller` TEXT, `deadline_epoch_day` INTEGER NOT NULL, `created_at_epoch_seconds` INTEGER NOT NULL, `created_at_nanoseconds` INTEGER NOT NULL, `updated_at_epoch_seconds` INTEGER NOT NULL, `updated_at_nanoseconds` INTEGER NOT NULL, `tracking_state_code` TEXT NOT NULL, PRIMARY KEY(`item_id`), FOREIGN KEY(`item_id`) REFERENCES `items`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "itemId",
+            "columnName": "item_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seller",
+            "columnName": "seller",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "deadlineEpochDay",
+            "columnName": "deadline_epoch_day",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtEpochSeconds",
+            "columnName": "created_at_epoch_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtNanoseconds",
+            "columnName": "created_at_nanoseconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAtEpochSeconds",
+            "columnName": "updated_at_epoch_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAtNanoseconds",
+            "columnName": "updated_at_nanoseconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "trackingStateCode",
+            "columnName": "tracking_state_code",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "item_id"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "items",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "item_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c9f212fa7be9df36fb6f98623a29b15c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4a049facda209929fb6765a43e2764b1')"
     ]
   }
 }
