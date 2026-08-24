@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b9044a3a9e7fdfcd37c84c5dffa6f0ac",
+    "identityHash": "03a4f2aa21082fdbf10fcb9b0089116d",
     "entities": [
       {
         "tableName": "users",
@@ -859,11 +859,121 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "item_history_events",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `item_id` TEXT NOT NULL, `type_code` TEXT NOT NULL, `occurred_at_epoch_seconds` INTEGER NOT NULL, `occurred_at_nanoseconds` INTEGER NOT NULL, `recorded_by_user_id` TEXT NOT NULL, `previous_status_code` TEXT, `new_status_code` TEXT, `details` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`item_id`) REFERENCES `items`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`recorded_by_user_id`) REFERENCES `users`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "itemId",
+            "columnName": "item_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "typeCode",
+            "columnName": "type_code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "occurredAtEpochSeconds",
+            "columnName": "occurred_at_epoch_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "occurredAtNanoseconds",
+            "columnName": "occurred_at_nanoseconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recordedByUserId",
+            "columnName": "recorded_by_user_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "previousStatusCode",
+            "columnName": "previous_status_code",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "newStatusCode",
+            "columnName": "new_status_code",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "details",
+            "columnName": "details",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_item_history_events_item_id_occurred_at_epoch_seconds_occurred_at_nanoseconds_id",
+            "unique": false,
+            "columnNames": [
+              "item_id",
+              "occurred_at_epoch_seconds",
+              "occurred_at_nanoseconds",
+              "id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_item_history_events_item_id_occurred_at_epoch_seconds_occurred_at_nanoseconds_id` ON `${TABLE_NAME}` (`item_id`, `occurred_at_epoch_seconds`, `occurred_at_nanoseconds`, `id`)"
+          },
+          {
+            "name": "index_item_history_events_recorded_by_user_id",
+            "unique": false,
+            "columnNames": [
+              "recorded_by_user_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_item_history_events_recorded_by_user_id` ON `${TABLE_NAME}` (`recorded_by_user_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "items",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "item_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "users",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "recorded_by_user_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b9044a3a9e7fdfcd37c84c5dffa6f0ac')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '03a4f2aa21082fdbf10fcb9b0089116d')"
     ]
   }
 }
