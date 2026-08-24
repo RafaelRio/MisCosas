@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "8f39842bcc71198f42ac57ceb820c300",
+    "identityHash": "b9044a3a9e7fdfcd37c84c5dffa6f0ac",
     "entities": [
       {
         "tableName": "users",
@@ -775,11 +775,95 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "maintenance_records",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `task_id` TEXT NOT NULL, `completed_on_epoch_day` INTEGER NOT NULL, `notes` TEXT, `created_at_epoch_seconds` INTEGER NOT NULL, `created_at_nanoseconds` INTEGER NOT NULL, `updated_at_epoch_seconds` INTEGER NOT NULL, `updated_at_nanoseconds` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`task_id`) REFERENCES `maintenance_tasks`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taskId",
+            "columnName": "task_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completedOnEpochDay",
+            "columnName": "completed_on_epoch_day",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAtEpochSeconds",
+            "columnName": "created_at_epoch_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtNanoseconds",
+            "columnName": "created_at_nanoseconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAtEpochSeconds",
+            "columnName": "updated_at_epoch_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAtNanoseconds",
+            "columnName": "updated_at_nanoseconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_maintenance_records_task_id_completed_on_epoch_day",
+            "unique": false,
+            "columnNames": [
+              "task_id",
+              "completed_on_epoch_day"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_maintenance_records_task_id_completed_on_epoch_day` ON `${TABLE_NAME}` (`task_id`, `completed_on_epoch_day`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "maintenance_tasks",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "task_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8f39842bcc71198f42ac57ceb820c300')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b9044a3a9e7fdfcd37c84c5dffa6f0ac')"
     ]
   }
 }

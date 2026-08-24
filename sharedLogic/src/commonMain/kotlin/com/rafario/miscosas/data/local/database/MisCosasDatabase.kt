@@ -8,6 +8,7 @@ import com.rafario.miscosas.data.local.database.dao.DocumentDao
 import com.rafario.miscosas.data.local.database.dao.HouseholdDao
 import com.rafario.miscosas.data.local.database.dao.HouseholdMemberDao
 import com.rafario.miscosas.data.local.database.dao.ItemDao
+import com.rafario.miscosas.data.local.database.dao.MaintenanceRecordDao
 import com.rafario.miscosas.data.local.database.dao.MaintenanceTaskDao
 import com.rafario.miscosas.data.local.database.dao.ReturnPeriodDao
 import com.rafario.miscosas.data.local.database.dao.UserDao
@@ -16,6 +17,7 @@ import com.rafario.miscosas.data.local.database.entity.DocumentEntity
 import com.rafario.miscosas.data.local.database.entity.HouseholdEntity
 import com.rafario.miscosas.data.local.database.entity.HouseholdMemberEntity
 import com.rafario.miscosas.data.local.database.entity.ItemEntity
+import com.rafario.miscosas.data.local.database.entity.MaintenanceRecordEntity
 import com.rafario.miscosas.data.local.database.entity.MaintenanceTaskEntity
 import com.rafario.miscosas.data.local.database.entity.ReturnPeriodEntity
 import com.rafario.miscosas.data.local.database.entity.UserEntity
@@ -31,6 +33,7 @@ import com.rafario.miscosas.data.local.database.entity.WarrantyEntity
         WarrantyEntity::class,
         ReturnPeriodEntity::class,
         MaintenanceTaskEntity::class,
+        MaintenanceRecordEntity::class,
     ],
     version = 1,
     exportSchema = true,
@@ -46,6 +49,7 @@ internal abstract class MisCosasDatabase : RoomDatabase() {
     abstract fun warrantyDao(): WarrantyDao
     abstract fun returnPeriodDao(): ReturnPeriodDao
     abstract fun maintenanceTaskDao(): MaintenanceTaskDao
+    abstract fun maintenanceRecordDao(): MaintenanceRecordDao
 }
 
 @Suppress("KotlinNoActualForExpect")
