@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "03a4f2aa21082fdbf10fcb9b0089116d",
+    "identityHash": "a935b7059c8e50b7d89e28c0d03454b7",
     "entities": [
       {
         "tableName": "users",
@@ -969,11 +969,94 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "sync_outbox",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`scope_id` TEXT NOT NULL, `record_type_code` TEXT NOT NULL, `record_id` TEXT NOT NULL, `mutation_id` TEXT NOT NULL, `operation_code` TEXT NOT NULL, `base_remote_version` INTEGER, `enqueued_at_epoch_seconds` INTEGER NOT NULL, `enqueued_at_nanoseconds` INTEGER NOT NULL, PRIMARY KEY(`scope_id`, `record_type_code`, `record_id`))",
+        "fields": [
+          {
+            "fieldPath": "scopeId",
+            "columnName": "scope_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recordTypeCode",
+            "columnName": "record_type_code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recordId",
+            "columnName": "record_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mutationId",
+            "columnName": "mutation_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "operationCode",
+            "columnName": "operation_code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "baseRemoteVersion",
+            "columnName": "base_remote_version",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "enqueuedAtEpochSeconds",
+            "columnName": "enqueued_at_epoch_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "enqueuedAtNanoseconds",
+            "columnName": "enqueued_at_nanoseconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "scope_id",
+            "record_type_code",
+            "record_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_sync_outbox_mutation_id",
+            "unique": true,
+            "columnNames": [
+              "mutation_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_sync_outbox_mutation_id` ON `${TABLE_NAME}` (`mutation_id`)"
+          },
+          {
+            "name": "index_sync_outbox_enqueued_at_epoch_seconds_enqueued_at_nanoseconds_mutation_id",
+            "unique": false,
+            "columnNames": [
+              "enqueued_at_epoch_seconds",
+              "enqueued_at_nanoseconds",
+              "mutation_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_sync_outbox_enqueued_at_epoch_seconds_enqueued_at_nanoseconds_mutation_id` ON `${TABLE_NAME}` (`enqueued_at_epoch_seconds`, `enqueued_at_nanoseconds`, `mutation_id`)"
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '03a4f2aa21082fdbf10fcb9b0089116d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a935b7059c8e50b7d89e28c0d03454b7')"
     ]
   }
 }

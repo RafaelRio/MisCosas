@@ -12,6 +12,7 @@ import com.rafario.miscosas.data.local.database.dao.ItemHistoryEventDao
 import com.rafario.miscosas.data.local.database.dao.MaintenanceRecordDao
 import com.rafario.miscosas.data.local.database.dao.MaintenanceTaskDao
 import com.rafario.miscosas.data.local.database.dao.ReturnPeriodDao
+import com.rafario.miscosas.data.local.database.dao.SyncOutboxDao
 import com.rafario.miscosas.data.local.database.dao.UserDao
 import com.rafario.miscosas.data.local.database.dao.WarrantyDao
 import com.rafario.miscosas.data.local.database.entity.DocumentEntity
@@ -22,6 +23,7 @@ import com.rafario.miscosas.data.local.database.entity.ItemHistoryEventEntity
 import com.rafario.miscosas.data.local.database.entity.MaintenanceRecordEntity
 import com.rafario.miscosas.data.local.database.entity.MaintenanceTaskEntity
 import com.rafario.miscosas.data.local.database.entity.ReturnPeriodEntity
+import com.rafario.miscosas.data.local.database.entity.SyncOutboxEntity
 import com.rafario.miscosas.data.local.database.entity.UserEntity
 import com.rafario.miscosas.data.local.database.entity.WarrantyEntity
 
@@ -37,6 +39,7 @@ import com.rafario.miscosas.data.local.database.entity.WarrantyEntity
         MaintenanceTaskEntity::class,
         MaintenanceRecordEntity::class,
         ItemHistoryEventEntity::class,
+        SyncOutboxEntity::class,
     ],
     version = 1,
     exportSchema = true,
@@ -54,6 +57,7 @@ internal abstract class MisCosasDatabase : RoomDatabase() {
     abstract fun maintenanceTaskDao(): MaintenanceTaskDao
     abstract fun maintenanceRecordDao(): MaintenanceRecordDao
     abstract fun itemHistoryEventDao(): ItemHistoryEventDao
+    abstract fun syncOutboxDao(): SyncOutboxDao
 }
 
 @Suppress("KotlinNoActualForExpect")
