@@ -133,46 +133,52 @@ La validación global posterior completó correctamente:
 
 Los únicos avisos son los conocidos sobre las declaraciones `expect`/`actual` Beta generadas y utilizadas por Room.
 
-## Punto de reanudación
+### Persistencia local-first del perfil de usuario
 
-El bloque de creación local-first de hogares está terminado y validado. Antes de continuar con otro bloque hay que comprobar `git status` y `git log` para confirmar que quedó registrado correctamente.
+El bloque de persistencia local del usuario está implementado y validado:
 
-Si estos archivos todavía aparecen como `AM`, hay que volver a añadir explícitamente sus versiones finales porque el índice contenía sus esqueletos iniciales:
+- `UserRepository` define la operación de escritura que necesita el flujo de alta;
+- `RoomUserRepository` convierte el modelo de dominio y construye una operación `USER/UPSERT`;
+- el `UserId` se utiliza como `scopeId` y `recordId`, porque el usuario es una entidad raíz y no pertenece a un hogar;
+- el reloj y el generador de `mutationId` se reciben por constructor para permitir pruebas deterministas;
+- `UserEntity` y `SyncOutboxEntity` se guardan dentro de una única `withWriteTransaction`;
+- el camino feliz comprueba exactamente tanto el perfil como la operación pendiente;
+- un trigger SQLite fuerza el fallo del outbox y demuestra que la transacción también revierte la inserción del usuario.
+
+`RoomUserRepository.save()` representa una mutación local que debe sincronizarse. No debe utilizarse para aplicar descargas de Firebase ni ejecutarse indiscriminadamente en cada inicio de sesión, porque generaría nuevas operaciones de outbox.
+
+La validación global completó correctamente:
 
 ```text
-sharedLogic/src/commonMain/kotlin/com/rafario/miscosas/data/repository/RoomHouseholdRepository.kt
-sharedLogic/src/commonMain/kotlin/com/rafario/miscosas/domain/repository/HouseholdRepository.kt
-sharedLogic/src/commonMain/kotlin/com/rafario/miscosas/domain/usecase/CreateHouseholdUseCase.kt
-sharedLogic/src/commonTest/kotlin/com/rafario/miscosas/domain/usecase/CreateHouseholdUseCaseTest.kt
-sharedLogic/src/iosTest/kotlin/com/rafario/miscosas/data/repository/RoomHouseholdRepositoryTest.kt
-docs/DEVELOPMENT_STATUS.md
+:sharedLogic:allTests
+:sharedLogic:linkDebugFrameworkIosSimulatorArm64
+:androidApp:assembleDebug
 ```
 
-Antes de cualquier commit hay que revisar `git diff --cached --check` y `git diff --cached`.
+## Punto de reanudación
+
+`UserRepository`, `RoomUserRepository` y sus pruebas de integración están terminados y validados. Firebase todavía no está configurado y no existe aún una fachada pública ni un `AppContainer` para las aplicaciones nativas.
 
 ## Próximo bloque
 
-Después del commit, el siguiente paso no es añadir Firebase de golpe. Primero hay que auditar los puntos de entrada Android/iOS y diseñar la composición manual mínima que permita:
+El siguiente microbloque será el caso de uso de creación del perfil tras un registro exitoso. Recibirá el UID opaco devuelto por el proveedor de autenticación y el nombre del formulario, consultará el reloj una vez, construirá un `User` con `createdAt` y `updatedAt` iguales y lo entregará a `UserRepository`.
 
-1. Mantener una única instancia de `MisCosasDatabase` durante la vida de la aplicación.
-2. Construir `RoomHouseholdRepository` y `CreateHouseholdUseCase` mediante inyección por constructor.
-3. Introducir un contrato de sesión autenticada sin tipos Firebase en dominio.
-4. Persistir el `User` autenticado antes de crear el hogar, cumpliendo las claves foráneas.
-5. Exponer a cada UI una fachada o ViewModel apropiado, sin exportar Room, DAO ni `Flow` crudo a Swift.
+Este caso de uso será específico del registro. No debe ejecutarse automáticamente en cada login de un usuario existente, porque eso alteraría `createdAt` y encolaría un nuevo `USER/UPSERT` sin una mutación real.
 
-Firebase Auth se incorporará mediante adaptadores cuando esos límites estén definidos. Firestore y el consumidor del outbox llegarán después; no deben llamarse directamente desde el caso de uso de creación.
+Después se diseñarán la frontera neutral de autenticación, la composición manual y las fachadas o ViewModels nativos. Firebase Auth se incorporará mediante adaptadores una vez fijados esos límites; Firestore y el consumidor del outbox llegarán posteriormente.
 
 ## Dirección posterior
 
 Cada bloque debe volver a evaluarse antes de empezar. La dirección prevista es:
 
-1. Composición manual mediante `AppContainer` y sesión autenticada.
-2. Firebase Auth mediante adaptadores de plataforma y persistencia del usuario local.
-3. Conectar onboarding y creación/unión a hogares en Compose y SwiftUI.
-4. Diseñar esquema, reglas y adaptadores de Firestore; después implementar subida del outbox y aplicación remota a Room.
-5. Implementar verticales nativas de objetos, documentos/Storage, garantías, devoluciones, mantenimiento e historial.
-6. Añadir invitaciones, permisos, alertas, fotos, búsqueda, estadísticas y exportación solo cuando sus flujos estén definidos.
-7. Cerrar con migraciones Room, emuladores Firebase, CI, accesibilidad, localización, seguridad y documentación para portfolio.
+1. Caso de uso para crear el perfil local después del registro.
+2. Composición manual mediante `AppContainer` y sesión autenticada.
+3. Firebase Auth mediante adaptadores de plataforma y persistencia del usuario local.
+4. Conectar onboarding y creación/unión a hogares en Compose y SwiftUI.
+5. Diseñar esquema, reglas y adaptadores de Firestore; después implementar subida del outbox y aplicación remota a Room.
+6. Implementar verticales nativas de objetos, documentos/Storage, garantías, devoluciones, mantenimiento e historial.
+7. Añadir invitaciones, permisos, alertas, fotos, búsqueda, estadísticas y exportación solo cuando sus flujos estén definidos.
+8. Cerrar con migraciones Room, emuladores Firebase, CI, accesibilidad, localización, seguridad y documentación para portfolio.
 
 ## Documentación pendiente
 
