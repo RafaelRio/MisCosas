@@ -155,25 +155,38 @@ La validación global completó correctamente:
 :androidApp:assembleDebug
 ```
 
+### Creación del perfil después del registro
+
+`CreateUserUseCase` está implementado y validado para el momento inmediatamente posterior a un registro exitoso:
+
+- recibe el `UserId` opaco devuelto por autenticación y el nombre introducido en el formulario;
+- consulta el reloj exactamente una vez;
+- construye un `User` con `createdAt` y `updatedAt` iguales;
+- delega la escritura local-first en `UserRepository`;
+- el test utiliza un repositorio capturador y verifica el usuario completo;
+- el reloj falso cuenta sus invocaciones para evitar que dos lecturas pasen inadvertidas.
+
+Este caso de uso crea un perfil nuevo. No debe ejecutarse en cada login o restauración de sesión de un usuario existente, porque reemplazaría el significado de `createdAt` y generaría una mutación local nueva.
+
 ## Punto de reanudación
 
-`UserRepository`, `RoomUserRepository` y sus pruebas de integración están terminados y validados. Firebase todavía no está configurado y no existe aún una fachada pública ni un `AppContainer` para las aplicaciones nativas.
+La persistencia local-first del usuario y `CreateUserUseCase` están terminados y validados. Firebase todavía no está configurado y no existe aún una fachada pública ni un `AppContainer` para las aplicaciones nativas.
 
 ## Próximo bloque
 
-El siguiente microbloque será el caso de uso de creación del perfil tras un registro exitoso. Recibirá el UID opaco devuelto por el proveedor de autenticación y el nombre del formulario, consultará el reloj una vez, construirá un `User` con `createdAt` y `updatedAt` iguales y lo entregará a `UserRepository`.
+El siguiente microbloque definirá el flujo de registro por email sin introducir todavía tipos de Firebase. Un puerto de autenticación neutral recibirá email y contraseña y devolverá un `UserId`; `RegisterWithEmailUseCase` coordinará ese registro con `CreateUserUseCase`, añadirá el nombre del formulario y devolverá el UID creado.
 
-Este caso de uso será específico del registro. No debe ejecutarse automáticamente en cada login de un usuario existente, porque eso alteraría `createdAt` y encolaría un nuevo `USER/UPSERT` sin una mutación real.
+El primer test debe demostrar el camino feliz completo: las credenciales llegan al puerto de autenticación, el UID devuelto se utiliza para crear el perfil local y el mismo UID vuelve al consumidor. Después habrá que decidir explícitamente la recuperación cuando el registro remoto tenga éxito pero la persistencia local falle, porque no existe una transacción única entre Firebase y Room.
 
-Después se diseñarán la frontera neutral de autenticación, la composición manual y las fachadas o ViewModels nativos. Firebase Auth se incorporará mediante adaptadores una vez fijados esos límites; Firestore y el consumidor del outbox llegarán posteriormente.
+No se añadirán el SDK de Firebase, `AppContainer` ni cambios de UI en el primer micro-paso. La implementación Firebase llegará detrás del puerto cuando el contrato ya esté probado.
 
 ## Dirección posterior
 
 Cada bloque debe volver a evaluarse antes de empezar. La dirección prevista es:
 
-1. Caso de uso para crear el perfil local después del registro.
-2. Composición manual mediante `AppContainer` y sesión autenticada.
-3. Firebase Auth mediante adaptadores de plataforma y persistencia del usuario local.
+1. Puerto neutral de autenticación y orquestación del registro por email.
+2. Sesión autenticada y composición manual mediante `AppContainer`.
+3. Firebase Auth mediante adaptadores de plataforma.
 4. Conectar onboarding y creación/unión a hogares en Compose y SwiftUI.
 5. Diseñar esquema, reglas y adaptadores de Firestore; después implementar subida del outbox y aplicación remota a Room.
 6. Implementar verticales nativas de objetos, documentos/Storage, garantías, devoluciones, mantenimiento e historial.
