@@ -168,23 +168,40 @@ La validación global completó correctamente:
 
 Este caso de uso crea un perfil nuevo. No debe ejecutarse en cada login o restauración de sesión de un usuario existente, porque reemplazaría el significado de `createdAt` y generaría una mutación local nueva.
 
+### Registro por email independiente del proveedor
+
+El camino feliz del registro por email está implementado y validado sin depender todavía del SDK de Firebase:
+
+- `AuthenticationRepository` define el puerto neutral `registerWithEmail(email, password): UserId`;
+- el contrato no expone `FirebaseUser`, tokens ni otros tipos del proveedor;
+- `RegisterWithEmailUseCase` envía las credenciales al puerto de autenticación;
+- utiliza el UID devuelto junto al nombre del formulario para invocar `CreateUserUseCase`;
+- devuelve el mismo `UserId` al consumidor;
+- la contraseña no entra en el modelo `User`, Room ni el outbox;
+- el test combina autenticación falsa, `CreateUserUseCase` real y un repositorio de usuarios capturador para comprobar el flujo completo.
+
+Firebase Auth y Room no comparten una transacción. Si la cuenta remota se crea pero falla el perfil local, no se debe intentar ocultar el problema borrando automáticamente la cuenta: habrá que conservar la sesión autenticada y ofrecer una recuperación o reintento del perfil local.
+
 ## Punto de reanudación
 
-La persistencia local-first del usuario y `CreateUserUseCase` están terminados y validados. Firebase todavía no está configurado y no existe aún una fachada pública ni un `AppContainer` para las aplicaciones nativas.
+La persistencia local-first del usuario, la creación del perfil y el camino feliz del registro por email están terminados y validados. Firebase todavía no está configurado y no existe aún una fachada pública ni un `AppContainer` para las aplicaciones nativas.
 
 ## Próximo bloque
 
-El siguiente microbloque definirá el flujo de registro por email sin introducir todavía tipos de Firebase. Un puerto de autenticación neutral recibirá email y contraseña y devolverá un `UserId`; `RegisterWithEmailUseCase` coordinará ese registro con `CreateUserUseCase`, añadirá el nombre del formulario y devolverá el UID creado.
+El siguiente bloque debe fijar la semántica de fallo y la ubicación de los adaptadores antes de añadir Firebase:
 
-El primer test debe demostrar el camino feliz completo: las credenciales llegan al puerto de autenticación, el UID devuelto se utiliza para crear el perfil local y el mismo UID vuelve al consumidor. Después habrá que decidir explícitamente la recuperación cuando el registro remoto tenga éxito pero la persistencia local falle, porque no existe una transacción única entre Firebase y Room.
+1. comprobar que un fallo de autenticación no intenta crear ningún perfil local;
+2. diseñar la recuperación cuando autenticación tiene éxito pero Room falla, sin repetir el registro ni borrar automáticamente la cuenta;
+3. decidir si los adaptadores oficiales de Firebase Auth vivirán en los source sets de plataforma de `sharedLogic` o en las aplicaciones nativas;
+4. diseñar una sesión autenticada y una fachada pública compatible con Android y Swift sin exponer repositorios internos.
 
-No se añadirán el SDK de Firebase, `AppContainer` ni cambios de UI en el primer micro-paso. La implementación Firebase llegará detrás del puerto cuando el contrato ya esté probado.
+Solo después se añadirán las dependencias Firebase y la composición de producción.
 
 ## Dirección posterior
 
 Cada bloque debe volver a evaluarse antes de empezar. La dirección prevista es:
 
-1. Puerto neutral de autenticación y orquestación del registro por email.
+1. Semántica de fallos del registro y recuperación del perfil local.
 2. Sesión autenticada y composición manual mediante `AppContainer`.
 3. Firebase Auth mediante adaptadores de plataforma.
 4. Conectar onboarding y creación/unión a hogares en Compose y SwiftUI.
