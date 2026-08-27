@@ -178,7 +178,9 @@ El camino feliz del registro por email está implementado y validado sin depende
 - utiliza el UID devuelto junto al nombre del formulario para invocar `CreateUserUseCase`;
 - devuelve el mismo `UserId` al consumidor;
 - la contraseña no entra en el modelo `User`, Room ni el outbox;
-- el test combina autenticación falsa, `CreateUserUseCase` real y un repositorio de usuarios capturador para comprobar el flujo completo.
+- el nombre se valida antes de cualquier llamada remota, evitando cuentas sin perfil por una entrada local inválida;
+- si autenticación falla, el error se propaga y no se intenta crear el perfil local;
+- los tests combinan autenticación falsa, `CreateUserUseCase` real y un repositorio de usuarios capturador para comprobar el flujo y el orden de sus efectos.
 
 Firebase Auth y Room no comparten una transacción. Si la cuenta remota se crea pero falla el perfil local, no se debe intentar ocultar el problema borrando automáticamente la cuenta: habrá que conservar la sesión autenticada y ofrecer una recuperación o reintento del perfil local.
 
@@ -188,12 +190,11 @@ La persistencia local-first del usuario, la creación del perfil y el camino fel
 
 ## Próximo bloque
 
-El siguiente bloque debe fijar la semántica de fallo y la ubicación de los adaptadores antes de añadir Firebase:
+El siguiente bloque debe resolver el fallo parcial restante y fijar la ubicación de los adaptadores antes de añadir Firebase:
 
-1. comprobar que un fallo de autenticación no intenta crear ningún perfil local;
-2. diseñar la recuperación cuando autenticación tiene éxito pero Room falla, sin repetir el registro ni borrar automáticamente la cuenta;
-3. decidir si los adaptadores oficiales de Firebase Auth vivirán en los source sets de plataforma de `sharedLogic` o en las aplicaciones nativas;
-4. diseñar una sesión autenticada y una fachada pública compatible con Android y Swift sin exponer repositorios internos.
+1. diseñar la recuperación cuando autenticación tiene éxito pero Room falla, sin repetir el registro ni borrar automáticamente la cuenta;
+2. decidir si los adaptadores oficiales de Firebase Auth vivirán en los source sets de plataforma de `sharedLogic` o en las aplicaciones nativas;
+3. diseñar una sesión autenticada y una fachada pública compatible con Android y Swift sin exponer repositorios internos.
 
 Solo después se añadirán las dependencias Firebase y la composición de producción.
 

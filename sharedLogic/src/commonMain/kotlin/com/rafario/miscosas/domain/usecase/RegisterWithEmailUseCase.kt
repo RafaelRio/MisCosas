@@ -12,6 +12,9 @@ internal class RegisterWithEmailUseCase(
         email: String,
         password: String,
     ): UserId {
+        require(displayName.isNotBlank()) {
+            "User displayName must not be blank"
+        }
         val userId = authenticationRepository.registerWithEmail(
             email = email,
             password = password,
