@@ -5,10 +5,12 @@ import com.rafario.miscosas.domain.model.UserId
 import com.rafario.miscosas.domain.repository.AuthenticationRepository
 import com.rafario.miscosas.domain.repository.UserRepository
 import kotlinx.coroutines.test.runTest
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -49,6 +51,7 @@ class RegisterWithEmailUseCaseTest {
         )
 
         assertEquals(userId, result)
+        assertEquals(1, fakeAuthenticationRepository.registerCalls)
         assertEquals(email, fakeAuthenticationRepository.receivedEmail)
         assertEquals(password, fakeAuthenticationRepository.receivedPassword)
         assertEquals(
@@ -98,6 +101,7 @@ class RegisterWithEmailUseCaseTest {
 
         assertNull(fakeAuthenticationRepository.receivedEmail)
         assertNull(fakeAuthenticationRepository.receivedPassword)
+        assertEquals(0, fakeAuthenticationRepository.registerCalls)
         assertNull(fakeUserRepository.savedUser)
     }
 
@@ -112,7 +116,6 @@ class RegisterWithEmailUseCaseTest {
         val failingAuthenticationRepository = FailingAuthenticationRepository()
 
         val fakeUserRepository = RecordingUserRepository()
-
         val clock = object : Clock {
             override fun now(): Instant = instant
         }
@@ -135,7 +138,99 @@ class RegisterWithEmailUseCaseTest {
 
         assertEquals(email, failingAuthenticationRepository.receivedEmail)
         assertEquals(password, failingAuthenticationRepository.receivedPassword)
+        assertEquals(1, failingAuthenticationRepository.registerCalls)
         assertNull(fakeUserRepository.savedUser)
+    }
+
+    @Test
+    fun reportsPartiallyCompletedRegistrationWhenLocalProfileFails() = runTest {
+        val userId = UserId("firebase-user-123")
+        val name = "Rafa"
+        val email = "rafael@example.com"
+        val password = "123456"
+        val fakeAuthenticationRepository = FakeAuthenticationRepository(
+            userIdToReturn = userId,
+        )
+        val instant = Instant.parse("2020-08-30T18:43:00.000000400Z")
+        val localFailure = TestLocalProfileException()
+
+        var clockCalls = 0
+        val clock = object : Clock {
+            override fun now(): Instant {
+                clockCalls++
+                return instant
+            }
+        }
+        val failingUserRepository = FailingUserRepository(
+            failure = localFailure,
+        )
+
+        val createUserUseCase = CreateUserUseCase(
+            userRepository = failingUserRepository,
+            clock = clock,
+        )
+
+        val failure = assertFailsWith<RegistrationPartiallyCompletedException> {
+            RegisterWithEmailUseCase(
+                authenticationRepository = fakeAuthenticationRepository,
+                createUserUseCase = createUserUseCase,
+            ).invoke(
+                displayName = name,
+                email = email,
+                password = password,
+            )
+        }
+
+        assertEquals(userId, failure.authenticatedUserId)
+        assertEquals(name, failure.displayName)
+        assertSame(localFailure, failure.cause)
+        assertEquals(1, fakeAuthenticationRepository.registerCalls)
+        assertEquals(email, fakeAuthenticationRepository.receivedEmail)
+        assertEquals(password, fakeAuthenticationRepository.receivedPassword)
+        assertEquals(1, clockCalls)
+        assertEquals(1, failingUserRepository.saveCalls)
+        assertEquals(
+            User(
+                id = userId,
+                displayName = name,
+                createdAt = instant,
+                updatedAt = instant,
+            ),
+            failingUserRepository.savedUser,
+        )
+    }
+
+    @Test
+    fun doesNotWrapCancellationWhileCreatingLocalProfile() = runTest {
+        val userId = UserId("firebase-user-123")
+        val cancellation = CancellationException("Test cancellation")
+        val fakeAuthenticationRepository = FakeAuthenticationRepository(
+            userIdToReturn = userId,
+        )
+        val failingUserRepository = FailingUserRepository(
+            failure = cancellation,
+        )
+        val createUserUseCase = CreateUserUseCase(
+            userRepository = failingUserRepository,
+            clock = object : Clock {
+                override fun now(): Instant =
+                    Instant.parse("2020-08-30T18:43:00.000000400Z")
+            },
+        )
+
+        val propagatedCancellation = assertFailsWith<CancellationException> {
+            RegisterWithEmailUseCase(
+                authenticationRepository = fakeAuthenticationRepository,
+                createUserUseCase = createUserUseCase,
+            ).invoke(
+                displayName = "Rafa",
+                email = "rafael@example.com",
+                password = "123456",
+            )
+        }
+
+        assertSame(cancellation, propagatedCancellation)
+        assertEquals(1, fakeAuthenticationRepository.registerCalls)
     }
 
     private class FakeAuthenticationRepository(
@@ -148,10 +243,14 @@ class RegisterWithEmailUseCaseTest {
         var receivedPassword: String? = null
             private set
 
+        var registerCalls: Int = 0
+            private set
+
         override suspend fun registerWithEmail(
             email: String,
             password: String,
         ): UserId {
+            registerCalls++
             receivedEmail = email
             receivedPassword = password
             return userIdToReturn
@@ -166,10 +265,14 @@ class RegisterWithEmailUseCaseTest {
         var receivedPassword: String? = null
             private set
 
+        var registerCalls: Int = 0
+            private set
+
         override suspend fun registerWithEmail(
             email: String,
             password: String,
         ): UserId {
+            registerCalls++
             receivedEmail = email
             receivedPassword = password
             throw TestAuthenticationException()
@@ -177,6 +280,7 @@ class RegisterWithEmailUseCaseTest {
     }
 
     private class TestAuthenticationException : Exception()
+    private class TestLocalProfileException : Exception()
 
     private class RecordingUserRepository : UserRepository {
 
@@ -185,6 +289,23 @@ class RegisterWithEmailUseCaseTest {
 
         override suspend fun save(user: User) {
             savedUser = user
+        }
+    }
+
+    private class FailingUserRepository(
+        private val failure: Exception,
+    ) : UserRepository {
+
+        var savedUser: User? = null
+            private set
+
+        var saveCalls: Int = 0
+            private set
+
+        override suspend fun save(user: User) {
+            saveCalls++
+            savedUser = user
+            throw failure
         }
     }
 }

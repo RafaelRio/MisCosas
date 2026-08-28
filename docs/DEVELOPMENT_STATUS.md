@@ -1,6 +1,6 @@
 # MisCosas — Estado de desarrollo
 
-Última actualización: 26 de agosto de 2026.
+Última actualización: 28 de agosto de 2026.
 
 Este documento es el punto de reanudación del proyecto. Debe actualizarse al cerrar cada bloque de trabajo. El código y el historial de Git siguen siendo la fuente de verdad; antes de actuar hay que contrastar este documento con `git status`, los últimos commits y los archivos mencionados.
 
@@ -184,17 +184,29 @@ El camino feliz del registro por email está implementado y validado sin depende
 
 Firebase Auth y Room no comparten una transacción. Si la cuenta remota se crea pero falla el perfil local, no se debe intentar ocultar el problema borrando automáticamente la cuenta: habrá que conservar la sesión autenticada y ofrecer una recuperación o reintento del perfil local.
 
+El fallo parcial ya queda identificado explícitamente:
+
+- `RegistrationPartiallyCompletedException` indica que autenticación terminó correctamente pero no pudo guardarse el perfil local;
+- conserva el `UserId` autenticado, el nombre necesario para el reintento inmediato y la causa técnica original;
+- solo envuelve errores posteriores a la autenticación, por lo que un fallo del proveedor conserva su tipo original;
+- una `CancellationException` se propaga sin envolver para respetar la cancelación estructurada de coroutines;
+- los tests verifican las credenciales enviadas, el usuario que se intentó guardar, el número de intentos, la causa original y la cancelación.
+
+Esta excepción es interna. La futura fachada pública no debe exportarla directamente a Swift: la transformará en un resultado interoperable como `COMPLETED` o `LOCAL_PROFILE_PENDING`.
+
 ## Punto de reanudación
 
-La persistencia local-first del usuario, la creación del perfil y el camino feliz del registro por email están terminados y validados. Firebase todavía no está configurado y no existe aún una fachada pública ni un `AppContainer` para las aplicaciones nativas.
+La persistencia local-first del usuario, la creación del perfil y el registro por email están terminados y validados hasta la identificación del fallo parcial. Firebase todavía no está configurado y no existe aún una recuperación idempotente, una fachada pública ni un `AppContainer` para las aplicaciones nativas.
 
 ## Próximo bloque
 
-El siguiente bloque debe resolver el fallo parcial restante y fijar la ubicación de los adaptadores antes de añadir Firebase:
+El siguiente bloque debe implementar la recuperación idempotente del perfil local sin repetir el registro remoto:
 
-1. diseñar la recuperación cuando autenticación tiene éxito pero Room falla, sin repetir el registro ni borrar automáticamente la cuenta;
-2. decidir si los adaptadores oficiales de Firebase Auth vivirán en los source sets de plataforma de `sharedLogic` o en las aplicaciones nativas;
-3. diseñar una sesión autenticada y una fachada pública compatible con Android y Swift sin exponer repositorios internos.
+1. añadir lectura por `UserId` al contrato y a `RoomUserRepository`;
+2. crear un caso de uso de finalización del perfil que no vuelva a guardar ni altere `createdAt` cuando el usuario local ya existe;
+3. si el perfil no existe, crearlo usando el UID de la sesión ya autenticada, sin volver a llamar a `registerWithEmail`;
+4. decidir cómo recuperar durablemente el nombre si la aplicación se cierra antes de completar el perfil;
+5. después, fijar la ubicación de los adaptadores Firebase Auth y diseñar la sesión y la fachada pública.
 
 Solo después se añadirán las dependencias Firebase y la composición de producción.
 
@@ -202,7 +214,7 @@ Solo después se añadirán las dependencias Firebase y la composición de produ
 
 Cada bloque debe volver a evaluarse antes de empezar. La dirección prevista es:
 
-1. Semántica de fallos del registro y recuperación del perfil local.
+1. Recuperación idempotente del perfil local tras un registro parcial.
 2. Sesión autenticada y composición manual mediante `AppContainer`.
 3. Firebase Auth mediante adaptadores de plataforma.
 4. Conectar onboarding y creación/unión a hogares en Compose y SwiftUI.
@@ -214,3 +226,7 @@ Cada bloque debe volver a evaluarse antes de empezar. La dirección prevista es:
 ## Documentación pendiente
 
 El `README.md` está desactualizado: todavía muestra parte de la toolchain anterior y afirma que la persistencia no existe. Debe actualizarse después de registrar este bloque, preferiblemente en un commit documental separado.
+
+## Reanudación desde otro ordenador o conversación
+
+El archivo `docs/CONTINUATION_PROMPT.md` contiene un prompt reutilizable. Después de clonar o actualizar el repositorio en otro ordenador, se debe abrir el proyecto y pegar ese prompt en una conversación nueva. El asistente contrastará este documento con el código y Git antes de continuar.

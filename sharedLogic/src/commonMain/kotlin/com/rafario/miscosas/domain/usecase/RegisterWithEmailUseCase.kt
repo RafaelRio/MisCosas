@@ -2,6 +2,7 @@ package com.rafario.miscosas.domain.usecase
 
 import com.rafario.miscosas.domain.model.UserId
 import com.rafario.miscosas.domain.repository.AuthenticationRepository
+import kotlin.coroutines.cancellation.CancellationException
 
 internal class RegisterWithEmailUseCase(
     private val authenticationRepository: AuthenticationRepository,
@@ -19,10 +20,20 @@ internal class RegisterWithEmailUseCase(
             email = email,
             password = password,
         )
-        createUserUseCase(
-            userId = userId,
-            displayName = displayName,
-        )
+        try {
+            createUserUseCase(
+                userId = userId,
+                displayName = displayName,
+            )
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (exception: Exception) {
+            throw RegistrationPartiallyCompletedException(
+                authenticatedUserId = userId,
+                displayName = displayName,
+                cause = exception,
+            )
+        }
         return userId
     }
 }
