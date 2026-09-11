@@ -284,6 +284,10 @@ class RegisterWithEmailUseCaseTest {
 
     private class RecordingUserRepository : UserRepository {
 
+        override suspend fun findById(userId: UserId): User? {
+            error("Unexpected findById call")
+        }
+
         var savedUser: User? = null
             private set
 
@@ -295,6 +299,10 @@ class RegisterWithEmailUseCaseTest {
     private class FailingUserRepository(
         private val failure: Exception,
     ) : UserRepository {
+
+        override suspend fun findById(userId: UserId): User? {
+            error("Unexpected findById call")
+        }
 
         var savedUser: User? = null
             private set

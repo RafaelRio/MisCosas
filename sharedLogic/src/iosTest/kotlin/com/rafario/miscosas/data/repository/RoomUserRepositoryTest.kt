@@ -23,6 +23,30 @@ import kotlin.time.Instant
 class RoomUserRepositoryTest {
 
     @Test
+    fun findByIdReturnsNullWhenUserDoesNotExist() = runTest {
+        val database = createTestDatabase()
+
+        try {
+            val rafa = User(
+                id = UserId("firebase-user-164"),
+                displayName = "Rafael Río",
+                createdAt =
+                    Instant.parse("2026-08-27T09:00:00.000000400Z"),
+                updatedAt =
+                    Instant.parse("2026-08-27T09:00:00.000000500Z"),
+            )
+            database.userDao().upsert(rafa.toEntity())
+            val repository = RoomUserRepository(database = database)
+
+            val user = repository.findById(UserId("firebase-user-123"))
+
+            assertNull(user)
+        } finally {
+            database.close()
+        }
+    }
+
+    @Test
     fun savePersistsUserAndPendingUpsert() = runTest {
         val database = createTestDatabase()
 
@@ -126,6 +150,40 @@ class RoomUserRepositoryTest {
                     recordId = user.id.value,
                 ),
             )
+        } finally {
+            database.close()
+        }
+    }
+
+    @Test
+    fun findByIdReturnsExistingUser() = runTest {
+        val database = createTestDatabase()
+        try {
+            val anto = User(
+                id = UserId("firebase-user-124"),
+                displayName = "Anto Río",
+                createdAt =
+                    Instant.parse("2026-08-28T09:00:00.000000400Z"),
+                updatedAt =
+                    Instant.parse("2026-08-29T09:00:00.000000500Z"),
+            )
+            val user = User(
+                id = UserId("firebase-user-123"),
+                displayName = "Rafael Río",
+                createdAt =
+                    Instant.parse("2026-08-27T09:00:00.000000400Z"),
+                updatedAt =
+                    Instant.parse("2026-08-27T09:00:00.000000500Z"),
+            )
+            database.userDao().upsert(anto.toEntity())
+            database.userDao().upsert(user.toEntity())
+
+            val repository = RoomUserRepository(database = database)
+
+            val savedUser = repository.findById(user.id)
+
+            assertEquals(user, savedUser)
+
         } finally {
             database.close()
         }

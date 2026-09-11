@@ -3,10 +3,12 @@ package com.rafario.miscosas.data.repository
 import androidx.room3.withWriteTransaction
 import com.rafario.miscosas.data.local.database.MisCosasDatabase
 import com.rafario.miscosas.data.local.database.entity.SyncOutboxEntity
+import com.rafario.miscosas.data.local.database.mapper.toDomain
 import com.rafario.miscosas.data.local.database.mapper.toEntity
 import com.rafario.miscosas.data.sync.model.SyncOperation
 import com.rafario.miscosas.data.sync.model.SyncRecordType
 import com.rafario.miscosas.domain.model.User
+import com.rafario.miscosas.domain.model.UserId
 import com.rafario.miscosas.domain.repository.UserRepository
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
@@ -18,6 +20,10 @@ internal class RoomUserRepository(
         Uuid.random().toString()
     },
 ) : UserRepository {
+
+    override suspend fun findById(userId: UserId): User? {
+        return database.userDao().findById(userId.value)?.toDomain()
+    }
 
     override suspend fun save(user: User) {
         val userEntity = user.toEntity()

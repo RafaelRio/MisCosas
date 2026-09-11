@@ -1,6 +1,6 @@
 # MisCosas — Estado de desarrollo
 
-Última actualización: 28 de agosto de 2026.
+Última actualización: 11 de septiembre de 2026.
 
 Este documento es el punto de reanudación del proyecto. Debe actualizarse al cerrar cada bloque de trabajo. El código y el historial de Git siguen siendo la fuente de verdad; antes de actuar hay que contrastar este documento con `git status`, los últimos commits y los archivos mencionados.
 
@@ -200,13 +200,23 @@ La persistencia local-first del usuario, la creación del perfil y el registro p
 
 ## Próximo bloque
 
+La lectura del perfil local por ID está implementada:
+
+- `UserRepository` incorpora `findById(userId: UserId): User?`.
+- `RoomUserRepository` consulta el DAO existente y transforma la entidad al modelo de dominio, devolviendo `null` si no existe.
+- La lectura no escribe datos ni genera operaciones de outbox.
+- Los repositorios falsos de creación y registro se han adaptado al nuevo contrato.
+- Los tests verifican que se devuelve el usuario solicitado cuando hay varios perfiles y que se devuelve `null` para un ID inexistente aunque haya otro perfil guardado.
+- La clase `RoomUserRepositoryTest` está en verde.
+
+El siguiente micro-paso será escribir el primer test del caso de uso de finalización del perfil: si el usuario local ya existe, no debe volver a guardarlo ni alterar su `createdAt`. El caso de uso todavía no está implementado.
+
 El siguiente bloque debe implementar la recuperación idempotente del perfil local sin repetir el registro remoto:
 
-1. añadir lectura por `UserId` al contrato y a `RoomUserRepository`;
-2. crear un caso de uso de finalización del perfil que no vuelva a guardar ni altere `createdAt` cuando el usuario local ya existe;
-3. si el perfil no existe, crearlo usando el UID de la sesión ya autenticada, sin volver a llamar a `registerWithEmail`;
-4. decidir cómo recuperar durablemente el nombre si la aplicación se cierra antes de completar el perfil;
-5. después, fijar la ubicación de los adaptadores Firebase Auth y diseñar la sesión y la fachada pública.
+1. crear un caso de uso de finalización del perfil que no vuelva a guardar ni altere `createdAt` cuando el usuario local ya existe;
+2. si el perfil no existe, crearlo usando el UID de la sesión ya autenticada, sin volver a llamar a `registerWithEmail`;
+3. decidir cómo recuperar durablemente el nombre si la aplicación se cierra antes de completar el perfil;
+4. después, fijar la ubicación de los adaptadores Firebase Auth y diseñar la sesión y la fachada pública.
 
 Solo después se añadirán las dependencias Firebase y la composición de producción.
 

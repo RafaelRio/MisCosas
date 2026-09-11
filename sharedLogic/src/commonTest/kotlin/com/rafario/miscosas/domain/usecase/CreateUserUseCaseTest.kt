@@ -50,6 +50,10 @@ class CreateUserUseCaseTest {
 
     private class CreateUserFakeRepository : UserRepository {
 
+        override suspend fun findById(userId: UserId): User? {
+            error("Unexpected findById call")
+        }
+
         var savedUser: User? = null
             private set
 
