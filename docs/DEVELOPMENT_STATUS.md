@@ -1,6 +1,6 @@
 # MisCosas — Estado de desarrollo
 
-Última actualización: 11 de septiembre de 2026.
+Última actualización: 28 de septiembre de 2026.
 
 Este documento es el punto de reanudación del proyecto. Debe actualizarse al cerrar cada bloque de trabajo. El código y el historial de Git siguen siendo la fuente de verdad; antes de actuar hay que contrastar este documento con `git status`, los últimos commits y los archivos mencionados.
 
@@ -196,7 +196,7 @@ Esta excepción es interna. La futura fachada pública no debe exportarla direct
 
 ## Punto de reanudación
 
-La persistencia local-first del usuario, la creación del perfil y el registro por email están terminados y validados hasta la identificación del fallo parcial. Firebase todavía no está configurado y no existe aún una recuperación idempotente, una fachada pública ni un `AppContainer` para las aplicaciones nativas.
+La persistencia local-first del usuario, la creación del perfil y el registro por email están implementados hasta la identificación del fallo parcial. `CompleteUserProfileUseCase` ya completa el perfil ausente y conserva el existente; su reintento secuencial está cubierto por tests. `GetSessionStateUseCase` distingue entre ausencia de sesión, perfil pendiente y sesión con perfil local, sin escribir datos. Firebase todavía no está configurado: siguen pendientes la restauración real de la sesión tras cerrar la app, la conexión del flujo de recuperación con las pantallas, una fachada pública y un `AppContainer` para las aplicaciones nativas.
 
 ## Próximo bloque
 
@@ -209,14 +209,49 @@ La lectura del perfil local por ID está implementada:
 - Los tests verifican que se devuelve el usuario solicitado cuando hay varios perfiles y que se devuelve `null` para un ID inexistente aunque haya otro perfil guardado.
 - La clase `RoomUserRepositoryTest` está en verde.
 
-El siguiente micro-paso será escribir el primer test del caso de uso de finalización del perfil: si el usuario local ya existe, no debe volver a guardarlo ni alterar su `createdAt`. El caso de uso todavía no está implementado.
+`CompleteUserProfileUseCase` y sus tests ya están implementados en el árbol de trabajo:
 
-El siguiente bloque debe implementar la recuperación idempotente del perfil local sin repetir el registro remoto:
+- si el usuario local existe, no vuelve a guardarlo;
+- si no existe, delega en `CreateUserUseCase` con el UID y nombre recibidos, sin repetir el registro remoto;
+- el test `preservesCreatedProfileWhenCompletionIsRetried` usa un repositorio falso con estado: la primera llamada crea el perfil y la segunda, con otro nombre y un reloj adelantado, conserva el usuario completo (`id`, `displayName`, `createdAt` y `updatedAt`) y una sola escritura total.
 
-1. crear un caso de uso de finalización del perfil que no vuelva a guardar ni altere `createdAt` cuando el usuario local ya existe;
-2. si el perfil no existe, crearlo usando el UID de la sesión ya autenticada, sin volver a llamar a `registerWithEmail`;
-3. decidir cómo recuperar durablemente el nombre si la aplicación se cierra antes de completar el perfil;
-4. después, fijar la ubicación de los adaptadores Firebase Auth y diseñar la sesión y la fachada pública.
+Validación de este incremento el 28 de septiembre de 2026:
+
+```text
+./gradlew :sharedLogic:testAndroidHostTest --tests com.rafario.miscosas.domain.usecase.CompleteUserProfileUseCaseTest --console=plain
+BUILD SUCCESSFUL — 3 tests, 0 fallos, 0 errores, 0 omitidos.
+```
+
+No se ejecutaron la suite completa, los tests iOS ni los builds de las aplicaciones para este cambio de test. Gradle mostró un aviso de versiones de XML del SDK Android; no impidió ejecutar las pruebas.
+
+Esta cobertura verifica reintentos secuenciales con un repositorio en memoria, no recuperación tras reinicio ni atomicidad entre llamadas concurrentes. La consulta y la escritura siguen siendo operaciones separadas.
+
+Decisión de recuperación del perfil:
+
+- Si existe una sesión autenticada y un perfil local, continuar normalmente.
+- Si existe una sesión autenticada pero falta el perfil local, pedir de nuevo el nombre en la pantalla «Completa tu perfil».
+- Al confirmar, ejecutar `CompleteUserProfileUseCase` con el UID de la sesión y el nombre introducido, sin repetir el registro remoto.
+- No se guardará provisionalmente el nombre para recuperarlo tras cerrar la aplicación.
+
+La consulta del estado de sesión ya está implementada:
+
+- `AuthenticationRepository` incorpora `suspend fun getCurrentUserId(): UserId?`; `null` representa ausencia de sesión.
+- `GetSessionStateUseCase` consulta el UID y, si existe, busca su perfil mediante `UserRepository.findById`.
+- `SessionState` representa los resultados `SignedOut`, `ProfilePending(userId)` y `Ready(user)`.
+- `Ready` indica que hay sesión y perfil local; no implica que el onboarding del hogar esté completado.
+- La consulta no registra cuentas, no crea perfiles ni escribe datos locales.
+- Los tres escenarios tienen tests con repositorios falsos; los falsos de los tests de registro también implementan el nuevo contrato.
+
+Rafael confirmó que pasan los tres tests de sesión y, después, los tests de todos los casos de uso en Android Host, ejecutando:
+
+```text
+./gradlew :sharedLogic:testAndroidHostTest --tests "com.rafario.miscosas.domain.usecase.GetSessionStateUseCaseTest" --console=plain
+./gradlew :sharedLogic:testAndroidHostTest --tests "com.rafario.miscosas.domain.usecase.*" --console=plain
+```
+
+Esta validación no incluye la suite completa, los tests iOS ni los builds de las aplicaciones. Los tests de sesión usan falsos: todavía no validan la restauración de sesión de un proveedor real ni la recuperación tras reiniciar el proceso.
+
+El siguiente micro-paso es decidir dónde se implementará el adaptador de autenticación y cómo expondrá una sesión restaurada al dominio. A partir de esa decisión se diseñará la fachada pública para las aplicaciones nativas, conservando internos los tipos de infraestructura.
 
 Solo después se añadirán las dependencias Firebase y la composición de producción.
 

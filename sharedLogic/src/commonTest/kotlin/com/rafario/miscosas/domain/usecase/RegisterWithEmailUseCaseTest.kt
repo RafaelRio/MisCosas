@@ -255,6 +255,10 @@ class RegisterWithEmailUseCaseTest {
             receivedPassword = password
             return userIdToReturn
         }
+
+        override suspend fun getCurrentUserId(): UserId? {
+            error("No se debe consultar la sesión durante el registro")
+        }
     }
 
     private class FailingAuthenticationRepository : AuthenticationRepository {
@@ -276,6 +280,10 @@ class RegisterWithEmailUseCaseTest {
             receivedEmail = email
             receivedPassword = password
             throw TestAuthenticationException()
+        }
+
+        override suspend fun getCurrentUserId(): UserId? {
+            error("No se debe consultar la sesión durante el registro")
         }
     }
 

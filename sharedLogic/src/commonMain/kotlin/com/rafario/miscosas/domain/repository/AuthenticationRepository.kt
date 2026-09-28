@@ -7,4 +7,6 @@ internal interface AuthenticationRepository {
         email: String,
         password: String,
     ): UserId
+
+    suspend fun getCurrentUserId(): UserId?
 }
