@@ -1,22 +1,24 @@
 # MisCosas — Estado de desarrollo
 
-Última actualización: 28 de septiembre de 2026.
+Última actualización: 22 de octubre de 2026.
 
-Este documento es el punto de reanudación del proyecto. Debe actualizarse al cerrar cada bloque de trabajo. El código y el historial de Git siguen siendo la fuente de verdad; antes de actuar hay que contrastar este documento con `git status`, los últimos commits y los archivos mencionados.
+Este documento es el punto de reanudación del proyecto. Debe actualizarse al cerrar cada bloque de trabajo. El código, Git y las evidencias describen el estado realizado; las especificaciones aprobadas definen el comportamiento esperado. Antes de actuar hay que contrastar este documento con `git status`, los últimos commits y los archivos mencionados.
 
 ## Forma de trabajo
 
-- Trabajar un único micro-paso cada vez.
-- Explicar primero qué se construirá y por qué.
-- Rafael escribe normalmente el código y los tests para aprender.
-- Si Rafael pide ayuda porque no entiende un paso, se puede proporcionar el código concreto y explicarlo.
-- Los cambios mecánicos de formato, imports, comas y finales de archivo puede hacerlos directamente el asistente.
-- No crear repositorios, abstracciones o dependencias sin un consumidor real.
-- Al terminar cada bloque: ejecutar validaciones proporcionales, revisar el staging, proponer el commit y esperar antes de avanzar.
+Las reglas vigentes están en [AGENTS.md](../AGENTS.md). Rafael escribe los documentos, el código y los tests, con orientación y revisión de un paso pequeño cada vez. El asistente solo modifica archivos cuando recibe autorización para un cambio concreto, incluidos cambios documentales y mecánicos. Rafael gestiona Git.
+
+El flujo SDMD es SPEC, PLAN, TASKS, implementación guiada y validación. Aprobar un documento no autoriza implementación autónoma. Al cerrar un bloque se registran las evidencias y los pendientes, distinguiendo los resultados observados por el asistente de los comunicados por Rafael.
 
 ## Producto y plataformas
 
 MisCosas es un pasaporte digital personal y familiar para registrar objetos, compras, garantías, devoluciones, documentos y mantenimiento.
+
+**MisCosas es el nombre final**, confirmado por Rafael el 20 de octubre de 2026. La visión completa está conservada en [PRODUCT_BRIEF_ORIGINAL.md](PRODUCT_BRIEF_ORIGINAL.md), que transcribe el prompt inicial. Su nombre provisional «Mío» queda como referencia histórica.
+
+El producto previsto incluye hogares compartidos y administración de miembros, fotografías, categorías, favoritos, historial, alertas, búsqueda y filtros, estadísticas sobre el precio histórico de compra y sincronización entre miembros y dispositivos. Los objetos pertenecen al hogar. El funcionamiento local-first y la recuperación de información al cambiar de móvil forman parte de esa visión. Se comienza en España y en español, con preparación para internacionalización.
+
+El alcance funcional aprobado está consolidado en [PRODUCT_REQUIREMENTS_V1.md](PRODUCT_REQUIREMENTS_V1.md), que debe leerse completo antes de continuar. Incluye desde V1 hogares compartidos, pertenencia a varios hogares, permisos, invitaciones y sincronización; su implementación gradual no los excluye de esa versión. El brief se conserva como fuente histórica. Exportación de inventario PDF/CSV y categorías personalizadas siguen pospuestas o como posibilidades futuras según sus entradas X-. El alcance aprobado no demuestra que las funcionalidades estén implementadas ni resuelve sus cuestiones pendientes.
 
 | Plataforma | Interfaz | Versión mínima | Identificador |
 | --- | --- | --- | --- |
@@ -42,6 +44,7 @@ No existe UI compartida. `sharedLogic` contiene el dominio y la infraestructura 
 - La aplicación es local-first y Room es la fuente de verdad de la UI.
 - Una mutación local sincronizable guarda el dato y su operación de outbox dentro de la misma transacción Room.
 - Firebase Auth, Firestore y Storage se incorporarán después mediante adaptadores; sus tipos no entrarán en el dominio.
+- Para Auth se acordó usar los SDK nativos desde cada aplicación, un puente público neutral y un adaptador Kotlin interno hacia `AuthenticationRepository`. La integración real Android/iOS y la restauración de sesión aún deben validarse.
 - Los cambios remotos se aplicarán a Room y nunca alimentarán directamente la UI.
 - El aplicador remoto no debe utilizar repositorios de escritura local porque generaría un bucle de outbox.
 - Los modelos de dominio no conocen Room, Firebase, Android ni iOS.
@@ -196,9 +199,60 @@ Esta excepción es interna. La futura fachada pública no debe exportarla direct
 
 ## Punto de reanudación
 
-La persistencia local-first del usuario, la creación del perfil y el registro por email están implementados hasta la identificación del fallo parcial. `CompleteUserProfileUseCase` ya completa el perfil ausente y conserva el existente; su reintento secuencial está cubierto por tests. `GetSessionStateUseCase` distingue entre ausencia de sesión, perfil pendiente y sesión con perfil local, sin escribir datos. Firebase todavía no está configurado: siguen pendientes la restauración real de la sesión tras cerrar la app, la conexión del flujo de recuperación con las pantallas, una fachada pública y un `AppContainer` para las aplicaciones nativas.
+Se han consolidado los acuerdos de la conversación en [PRODUCT_REQUIREMENTS_V1.md](PRODUCT_REQUIREMENTS_V1.md), con fuentes, IDs estables, restricciones, exclusiones y pendientes. El siguiente paso es que Rafael revise la fidelidad documental y el [informe de revisión independiente](REQUIREMENTS_CONSOLIDATION_REVIEW.md), y decida qué archivos incorporar a Git. Seguimos en definición funcional; no comenzar nuevos bloques ni implementar antes de esa revisión. Cierre de sesión y cambio de cuenta continúa como propuesta no aprobada. Aún no existe `docs/features/` ni una SPEC, PLAN o TASKS de funcionalidad aprobados.
+
+El último paso de código fue el test `propagatesFailureWhenNativeSessionLookupFails` de `NativeAuthenticationRepositoryTest.kt`. Rafael confirmó que pasó la clase de tests. La captura del prompt original y la preparación SDMD son trabajo documental posterior; no sustituyen ni reinician ese avance técnico.
+
+La base local de perfil y sesión ya está implementada, y `NativeAuthenticationRepository.getCurrentUserId()` consulta el puente nativo y traduce su resultado al dominio. El registro de ese adaptador sigue en `TODO`. Firebase todavía no está configurado: siguen pendientes la restauración real de la sesión tras cerrar la app, la recuperación del perfil remoto en un dispositivo nuevo antes de concluir que está incompleto (V1-AUT-011), la conexión del flujo de recuperación con las pantallas, una fachada para consumir los casos de uso y la composición de producción.
+
+El commit `cfde7ca` recoge la recuperación local del perfil y la resolución de los estados de sesión. Los archivos nuevos del puente/adaptador y la preparación SDMD tienen trabajo posterior en el árbol local; contrastar siempre con Git antes de continuar. Las validaciones descritas abajo son históricas o comunicadas por Rafael, no una nueva ejecución de la suite durante esta actualización documental.
 
 ## Próximo bloque
+
+1. Revisar esta consolidación y sus diferencias con código/Figma, sin resolver las ambigüedades por suposición. Rafael decide los archivos de un futuro commit; el asistente no modifica el índice.
+2. Después de esa revisión, retomar con Rafael la definición pendiente. El bloque abierto de cierre de sesión y cambio de cuenta requiere aprobación propia; no inferirla de la autorización para escribir documentación.
+3. Acordar el orden y los límites de la primera SPEC. Registro y recuperación de sesión/perfil sigue siendo una propuesta para empezar la formalización, no una elección de PLAN ni autorización de implementación.
+4. Crear su `SPEC.md` cuando corresponda a partir de [SPEC_TEMPLATE.md](SPEC_TEMPLATE.md), conservando comentarios, enlazando sus RF/CA a los IDs consolidados y completando una sección cada vez. Revisar los nodos relevantes de Figma y [MOBILE_GUIDELINES.md](MOBILE_GUIDELINES.md).
+5. Diferenciar lo existente de las integraciones y comportamientos pendientes. Resolver los pendientes que afecten a la SPEC antes de solicitar su aprobación; preparar después PLAN y TASKS en sus etapas.
+
+El siguiente micro-paso es la revisión de fidelidad de los documentos entregados. No reiniciar los tests ya hechos, reducir V1 ni continuar el registro nativo automáticamente.
+
+## Alcance funcional consolidado
+
+La fuente detallada y los pendientes por bloque están en [PRODUCT_REQUIREMENTS_V1.md](PRODUCT_REQUIREMENTS_V1.md). Esta tabla es un índice, no una segunda especificación.
+
+| Bloque aprobado para V1 | IDs |
+| --- | --- |
+| Inventario básico: compra, fotografías, favoritos y siete estados | V1-INV |
+| Administradores y miembros, permisos y trazabilidad | V1-ROL |
+| Invitaciones mediante código compartible de un uso y siete días | V1-ITC |
+| Varios hogares, selector y separación de datos y operaciones | V1-HOG |
+| Fotografías múltiples, principal, fuentes nativas y uso offline | V1-FOT |
+| Compras multimoneda, EUR inicial, importes históricos exactos | V1-COM |
+| Garantías múltiples independientes y estados calculados | V1-GAR |
+| Plazo y seguimiento manual de devoluciones separados | V1-DEV |
+| Documentos, escaneado nativo, asociaciones y archivos offline | V1-DOC |
+| Mantenimiento puntual/periódico con dos modalidades e historial | V1-MAN |
+| Historial con acontecimientos automáticos y entradas manuales | V1-HIS |
+| Alertas compartidas y preferencias personales de recordatorios | V1-ALE |
+| Búsqueda, filtros y orden por hogar; búsquedas recientes locales | V1-BUS |
+| Estadísticas por hogar y moneda; agrupaciones anuales y mensuales | V1-EST |
+| Sincronización Firebase, combinación compatible y conflictos explícitos | V1-SYN |
+| Correo/contraseña, Google, Apple, vinculación y recuperación de acceso | V1-AUT |
+
+Las reglas transversales se registran en V1-GEN. Las entradas P- conservan las cuestiones sin concretar; PROP-SES conserva la propuesta de cierre/cambio de cuenta sin aprobar. Las entradas X- distinguen exclusiones de V1, aplazamientos y elementos fuera de un bloque por ahora, como iCloud o resumen por email; no convertirlos en exclusiones definitivas sin acuerdo.
+
+Pendientes relevantes: límites y conservación de archivos; umbrales de alertas; fechas y correcciones de mantenimiento; seguimiento de devoluciones y efecto en inventario; selección de garantías al filtrar/ordenar; estados incluidos en estadísticas; conflictos, eliminaciones y permisos tras revocación; validaciones de autenticación y comprobación remota del perfil. Cada decisión conserva su ID en la fuente principal. Las diferencias Figma están registradas allí con nodos reales y nivel de comprobación, sin aprobar automáticamente todo lo diseñado.
+
+## Preparación SDMD
+
+- [AGENTS.md](../AGENTS.md) reúne la tutoría, las reglas de arquitectura, las etapas SDMD y el uso de los cinco perfiles de `.codex/agents/`. Cada sesión debe comprobar qué agentes puede activar realmente.
+- [PRODUCT_BRIEF_ORIGINAL.md](PRODUCT_BRIEF_ORIGINAL.md) conserva la visión inicial sin reescribirla; [PRODUCT_REQUIREMENTS_V1.md](PRODUCT_REQUIREMENTS_V1.md) conserva los acuerdos posteriores y será lectura obligatoria junto al estado técnico. Las SPEC enlazarán sus IDs.
+- Se incorporaron [SPEC_TEMPLATE.md](SPEC_TEMPLATE.md), [PLAN_TEMPLATE.md](PLAN_TEMPLATE.md), [MOBILE_GUIDELINES.md](MOBILE_GUIDELINES.md) y [GENERIC_RULES.md](GENERIC_RULES.md) como referencias del curso de ArisGuimera. Se utilizó el contenido consultado previamente al fallar la descarga posterior; no se ha cotejado de nuevo con la versión actual de GitHub.
+- [CONTINUATION_PROMPT.md](CONTINUATION_PROMPT.md) conserva su función de recuperar contexto en otro ordenador o conversación y exige consultar AGENTS, los requisitos consolidados y este punto de reanudación.
+- La organización prevista es `docs/features/<funcionalidad>/SPEC.md`, `PLAN.md` y `TASKS.md`. No hay plantilla compartida de TASKS: se deriva del plan aprobado.
+
+## Perfil y sesión: trabajo realizado
 
 La lectura del perfil local por ID está implementada:
 
@@ -209,7 +263,7 @@ La lectura del perfil local por ID está implementada:
 - Los tests verifican que se devuelve el usuario solicitado cuando hay varios perfiles y que se devuelve `null` para un ID inexistente aunque haya otro perfil guardado.
 - La clase `RoomUserRepositoryTest` está en verde.
 
-`CompleteUserProfileUseCase` y sus tests ya están implementados en el árbol de trabajo:
+`CompleteUserProfileUseCase` y sus tests están implementados y recogidos en el commit `cfde7ca`:
 
 - si el usuario local existe, no vuelve a guardarlo;
 - si no existe, delega en `CreateUserUseCase` con el UID y nombre recibidos, sin repetir el registro remoto;
@@ -226,12 +280,14 @@ No se ejecutaron la suite completa, los tests iOS ni los builds de las aplicacio
 
 Esta cobertura verifica reintentos secuenciales con un repositorio en memoria, no recuperación tras reinicio ni atomicidad entre llamadas concurrentes. La consulta y la escritura siguen siendo operaciones separadas.
 
-Decisión de recuperación del perfil:
+Decisión histórica del incremento local de recuperación del perfil:
 
 - Si existe una sesión autenticada y un perfil local, continuar normalmente.
 - Si existe una sesión autenticada pero falta el perfil local, pedir de nuevo el nombre en la pantalla «Completa tu perfil».
 - Al confirmar, ejecutar `CompleteUserProfileUseCase` con el UID de la sesión y el nombre introducido, sin repetir el registro remoto.
 - No se guardará provisionalmente el nombre para recuperarlo tras cerrar la aplicación.
+
+Esta descripción conserva el contexto del código y los tests existentes. El acuerdo posterior V1-AUT-011 exige comprobar el perfil remoto antes de interpretar la ausencia local como registro incompleto en un dispositivo nuevo. La regla histórica de pedir nombre no define por sí sola el flujo final de V1. La adaptación queda pendiente de SPEC/PLAN (P-CRU-001); no se ha modificado código durante la consolidación.
 
 La consulta del estado de sesión ya está implementada:
 
@@ -251,27 +307,51 @@ Rafael confirmó que pasan los tres tests de sesión y, después, los tests de t
 
 Esta validación no incluye la suite completa, los tests iOS ni los builds de las aplicaciones. Los tests de sesión usan falsos: todavía no validan la restauración de sesión de un proveedor real ni la recuperación tras reiniciar el proceso.
 
-El siguiente micro-paso es decidir dónde se implementará el adaptador de autenticación y cómo expondrá una sesión restaurada al dominio. A partir de esa decisión se diseñará la fachada pública para las aplicaciones nativas, conservando internos los tipos de infraestructura.
+## Adaptador de autenticación nativa: incremento en curso
 
-Solo después se añadirán las dependencias Firebase y la composición de producción.
+Archivos existentes en `sharedLogic`:
+
+- [NativeAuthenticationProvider.kt](../sharedLogic/src/commonMain/kotlin/com/rafario/miscosas/api/auth/NativeAuthenticationProvider.kt): interfaz pública en `api/auth` que declara `suspend fun getCurrentUserId(): String?`.
+- [NativeAuthenticationRepository.kt](../sharedLogic/src/commonMain/kotlin/com/rafario/miscosas/data/repository/NativeAuthenticationRepository.kt): implementación interna de `AuthenticationRepository`. Consulta al proveedor una sola vez, devuelve `null` si no hay UID y convierte el identificador presente a `UserId`. Los errores se propagan.
+- [NativeAuthenticationRepositoryTest.kt](../sharedLogic/src/commonTest/kotlin/com/rafario/miscosas/data/repository/NativeAuthenticationRepositoryTest.kt): tres tests para ausencia de sesión, conversión del UID y propagación de la misma excepción del proveedor.
+
+Rafael confirmó que pasó la clase de tests tras completar el escenario de error. El comando utilizado en este incremento es:
+
+```bash
+./gradlew :sharedLogic:testAndroidHostTest --tests "com.rafario.miscosas.data.repository.NativeAuthenticationRepositoryTest" --console=plain
+```
+
+No se han vuelto a ejecutar esos tests durante esta actualización documental. Esta cobertura usa proveedores falsos en Android Host; no demuestra integración Firebase ni interoperabilidad o restauración de sesión en iOS.
+
+Pendientes técnicos que deberán encajar en la SPEC y el PLAN:
+
+- `registerWithEmail` del adaptador sigue en `TODO`, y el proveedor público aún no declara una operación de registro.
+- Concretar el contrato del proveedor para esperar a que la sesión esté resuelta: una inicialización pendiente o un error no deben convertirse en ausencia de sesión.
+- Validar las implementaciones nativas, sus errores y cancelación, y la interoperabilidad real del puente desde Swift.
+- Conectar la lógica compartida con las aplicaciones y comprobar la recuperación del perfil tras reiniciar el proceso.
+
+El trabajo realizado se conserva al adoptar SDMD; estos pendientes no autorizan su implementación antes de acordar el alcance y el plan.
 
 ## Dirección posterior
 
-Cada bloque debe volver a evaluarse antes de empezar. La dirección prevista es:
+El alcance V1 está registrado en los requisitos, pero el orden y los detalles de implementación siguen por planificar. Esta relación conserva las áreas técnicas previstas; no constituye un PLAN aprobado:
 
-1. Recuperación idempotente del perfil local tras un registro parcial.
-2. Sesión autenticada y composición manual mediante `AppContainer`.
-3. Firebase Auth mediante adaptadores de plataforma.
-4. Conectar onboarding y creación/unión a hogares en Compose y SwiftUI.
-5. Diseñar esquema, reglas y adaptadores de Firestore; después implementar subida del outbox y aplicación remota a Room.
-6. Implementar verticales nativas de objetos, documentos/Storage, garantías, devoluciones, mantenimiento e historial.
-7. Añadir invitaciones, permisos, alertas, fotos, búsqueda, estadísticas y exportación solo cuando sus flujos estén definidos.
-8. Cerrar con migraciones Room, emuladores Firebase, CI, accesibilidad, localización, seguridad y documentación para portfolio.
+- Completar la integración del registro, la sesión autenticada y la recuperación del perfil. Su lógica local ya está parcialmente implementada y probada; quedan la composición de producción, la fachada y los adaptadores nativos de Firebase Auth.
+- Conectar onboarding y hogares en Compose y SwiftUI, incluyendo creación, pertenencia múltiple y selector, invitaciones y aceptación, salida del hogar, administración de miembros y transferencia de administración. Aplicar los roles aprobados y concretar los casos especiales pendientes.
+- Desarrollar las funcionalidades de objetos, categorías, compras, fotografías, documentos/Storage, garantías, devoluciones, mantenimiento e historial, con sus estados, favoritos y archivado.
+- Incorporar las alertas, recordatorios, búsqueda, filtros y estadísticas previstos en el prompt. Su comportamiento y sus criterios de aceptación se concretarán en las especificaciones.
+- Implementar sincronización entre miembros y dispositivos, recuperación al cambiar de móvil, combinación de cambios compatibles, resolución explícita de conflictos incompatibles y borrado sincronizado. Concretar esquema y reglas de Firestore, subida del outbox y aplicación remota a Room sin reemplazar estos requisitos por una regla de último cambio por fecha.
+- Abordar la exportación PDF/CSV en una entrega posterior. Evaluar las categorías personalizadas como ampliación futura.
+- Trabajar migraciones Room, pruebas de integración, emuladores Firebase, CI, accesibilidad, localización, seguridad y documentación para portfolio conforme avance cada funcionalidad.
 
-## Documentación pendiente
+## Consolidación documental del 22 de octubre de 2026
 
-El `README.md` está desactualizado: todavía muestra parte de la toolchain anterior y afirma que la persistencia no existe. Debe actualizarse después de registrar este bloque, preferiblemente en un commit documental separado.
+Se creó la fuente principal de requisitos y se actualizaron las instrucciones de lectura, el prompt de continuidad y el README. Este último ya refleja la persistencia existente y la toolchain comprobada. El brief, las plantillas y las guías se revisaron y conservaron sin reescribir el contenido histórico ni duplicar las especificaciones.
+
+El [informe de consolidación](REQUIREMENTS_CONSOLIDATION_REVIEW.md) registra recuentos, contraste independiente por Mobile App Builder, inspección de nodos Figma por UI Designer, lagunas y comprobaciones documentales. No se han ejecutado builds ni tests ni modificado código de aplicación en este trabajo.
+
+Git conserva cambios anteriores del adaptador de autenticación y documentos sin seguimiento. La versión de AGENTS preparada en el índice estaba vacía: el archivo del directorio de trabajo sí tiene contenido, pero no se ha realizado stage ni commit para sustituir esa versión. Revisar el índice y elegir los archivos con Rafael antes de un futuro commit. La documentación solo estará disponible tras clonar en otro ordenador cuando Rafael la incorpore y transfiera mediante Git.
 
 ## Reanudación desde otro ordenador o conversación
 
-El archivo `docs/CONTINUATION_PROMPT.md` contiene un prompt reutilizable. Después de clonar o actualizar el repositorio en otro ordenador, se debe abrir el proyecto y pegar ese prompt en una conversación nueva. El asistente contrastará este documento con el código y Git antes de continuar.
+El archivo [CONTINUATION_PROMPT.md](CONTINUATION_PROMPT.md) contiene un prompt reutilizable. Después de clonar o actualizar el repositorio en otro ordenador, se debe abrir el proyecto y pegar ese prompt en una conversación nueva. El asistente leerá AGENTS y todos los requisitos consolidados, contrastará este documento con el código y Git y revisará los documentos disponibles de la funcionalidad activa antes de proponer el siguiente paso. No será necesario deducir los acuerdos funcionales únicamente de la conversación.

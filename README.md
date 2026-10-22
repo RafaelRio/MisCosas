@@ -2,13 +2,15 @@
 
 MisCosas será un pasaporte digital personal y familiar para registrar objetos, conservar su documentación y controlar compras, garantías, devoluciones y mantenimiento.
 
-Las **Fases 1 y 2** están completadas: el baseline Kotlin Multiplatform está configurado, las interfaces son nativas y el dominio compartido contiene los modelos y reglas fundamentales del producto. Todavía no se han implementado persistencia local, repositorios, integración con autenticación ni sincronización remota.
+El proyecto ya contiene el baseline Kotlin Multiplatform, interfaces nativas, modelos de dominio, persistencia Room, repositorios locales con outbox y parte de la lógica de registro, perfil y sesión. Firebase y la sincronización remota todavía no están integrados. Estos componentes no equivalen a los flujos completos de la V1.
+
+Actualmente se está definiendo el producto mediante SDD/SDMD. El alcance aprobado, las propuestas y las cuestiones pendientes están en [PRODUCT_REQUIREMENTS_V1.md](docs/PRODUCT_REQUIREMENTS_V1.md). El [estado de desarrollo](docs/DEVELOPMENT_STATUS.md) distingue lo implementado de lo previsto y fija el siguiente paso. Antes de continuar, leer [AGENTS.md](AGENTS.md); para una sesión nueva, usar [CONTINUATION_PROMPT.md](docs/CONTINUATION_PROMPT.md). El [brief original](docs/PRODUCT_BRIEF_ORIGINAL.md) se conserva como referencia histórica.
 
 ## Decisiones de plataforma
 
 | Plataforma | Interfaz | Versión mínima | Identificador |
 | --- | --- | --- | --- |
-| Android | Jetpack Compose | API 24 | `com.rafario.miscosas` |
+| Android | Jetpack Compose | API 29 | `com.rafario.miscosas` |
 | iOS | SwiftUI, solo iPhone inicialmente | iOS 17.0 | `com.rafario.miscosas` |
 
 La lógica que aporte valor compartir se escribirá en Kotlin Multiplatform. Las interfaces y su ciclo de vida serán nativos de cada plataforma.
@@ -24,8 +26,8 @@ La lógica que aporte valor compartir se escribirá en Kotlin Multiplatform. Las
 ## Convenciones de paquetes
 
 - `presentation` pertenece a cada aplicación nativa: Jetpack Compose en Android y SwiftUI en iOS.
-- `domain` contiene modelos, reglas y validaciones independientes de la plataforma, y alojará los contratos de repositorio cuando aparezca su primer consumidor.
-- `data` contendrá persistencia, adaptadores e implementaciones de los repositorios definidos por dominio.
+- `domain` contiene modelos, reglas, validaciones, contratos de repositorio y casos de uso independientes de la plataforma.
+- `data` contiene persistencia, adaptadores e implementaciones de los repositorios definidos por dominio.
 - `domain` no dependerá de `data`; `data` sí podrá depender de `domain`.
 - Los source sets `androidMain` e `iosMain` se usarán solo cuando una implementación específica de plataforma aporte valor real.
 
@@ -46,15 +48,15 @@ Las fechas civiles se representan mediante `LocalDate`, mientras que las marcas 
 
 Los estados temporales de garantías, devoluciones y mantenimiento se calculan a partir de sus fechas. No se persisten alertas, estadísticas ni información derivada.
 
-## Toolchain del baseline
+## Toolchain actual
 
 - Kotlin 2.4.10.
-- Gradle 9.1.0.
-- Android Gradle Plugin 9.0.1.
-- Daemon de Gradle con Azul JDK 21.
-- Android `compileSdk` y `targetSdk` 36.
+- Gradle 9.3.1.
+- Android Gradle Plugin 9.1.1.
+- JDK 21; el baseline utilizó la distribución Azul.
+- Android `compileSdk` y `targetSdk` 37.
 - Jetpack Compose Android alineado mediante BOM 2026.05.01.
-- Baseline iOS verificado localmente con Xcode 26.6 en un Mac con Apple Silicon.
+- Baseline iOS verificado históricamente con Xcode 26.6 en un Mac con Apple Silicon; no se ha vuelto a ejecutar durante esta consolidación documental.
 
 ## Ejecutar Android
 
@@ -105,4 +107,4 @@ Para comprobar también la exportación del framework utilizado por Swift:
 ./gradlew :sharedLogic:linkDebugFrameworkIosSimulatorArm64
 ```
 
-El siguiente paso es la **Fase 3: persistencia local**. La base de datos local será la fuente principal para la interfaz y se diseñará antes de introducir Firebase o sincronización remota.
+El siguiente paso es revisar la consolidación funcional y sus cuestiones abiertas, siguiendo [DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md). Las futuras SPEC, PLAN y TASKS desarrollarán el alcance aprobado por pasos; esta documentación no autoriza comenzar su implementación.
