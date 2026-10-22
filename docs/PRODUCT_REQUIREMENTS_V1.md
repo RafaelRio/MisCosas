@@ -603,4 +603,4 @@ Las SPEC deben preservar todos estos requisitos y resolver los pendientes que af
 
 ## Punto de reanudación funcional
 
-Primero Rafael revisará la fidelidad de esta consolidación y el informe independiente. Después decidirá qué archivos incorporar a Git; todavía no se ha realizado ningún stage ni commit de esta tarea. No continuar con nuevos bloques ni código antes de esa revisión. La propuesta funcional que quedó abierta es cierre de sesión y cambio de cuenta, sin aprobar. El último avance técnico sigue siendo el test de propagación de errores de NativeAuthenticationRepository, con resultado comunicado por Rafael; no se ha vuelto a ejecutar durante esta consolidación.
+La consolidación documental fue revisada y aprobada por Rafael, y quedó confirmada en el commit `7b0891e` (`docs: consolidate MisCosas V1 product requirements`). El siguiente bloque funcional pendiente es cierre de sesión y cambio de cuenta (`PROP-SES-001..008`), todavía no aprobado. El último avance técnico sigue siendo el test de propagación de errores de NativeAuthenticationRepository, con resultado comunicado por Rafael; no se volvió a ejecutar durante la consolidación.

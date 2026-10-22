@@ -107,4 +107,4 @@ Para comprobar también la exportación del framework utilizado por Swift:
 ./gradlew :sharedLogic:linkDebugFrameworkIosSimulatorArm64
 ```
 
-El siguiente paso es revisar la consolidación funcional y sus cuestiones abiertas, siguiendo [DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md). Las futuras SPEC, PLAN y TASKS desarrollarán el alcance aprobado por pasos; esta documentación no autoriza comenzar su implementación.
+La consolidación funcional está versionada; el siguiente bloque pendiente de definición es cierre de sesión y cambio de cuenta, cuya propuesta aún debe aprobarse. Consulta [DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md) para retomar paso a paso. Las futuras SPEC, PLAN y TASKS desarrollarán el alcance aprobado por pasos; esta documentación no autoriza comenzar su implementación.

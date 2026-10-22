@@ -199,7 +199,7 @@ Esta excepción es interna. La futura fachada pública no debe exportarla direct
 
 ## Punto de reanudación
 
-Se han consolidado los acuerdos de la conversación en [PRODUCT_REQUIREMENTS_V1.md](PRODUCT_REQUIREMENTS_V1.md), con fuentes, IDs estables, restricciones, exclusiones y pendientes. El siguiente paso es que Rafael revise la fidelidad documental y el [informe de revisión independiente](REQUIREMENTS_CONSOLIDATION_REVIEW.md), y decida qué archivos incorporar a Git. Seguimos en definición funcional; no comenzar nuevos bloques ni implementar antes de esa revisión. Cierre de sesión y cambio de cuenta continúa como propuesta no aprobada. Aún no existe `docs/features/` ni una SPEC, PLAN o TASKS de funcionalidad aprobados.
+La consolidación documental de requisitos fue revisada, aprobada por Rafael y confirmada en el commit `7b0891e` (`docs: consolidate MisCosas V1 product requirements`). La fuente principal y su informe están versionados. Seguimos en definición funcional: el siguiente bloque es cierre de sesión y cambio de cuenta (`PROP-SES-001..008`), que continúa como propuesta no aprobada y requiere resolver sus pendientes antes de convertirse en una SPEC. Aún no existe `docs/features/` ni una SPEC, PLAN o TASKS de funcionalidad aprobados.
 
 El último paso de código fue el test `propagatesFailureWhenNativeSessionLookupFails` de `NativeAuthenticationRepositoryTest.kt`. Rafael confirmó que pasó la clase de tests. La captura del prompt original y la preparación SDMD son trabajo documental posterior; no sustituyen ni reinician ese avance técnico.
 
