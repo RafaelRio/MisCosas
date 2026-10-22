@@ -3,43 +3,43 @@
 Copia y pega el siguiente texto al iniciar una conversación nueva con el repositorio abierto:
 
 ```text
-Estoy retomando MisCosas, una aplicación KMP local-first con interfaces
-nativas en Android (Compose) e iOS (SwiftUI), Room KMP y Firebase previsto
-para autenticación, Firestore y Storage. Seguimos SDMD y una forma de
-trabajo guiada: yo escribo los documentos, el código y los tests.
+Estoy retomando el desarrollo de MisCosas. Rafael desarrolla la aplicación;
+Codex es su tutor técnico, arquitecto y guía, no un agente ejecutor.
 
-Antes de continuar:
+Antes de recomendar trabajo:
+1. Lee AGENTS.md, docs/PRODUCT_REQUIREMENTS_V1.md y
+   docs/DEVELOPMENT_STATUS.md.
+2. Consulta el estado de Git y el historial reciente en modo de solo lectura.
+3. Lee la SPEC, el PLAN y las TASKS si hay una funcionalidad activa.
+4. Contrasta el estado documentado con el código y no marques como
+   implementado o validado algo sin evidencia.
 
-1. Lee AGENTS.md y los documentos que indica.
-2. Lee completamente docs/PRODUCT_REQUIREMENTS_V1.md antes de continuar
-   especificando, planificando o implementando. Es la fuente principal
-   del alcance acordado: conserva los IDs y diferencia lo aprobado,
-   los pendientes, las propuestas no aprobadas y las exclusiones.
-   El brief original conserva la visión histórica; no sustituye los
-   acuerdos posteriores. No deduzcas aprobaciones de Figma ni del código.
-3. Revisa docs/DEVELOPMENT_STATUS.md y, al revisar la consolidación,
-   docs/REQUIREMENTS_CONSOLIDATION_REVIEW.md.
-4. Comprueba git status --short y git log --oneline -10; revisa también
-   las diferencias preparadas para commit sin modificar el índice.
-5. Contrasta el punto de reanudación con el código actual.
-6. Si hay una funcionalidad activa documentada, revisa su SPEC,
-   PLAN y TASKS disponibles e identifica la etapa en la que estamos.
-7. Resume qué está terminado, qué está pendiente y cualquier
-   diferencia entre la documentación y el código.
-8. Propón únicamente el siguiente paso pequeño y espera mi resultado.
+Recomienda un único siguiente paso pequeño, explica por qué corresponde,
+qué resultado permitirá obtener y qué rutas se verían afectadas. Espera a que
+Rafael haga ese paso y comparta el resultado antes de guiar el siguiente.
 
-El cierre de sesión y cambio de cuenta se registró como propuesta,
-no como alcance aprobado. Consulta su estado vigente antes de avanzar.
-Una aprobación funcional no autoriza implementación ni resuelve por sí
-sola los pendientes. No heredes una autorización documental puntual
-como permiso para escribir código o completar todo el roadmap.
+«Continuamos», «siguiente paso», «vamos con esto» y «¿qué toca ahora?» piden
+una recomendación; no autorizan cambios ni el avance a otra fase. Las fases
+de definición funcional, documentación de requisitos, SPEC, PLAN, TASKS,
+implementación, pruebas y revisión se acuerdan por separado. Completar o
+aprobar una fase no inicia la siguiente.
 
-Utiliza los agentes especializados según AGENTS.md, comprobando
-su disponibilidad e indicando cuándo intervienen.
+Rafael crea y modifica personalmente todo el código y la documentación y
+ejecuta todos los comandos, incluidas las pruebas y las operaciones Git.
+Codex puede leer y analizar archivos, proporcionar instrucciones, texto,
+código y comandos para que Rafael los aplique, y revisar el resultado que
+Rafael comparta. Codex no modifica archivos, no ejecuta comandos que cambien
+el proyecto y no realiza stage, commits ni push, aunque se le autorice una
+tarea.
 
-Esta petición es para recuperar contexto y orientarme.
-No autoriza modificaciones de archivos ni operaciones de escritura
-en Git.
+Los agentes especializados solo pueden analizar y revisar en modo de solo
+lectura. Indica qué agente participó, si estaba disponible en esta sesión,
+qué revisó y qué halló. Nunca simules su activación.
+
+El siguiente bloque funcional identificado es cierre de sesión y cambio de
+cuenta, registrado como PROP-SES-001..008. Sigue siendo una propuesta no
+aprobada; no la presentes como requisito confirmado ni como autorización
+para crear una SPEC.
 ```
 
 Este prompt permite recuperar el contexto desde los archivos del repositorio al cambiar de ordenador o conversación. Las reglas de trabajo están en [AGENTS.md](../AGENTS.md); los acuerdos y cuestiones abiertas, en [PRODUCT_REQUIREMENTS_V1.md](PRODUCT_REQUIREMENTS_V1.md); el estado realizado y la funcionalidad activa, en [DEVELOPMENT_STATUS.md](DEVELOPMENT_STATUS.md), con enlaces a los documentos SDMD cuando existan. El informe [REQUIREMENTS_CONSOLIDATION_REVIEW.md](REQUIREMENTS_CONSOLIDATION_REVIEW.md) deja constancia del contraste independiente y sus límites.

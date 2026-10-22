@@ -6,9 +6,23 @@ Este documento es el punto de reanudación del proyecto. Debe actualizarse al ce
 
 ## Forma de trabajo
 
-Las reglas vigentes están en [AGENTS.md](../AGENTS.md). Rafael escribe los documentos, el código y los tests, con orientación y revisión de un paso pequeño cada vez. El asistente solo modifica archivos cuando recibe autorización para un cambio concreto, incluidos cambios documentales y mecánicos. Rafael gestiona Git.
+Rafael desarrolla MisCosas personalmente. El asistente actúa como tutor
+técnico, arquitecto y guía: consulta el estado real, recomienda el siguiente
+paso pequeño, explica por qué corresponde y qué rutas se verían afectadas,
+y revisa el resultado que Rafael comparta.
 
-El flujo SDMD es SPEC, PLAN, TASKS, implementación guiada y validación. Aprobar un documento no autoriza implementación autónoma. Al cerrar un bloque se registran las evidencias y los pendientes, distinguiendo los resultados observados por el asistente de los comunicados por Rafael.
+Rafael crea y modifica todo el código y la documentación y ejecuta todos los
+comandos, incluidas pruebas y operaciones Git. El asistente puede inspeccionar
+el proyecto en modo de solo lectura y proporcionar instrucciones, contenido,
+código o comandos para que Rafael los aplique. No modifica archivos ni ejecuta
+comandos que cambien el proyecto, aunque Rafael autorice una tarea. Tampoco
+hace stage, commits ni push.
+
+Expresiones como «continuamos» o «siguiente paso» solicitan una recomendación,
+no autorizan cambios ni el avance a otra fase. Definición funcional,
+documentación de requisitos, SPEC, PLAN, TASKS, implementación, pruebas y
+revisión se acuerdan por separado. No se considera una fase completada sin
+revisar la evidencia con Rafael.
 
 ## Producto y plataformas
 
@@ -201,21 +215,26 @@ Esta excepción es interna. La futura fachada pública no debe exportarla direct
 
 La consolidación documental de requisitos fue revisada, aprobada por Rafael y confirmada en el commit `7b0891e` (`docs: consolidate MisCosas V1 product requirements`). La fuente principal y su informe están versionados. Seguimos en definición funcional: el siguiente bloque es cierre de sesión y cambio de cuenta (`PROP-SES-001..008`), que continúa como propuesta no aprobada y requiere resolver sus pendientes antes de convertirse en una SPEC. Aún no existe `docs/features/` ni una SPEC, PLAN o TASKS de funcionalidad aprobados.
 
-El último paso de código fue el test `propagatesFailureWhenNativeSessionLookupFails` de `NativeAuthenticationRepositoryTest.kt`. Rafael confirmó que pasó la clase de tests. La captura del prompt original y la preparación SDMD son trabajo documental posterior; no sustituyen ni reinician ese avance técnico.
+El último commit es `88cc7f8` (`docs: update post-consolidation handoff status`). El último paso de código fue el test `propagatesFailureWhenNativeSessionLookupFails` de `NativeAuthenticationRepositoryTest.kt`; Rafael confirmó que pasó la clase de tests. La prueba no se ha vuelto a ejecutar durante esta actualización.
 
 La base local de perfil y sesión ya está implementada, y `NativeAuthenticationRepository.getCurrentUserId()` consulta el puente nativo y traduce su resultado al dominio. El registro de ese adaptador sigue en `TODO`. Firebase todavía no está configurado: siguen pendientes la restauración real de la sesión tras cerrar la app, la recuperación del perfil remoto en un dispositivo nuevo antes de concluir que está incompleto (V1-AUT-011), la conexión del flujo de recuperación con las pantallas, una fachada para consumir los casos de uso y la composición de producción.
 
 El commit `cfde7ca` recoge la recuperación local del perfil y la resolución de los estados de sesión. Los archivos nuevos del puente/adaptador y la preparación SDMD tienen trabajo posterior en el árbol local; contrastar siempre con Git antes de continuar. Las validaciones descritas abajo son históricas o comunicadas por Rafael, no una nueva ejecución de la suite durante esta actualización documental.
 
-## Próximo bloque
+## Estado por fase y siguiente paso
 
-1. Revisar esta consolidación y sus diferencias con código/Figma, sin resolver las ambigüedades por suposición. Rafael decide los archivos de un futuro commit; el asistente no modifica el índice.
-2. Después de esa revisión, retomar con Rafael la definición pendiente. El bloque abierto de cierre de sesión y cambio de cuenta requiere aprobación propia; no inferirla de la autorización para escribir documentación.
-3. Acordar el orden y los límites de la primera SPEC. Registro y recuperación de sesión/perfil sigue siendo una propuesta para empezar la formalización, no una elección de PLAN ni autorización de implementación.
-4. Crear su `SPEC.md` cuando corresponda a partir de [SPEC_TEMPLATE.md](SPEC_TEMPLATE.md), conservando comentarios, enlazando sus RF/CA a los IDs consolidados y completando una sección cada vez. Revisar los nodos relevantes de Figma y [MOBILE_GUIDELINES.md](MOBILE_GUIDELINES.md).
-5. Diferenciar lo existente de las integraciones y comportamientos pendientes. Resolver los pendientes que afecten a la SPEC antes de solicitar su aprobación; preparar después PLAN y TASKS en sus etapas.
+| Fase | Estado actual |
+| --- | --- |
+| Definición funcional | Alcance de V1 consolidado: 217 entradas aprobadas. Quedan 85 cuestiones por especificar; ver detalles e IDs en `PRODUCT_REQUIREMENTS_V1.md`. |
+| Propuestas y decisiones | 8 entradas PROP no aprobadas, incluida `PROP-SES-001..008`; 15 exclusiones, aplazamientos o límites X. No se consideran requisitos aceptados. |
+| SPEC | No hay SPEC de funcionalidad aprobada ni activa en `docs/features/`. |
+| PLAN | No hay PLAN de funcionalidad aprobado. |
+| TASKS | No hay TASKS de funcionalidad creadas; por tanto, ninguna está registrada como pendiente, en curso, completada o bloqueada. |
+| Implementación | Hay modelos de dominio, Room y avances local-first para objetos, hogares, perfil y sesión, además de lógica de registro por email. Firebase y la integración nativa completa siguen pendientes. Los detalles están en “Trabajo completado” y “Perfil y sesión”. |
+| Pruebas y validación | Hay resultados históricos y resultados de tests comunicados por Rafael. No se afirma que se hayan vuelto a ejecutar en esta sesión. La integración Firebase no está validada. |
+| Bloqueos | No hay tareas formalmente bloqueadas en TASKS, pues aún no existe un plan de tareas. La definición de cierre/cambio de cuenta está pendiente de revisar y aprobar. |
 
-El siguiente micro-paso es la revisión de fidelidad de los documentos entregados. No reiniciar los tests ya hechos, reducir V1 ni continuar el registro nativo automáticamente.
+**Siguiente paso recomendado:** retomar la definición funcional de cierre de sesión y cambio de cuenta. Revisar la propuesta `PROP-SES-001..008` y las cuestiones `P-SES`; acordar primero si se aprueba, se modifica o se rechaza. Esto no crea una SPEC ni autoriza su documentación o implementación. Tras resolver esa fase, solicitar autorización independiente para la siguiente.
 
 ## Alcance funcional consolidado
 
@@ -350,7 +369,7 @@ Se creó la fuente principal de requisitos y se actualizaron las instrucciones d
 
 El [informe de consolidación](REQUIREMENTS_CONSOLIDATION_REVIEW.md) registra recuentos, contraste independiente por Mobile App Builder, inspección de nodos Figma por UI Designer, lagunas y comprobaciones documentales. No se han ejecutado builds ni tests ni modificado código de aplicación en este trabajo.
 
-Git conserva cambios anteriores del adaptador de autenticación y documentos sin seguimiento. La versión de AGENTS preparada en el índice estaba vacía: el archivo del directorio de trabajo sí tiene contenido, pero no se ha realizado stage ni commit para sustituir esa versión. Revisar el índice y elegir los archivos con Rafael antes de un futuro commit. La documentación solo estará disponible tras clonar en otro ordenador cuando Rafael la incorpore y transfiera mediante Git.
+La documentación se confirmó en `7b0891e` y la corrección de su punto de reanudación en `88cc7f8`. El contenido completo de `AGENTS.md` está versionado. Al actualizar este estado, el árbol de trabajo tenía archivos Kotlin de autenticación sin seguimiento; no forman parte de esos commits documentales. Consultar Git para conocer su estado vigente. En otro ordenador, recuperar la documentación versionada al actualizar o clonar el repositorio.
 
 ## Reanudación desde otro ordenador o conversación
 
