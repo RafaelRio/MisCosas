@@ -12,15 +12,24 @@
 - Expresiones como «continuamos», «siguiente paso», «vamos con esto» o
   «¿qué toca ahora?» solicitan una recomendación, no autorizan cambios ni
   el inicio de otra fase.
-- Rafael crea y modifica personalmente los archivos de código, pruebas,
-  especificaciones, planes, tareas y documentación. También ejecuta los
-  comandos, incluidas pruebas y operaciones Git. El asistente puede leer,
-  inspeccionar y analizar el proyecto, y proporcionar instrucciones, contenido,
-  código o comandos para que Rafael los aplique o ejecute.
-- El asistente no escribe ni modifica archivos, no ejecuta comandos que
-  cambien el proyecto y no realiza stage, commits ni push, aunque Rafael
-  autorice una tarea. Después de cada paso, Rafael comparte el resultado y el
-  asistente lo revisa sin corregir directamente los archivos.
+- Rafael crea y modifica personalmente el código y las pruebas, y ejecuta los
+  comandos que alteran el proyecto. El asistente puede leer, inspeccionar y
+  analizar el proyecto, y proporcionar instrucciones, contenido, código o
+  comandos para que Rafael los aplique o ejecute.
+- Rafael ha autorizado de forma permanente al asistente a crear y modificar
+  `AGENTS.md` y cualquier archivo dentro de `docs/` para mantener las reglas,
+  registrar decisiones funcionales ya aprobadas y preparar o actualizar SPEC,
+  PLAN, TASKS y estado cuando corresponda al proceso acordado. No hace falta
+  pedir autorización por cada edición documental dentro de ese ámbito. Este
+  permiso no autoriza inventar o aprobar decisiones de producto, avanzar de
+  fase sin acuerdo, modificar código o pruebas, ejecutar comandos que alteren
+  el proyecto ni realizar operaciones Git. Mantener los cambios documentales
+  mínimos, preservar el contenido histórico y comunicar qué se cambió para
+  que Rafael pueda revisarlo.
+- Rafael realiza personalmente los cambios de código y pruebas; el asistente
+  revisa el resultado compartido y guía las correcciones sin editar esos
+  archivos. Rafael también gestiona Git: el asistente no modifica el índice ni
+  realiza commits o push.
 - Las fases funcionales, documentación de requisitos, SPEC, PLAN, TASKS,
   implementación, pruebas y revisión se acuerdan por separado. Aprobar una
   fase no inicia ni autoriza la siguiente. No avanzar de fase hasta revisar
@@ -122,7 +131,8 @@ Sus plantillas son una guía de proceso; la arquitectura es la de MisCosas.
   funcional aprobado, sus restricciones, exclusiones y decisiones pendientes.
   Sus IDs son estables. No confundir aprobación de alcance con una SPEC
   completa, un PLAN aprobado o una funcionalidad implementada. Cierre de
-  sesión y cambio de cuenta siguen como propuesta hasta aprobación expresa.
+  sesión y cambio de cuenta (`PROP-SES-001..008`) están aprobados
+  funcionalmente; aún no existe una SPEC aprobada.
 - `docs/PRODUCT_BRIEF_ORIGINAL.md` conserva íntegra la visión inicial como
   fuente histórica. Los acuerdos posteriores se registran en los requisitos;
   no reescribir el brief para hacer desaparecer decisiones anteriores.
@@ -150,10 +160,11 @@ existente al continuar una funcionalidad. No reescribir todo el proyecto para
 adoptar SDMD: registrar lo existente y distinguirlo de los cambios propuestos.
 Las especificaciones definen lo esperado; el código y las evidencias describen
 lo realizado. No cambiar requisitos para encubrir una implementación incompleta.
-Al cerrar un acuerdo, indicar si ya está registrado en archivos o solo en la
-conversación. Proponer la incorporación documental cuando falte, indicando a
-Rafael qué archivo y contenido debe añadir. Rafael realiza personalmente esos
-cambios. La memoria de la conversación no sustituye los archivos que necesita
+Al cerrar un acuerdo, registrar las decisiones aprobadas en
+`docs/PRODUCT_REQUIREMENTS_V1.md`, conservando IDs y trazabilidad, y mantener
+el estado documental pertinente dentro del permiso permanente. No registrar
+como aprobadas propuestas no aceptadas ni resolver ambigüedades por cuenta
+propia. La memoria de la conversación no sustituye los archivos que necesita
 una sesión nueva.
 
 ## Flujo SDMD y TDD
@@ -188,10 +199,11 @@ una sesión nueva.
 6. **Validación y cierre:** indicar a Rafael las comprobaciones adecuadas,
    sus comandos y qué evidencia aportar. Rafael ejecuta las comprobaciones.
    Revisar los resultados compartidos y distinguir lo validado de lo
-   pendiente. Recomendar las actualizaciones de TASKS y DEVELOPMENT_STATUS
-   con sus rutas y texto propuesto para que Rafael las aplique. Rafael realiza
-   personalmente las operaciones de Git; el asistente solo recomienda los
-   archivos y comandos, sin modificar el índice ni crear commits o hacer push.
+   pendiente. Actualizar TASKS y DEVELOPMENT_STATUS cuando reflejen trabajo
+   acordado o evidencia comprobada, dentro del permiso documental permanente,
+   e informar a Rafael de los cambios. Rafael realiza personalmente las
+   operaciones de Git; el asistente no modifica el índice ni crea commits o
+   hace push.
 
 Si aparece una contradicción o falta una decisión de producto, revisar la
 parte afectada de SPEC/PLAN antes de implementar ese comportamiento. Formular

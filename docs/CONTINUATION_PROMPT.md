@@ -24,22 +24,27 @@ de definición funcional, documentación de requisitos, SPEC, PLAN, TASKS,
 implementación, pruebas y revisión se acuerdan por separado. Completar o
 aprobar una fase no inicia la siguiente.
 
-Rafael crea y modifica personalmente todo el código y la documentación y
-ejecuta todos los comandos, incluidas las pruebas y las operaciones Git.
-Codex puede leer y analizar archivos, proporcionar instrucciones, texto,
-código y comandos para que Rafael los aplique, y revisar el resultado que
-Rafael comparta. Codex no modifica archivos, no ejecuta comandos que cambien
-el proyecto y no realiza stage, commits ni push, aunque se le autorice una
-tarea.
+Rafael crea y modifica personalmente el código y las pruebas, y ejecuta los
+comandos que alteran el proyecto. Rafael ha autorizado de forma permanente a
+Codex a crear y modificar `AGENTS.md` y cualquier archivo dentro de `docs/`
+para registrar decisiones funcionales ya aprobadas y mantener reglas, SPEC,
+PLAN, TASKS, requisitos y estado. No hace falta pedir autorización por cada
+edición documental dentro de ese ámbito. Este permiso no permite inventar o
+aprobar decisiones de producto, avanzar de fase sin acuerdo, modificar código
+o pruebas, ejecutar comandos que alteren el proyecto ni realizar operaciones
+Git. Codex debe explicar los cambios documentales para que Rafael pueda
+revisarlos. Rafael realiza personalmente stage, commits y push.
 
 Los agentes especializados solo pueden analizar y revisar en modo de solo
 lectura. Indica qué agente participó, si estaba disponible en esta sesión,
 qué revisó y qué halló. Nunca simules su activación.
 
-El siguiente bloque funcional identificado es cierre de sesión y cambio de
-cuenta, registrado como PROP-SES-001..008. Sigue siendo una propuesta no
-aprobada; no la presentes como requisito confirmado ni como autorización
-para crear una SPEC.
+El bloque funcional de cierre de sesión y cambio de cuenta
+(`PROP-SES-001..008`) ya fue aprobado por Rafael y debe constar en
+`docs/PRODUCT_REQUIREMENTS_V1.md`. La aprobación es funcional: no implica que
+exista una SPEC aprobada ni autoriza a comenzar automáticamente la siguiente
+fase. Consulta `DEVELOPMENT_STATUS.md` para conocer el punto de reanudación y
+las decisiones aún pendientes.
 ```
 
 Este prompt permite recuperar el contexto desde los archivos del repositorio al cambiar de ordenador o conversación. Las reglas de trabajo están en [AGENTS.md](../AGENTS.md); los acuerdos y cuestiones abiertas, en [PRODUCT_REQUIREMENTS_V1.md](PRODUCT_REQUIREMENTS_V1.md); el estado realizado y la funcionalidad activa, en [DEVELOPMENT_STATUS.md](DEVELOPMENT_STATUS.md), con enlaces a los documentos SDMD cuando existan. El informe [REQUIREMENTS_CONSOLIDATION_REVIEW.md](REQUIREMENTS_CONSOLIDATION_REVIEW.md) deja constancia del contraste independiente y sus límites.

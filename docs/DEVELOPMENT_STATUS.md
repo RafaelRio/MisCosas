@@ -11,12 +11,16 @@ técnico, arquitecto y guía: consulta el estado real, recomienda el siguiente
 paso pequeño, explica por qué corresponde y qué rutas se verían afectadas,
 y revisa el resultado que Rafael comparta.
 
-Rafael crea y modifica todo el código y la documentación y ejecuta todos los
-comandos, incluidas pruebas y operaciones Git. El asistente puede inspeccionar
-el proyecto en modo de solo lectura y proporcionar instrucciones, contenido,
-código o comandos para que Rafael los aplique. No modifica archivos ni ejecuta
-comandos que cambien el proyecto, aunque Rafael autorice una tarea. Tampoco
-hace stage, commits ni push.
+Rafael crea y modifica personalmente el código y las pruebas, y ejecuta los
+comandos que alteran el proyecto. Rafael ha autorizado de forma permanente al
+asistente a crear y modificar `AGENTS.md` y todos los archivos de `docs/` para
+registrar decisiones funcionales ya aprobadas y mantener reglas, SPEC, PLAN,
+TASKS, requisitos y estado. No hace falta pedir autorización por cada edición
+documental dentro de ese ámbito. Este permiso no autoriza inventar o aprobar
+decisiones funcionales, avanzar de fase sin acuerdo, modificar código o
+pruebas, ejecutar comandos que alteren el proyecto ni realizar operaciones
+Git. El asistente comunica los cambios documentales para su revisión; Rafael
+gestiona stage, commits y push.
 
 Expresiones como «continuamos» o «siguiente paso» solicitan una recomendación,
 no autorizan cambios ni el avance a otra fase. Definición funcional,
@@ -32,7 +36,7 @@ MisCosas es un pasaporte digital personal y familiar para registrar objetos, com
 
 El producto previsto incluye hogares compartidos y administración de miembros, fotografías, categorías, favoritos, historial, alertas, búsqueda y filtros, estadísticas sobre el precio histórico de compra y sincronización entre miembros y dispositivos. Los objetos pertenecen al hogar. El funcionamiento local-first y la recuperación de información al cambiar de móvil forman parte de esa visión. Se comienza en España y en español, con preparación para internacionalización.
 
-El alcance funcional aprobado está consolidado en [PRODUCT_REQUIREMENTS_V1.md](PRODUCT_REQUIREMENTS_V1.md), que debe leerse completo antes de continuar. Incluye desde V1 hogares compartidos, pertenencia a varios hogares, permisos, invitaciones y sincronización; su implementación gradual no los excluye de esa versión. El brief se conserva como fuente histórica. Exportación de inventario PDF/CSV y categorías personalizadas siguen pospuestas o como posibilidades futuras según sus entradas X-. El alcance aprobado no demuestra que las funcionalidades estén implementadas ni resuelve sus cuestiones pendientes.
+El alcance funcional aprobado está consolidado en [PRODUCT_REQUIREMENTS_V1.md](PRODUCT_REQUIREMENTS_V1.md), que debe leerse completo antes de continuar. Incluye desde V1 hogares compartidos, pertenencia a varios hogares, permisos, invitaciones y sincronización; su implementación gradual no los excluye de esa versión. El bloque de cierre de sesión y cambio de cuenta (`PROP-SES-001..008`) también está aprobado funcionalmente y documentado allí. El brief se conserva como fuente histórica. Exportación de inventario PDF/CSV y categorías personalizadas siguen pospuestas o como posibilidades futuras según sus entradas X-. El alcance aprobado no demuestra que las funcionalidades estén implementadas ni resuelve sus cuestiones pendientes.
 
 | Plataforma | Interfaz | Versión mínima | Identificador |
 | --- | --- | --- | --- |
@@ -213,7 +217,7 @@ Esta excepción es interna. La futura fachada pública no debe exportarla direct
 
 ## Punto de reanudación
 
-La consolidación documental de requisitos fue revisada, aprobada por Rafael y confirmada en el commit `7b0891e` (`docs: consolidate MisCosas V1 product requirements`). La fuente principal y su informe están versionados. Seguimos en definición funcional: el siguiente bloque es cierre de sesión y cambio de cuenta (`PROP-SES-001..008`), que continúa como propuesta no aprobada y requiere resolver sus pendientes antes de convertirse en una SPEC. Aún no existe `docs/features/` ni una SPEC, PLAN o TASKS de funcionalidad aprobados.
+La consolidación documental de requisitos fue revisada, aprobada por Rafael y confirmada en el commit `7b0891e` (`docs: consolidate MisCosas V1 product requirements`). La fuente principal y su informe están versionados. La definición funcional de cierre de sesión y cambio de cuenta (`PROP-SES-001..008`) quedó aprobada en la conversación y registrada en `PRODUCT_REQUIREMENTS_V1.md`; sus cuestiones pendientes no se consideran resueltas. Este bloque todavía no tiene SPEC, PLAN ni TASKS. Aún no existe `docs/features/` ni una SPEC, PLAN o TASKS de funcionalidad aprobados.
 
 El último commit es `88cc7f8` (`docs: update post-consolidation handoff status`). El último paso de código fue el test `propagatesFailureWhenNativeSessionLookupFails` de `NativeAuthenticationRepositoryTest.kt`; Rafael confirmó que pasó la clase de tests. La prueba no se ha vuelto a ejecutar durante esta actualización.
 
@@ -225,16 +229,16 @@ El commit `cfde7ca` recoge la recuperación local del perfil y la resolución de
 
 | Fase | Estado actual |
 | --- | --- |
-| Definición funcional | Alcance de V1 consolidado: 217 entradas aprobadas. Quedan 85 cuestiones por especificar; ver detalles e IDs en `PRODUCT_REQUIREMENTS_V1.md`. |
-| Propuestas y decisiones | 8 entradas PROP no aprobadas, incluida `PROP-SES-001..008`; 15 exclusiones, aplazamientos o límites X. No se consideran requisitos aceptados. |
+| Definición funcional | 217 entradas V1 aprobadas y 8 decisiones `PROP-SES-001..008` aprobadas funcionalmente. Quedan 84 cuestiones abiertas por especificar; ver IDs en `PRODUCT_REQUIREMENTS_V1.md`. |
+| Propuestas y decisiones | `PROP-SES-001..008` aprobadas funcionalmente; otras propuestas y 15 exclusiones, aplazamientos o límites X conservan el estado indicado en el documento de requisitos. |
 | SPEC | No hay SPEC de funcionalidad aprobada ni activa en `docs/features/`. |
 | PLAN | No hay PLAN de funcionalidad aprobado. |
 | TASKS | No hay TASKS de funcionalidad creadas; por tanto, ninguna está registrada como pendiente, en curso, completada o bloqueada. |
 | Implementación | Hay modelos de dominio, Room y avances local-first para objetos, hogares, perfil y sesión, además de lógica de registro por email. Firebase y la integración nativa completa siguen pendientes. Los detalles están en “Trabajo completado” y “Perfil y sesión”. |
 | Pruebas y validación | Hay resultados históricos y resultados de tests comunicados por Rafael. No se afirma que se hayan vuelto a ejecutar en esta sesión. La integración Firebase no está validada. |
-| Bloqueos | No hay tareas formalmente bloqueadas en TASKS, pues aún no existe un plan de tareas. La definición de cierre/cambio de cuenta está pendiente de revisar y aprobar. |
+| Bloqueos | No hay tareas formalmente bloqueadas en TASKS, pues aún no existe un plan de tareas. Antes de una SPEC de cierre/cambio de cuenta deben concretarse los puntos que afecten al comportamiento, sin reabrir los acuerdos ya aprobados. |
 
-**Siguiente paso recomendado:** retomar la definición funcional de cierre de sesión y cambio de cuenta. Revisar la propuesta `PROP-SES-001..008` y las cuestiones `P-SES`; acordar primero si se aprueba, se modifica o se rechaza. Esto no crea una SPEC ni autoriza su documentación o implementación. Tras resolver esa fase, solicitar autorización independiente para la siguiente.
+**Punto de reanudación:** el bloque funcional de cierre de sesión y cambio de cuenta está aprobado en sus ocho propuestas y registrado en `PRODUCT_REQUIREMENTS_V1.md`. Quedan por concretar `P-SES-002` (protección, caducidad y limpieza del almacenamiento local, y recuperación de pendientes tras perder acceso) y `P-SES-003` (si revocar sesiones de otros dispositivos o eliminar la cuenta serán funciones independientes). También está pendiente el tratamiento de notificaciones entregadas, remotas o en curso tras cerrar sesión (`P-ALE-003`). La siguiente conversación debe escoger un único punto funcional pendiente y explicar la recomendación; todavía no se ha iniciado una SPEC ni se debe saltar a ella automáticamente.
 
 ## Alcance funcional consolidado
 
@@ -258,8 +262,9 @@ La fuente detallada y los pendientes por bloque están en [PRODUCT_REQUIREMENTS_
 | Estadísticas por hogar y moneda; agrupaciones anuales y mensuales | V1-EST |
 | Sincronización Firebase, combinación compatible y conflictos explícitos | V1-SYN |
 | Correo/contraseña, Google, Apple, vinculación y recuperación de acceso | V1-AUT |
+| Cierre de sesión local, aislamiento por cuenta y cambio de cuenta | PROP-SES-001..008 |
 
-Las reglas transversales se registran en V1-GEN. Las entradas P- conservan las cuestiones sin concretar; PROP-SES conserva la propuesta de cierre/cambio de cuenta sin aprobar. Las entradas X- distinguen exclusiones de V1, aplazamientos y elementos fuera de un bloque por ahora, como iCloud o resumen por email; no convertirlos en exclusiones definitivas sin acuerdo.
+Las reglas transversales se registran en V1-GEN. Las entradas P- conservan las cuestiones sin concretar; `PROP-SES-001..008` están aprobadas y mantienen sus IDs de trazabilidad. Las entradas X- distinguen exclusiones de V1, aplazamientos y elementos fuera de un bloque por ahora, como iCloud o resumen por email; no convertirlos en exclusiones definitivas sin acuerdo.
 
 Pendientes relevantes: límites y conservación de archivos; umbrales de alertas; fechas y correcciones de mantenimiento; seguimiento de devoluciones y efecto en inventario; selección de garantías al filtrar/ordenar; estados incluidos en estadísticas; conflictos, eliminaciones y permisos tras revocación; validaciones de autenticación y comprobación remota del perfil. Cada decisión conserva su ID en la fuente principal. Las diferencias Figma están registradas allí con nodos reales y nivel de comprobación, sin aprobar automáticamente todo lo diseñado.
 

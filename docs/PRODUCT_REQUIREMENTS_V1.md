@@ -1,7 +1,7 @@
 # MisCosas — Requisitos funcionales de V1
 
 **Consolidación:** 22 de octubre de 2026.
-**Estado del documento:** consolidación estructurada de acuerdos aprobados; pendiente de revisión de fidelidad por Rafael.
+**Estado del documento:** requisitos y decisiones funcionales aprobados registrados; quedan cuestiones pendientes de especificación según sus IDs.
 **Etapa:** definición funcional. Este documento no constituye una SPEC de funcionalidad completa ni un PLAN aprobado y no autoriza implementación.
 
 ## Cómo leer y mantener este documento
@@ -12,10 +12,10 @@ Esta es la fuente principal del alcance funcional acordado para V1. Conserva las
 | --- | --- | --- |
 | Aprobado para V1 | V1-AREA-NNN | Requisito o restricción aceptado. Puede remitir a detalles pendientes. |
 | Pendiente de especificación | P-AREA-NNN | Decisión, ambigüedad o detalle aún sin resolver. No es un comportamiento elegido. |
-| Propuesta todavía no aprobada | PROP-AREA-NNN | Alternativa presentada por el asistente o presente en el diseño sin aprobación. |
+| Propuesta no aprobada / ID de propuesta aprobada | PROP-AREA-NNN | Una propuesta no aprobada no es requisito. Si Rafael la aprueba, se conserva su ID de origen y se marca expresamente como aprobada; no se renumera. |
 | Excluido de V1 o pospuesto | X-AREA-NNN | Límite explícito; cada entrada indica si afecta a V1, a este bloque o solo a una entrega posterior. |
 
-Los identificadores son estables: no renumerarlos al insertar nuevos acuerdos; conservar la referencia de los sustituidos y explicar el cambio. El recuento de requisitos se refiere a entradas V1-, y el de pendientes a entradas P-, no al número de frases o subcondiciones. Las referencias a IDs dentro de otros párrafos no se cuentan otra vez.
+Los identificadores son estables: no renumerarlos al insertar nuevos acuerdos; conservar la referencia de los sustituidos y explicar el cambio. El recuento de requisitos V1- se refiere a entradas con esos IDs; las propuestas aprobadas conservan sus IDs PROP- y se informan por separado. El recuento de pendientes se refiere a entradas P- marcadas como pendientes, no al número de frases o subcondiciones; las entradas P- resueltas se conservan para trazabilidad y no cuentan como pendientes abiertos. Las referencias a IDs dentro de otros párrafos no se cuentan otra vez.
 
 Las SPEC de docs/features/ usarán sus propios RF- y CA- y referenciarán estos IDs. Desarrollarán los comportamientos pendientes y criterios observables. El PLAN contendrá clases, tablas, contratos, algoritmos, dependencias, migraciones y validación técnica. TASKS se derivará del PLAN aprobado. Una discrepancia entre documentos debe señalarse y resolverse con Rafael; no adaptar los requisitos para justificar el código existente.
 
@@ -23,7 +23,7 @@ El [brief original](PRODUCT_BRIEF_ORIGINAL.md) se conserva como fuente históric
 
 ## Procedencia de los acuerdos
 
-Los acuerdos proceden de los mensajes de Rafael en esta conversación, anteriores a la solicitud de consolidación y a su reanudación del 22/10/2026. No se asignan fechas individuales de aprobación no verificadas. Las frases de esta tabla identifican el mensaje fuente; los requisitos de cada bloque desarrollan todas sus condiciones, no solo esas frases.
+Los acuerdos iniciales proceden de los mensajes de Rafael anteriores a la consolidación; S19 registra aprobaciones funcionales posteriores durante la reanudación. No se asignan fechas individuales de aprobación no verificadas. Las frases de esta tabla identifican el mensaje fuente; los requisitos de cada bloque desarrollan todas sus condiciones, no solo esas frases.
 
 | Fuente | Mensaje identificable / alcance | Destino |
 | --- | --- | --- |
@@ -44,8 +44,9 @@ Los acuerdos proceden de los mensajes de Rafael en esta conversación, anteriore
 | S14 | «incluyendo las agrupaciones anuales y mensuales» | EST |
 | S15 | «sincronización automática mediante Firebase, combinación de cambios compatibles» | SYN |
 | S16 | «los tres métodos de autenticación» | AUT |
-| S17 | Propuesta previa del asistente sobre cierre de sesión, cotejada por Mobile App Builder con el mensaje original de la conversación; Rafael confirma expresamente que todavía NO está aprobada | PROP-SES |
+| S17 | Propuesta previa del asistente sobre cierre de sesión, cotejada por Mobile App Builder con el mensaje original; en el momento de la consolidación Rafael confirmó que todavía no estaba aprobada | PROP-SES como propuesta original, posteriormente aprobada en S19 |
 | S18 | Autorización de consolidación documental, repetida tras interrupción | Este documento y enlaces de reanudación; no autoriza código ni commit |
+| S19 | Aprobaciones expresas de Rafael al reanudar la definición: cierre local; tratamiento de pendientes; aislamiento y recuperación por UID y permisos; cierre offline; cancelación de recordatorios locales. Las notificaciones ya entregadas, remotas y en curso quedan pendientes | PROP-SES-001..008 aprobadas para V1; pendientes relacionados en P-SES, P-ROL, P-HOG, P-SYN y P-ALE |
 
 ## Contexto y restricciones transversales
 
@@ -97,7 +98,7 @@ Los acuerdos proceden de los mensajes de Rafael en esta conversación, anteriore
 - **V1-ROL-005:** Puede haber varios administradores; debe existir al menos uno en todo momento.
 - **V1-ROL-006:** Cualquier miembro puede abandonar voluntariamente el hogar. El último administrador deberá transferir previamente la administración o resolver el cierre del hogar.
 - **V1-ROL-007:** Una persona retirada pierde acceso al inventario compartido. Los objetos que registró permanecen en el hogar.
-- **V1-ROL-008:** Los cambios offline de alguien que pierde permisos antes de sincronizarlos no se aplicarán automáticamente. Se deberá informar y evitar pérdidas silenciosas; la gestión segura de esos cambios queda por definir.
+- **V1-ROL-008:** Los cambios offline de alguien que pierde permisos antes de sincronizarlos no se aplicarán automáticamente. Una vez confirmada la pérdida de acceso, no se mostrará el inventario del hogar ni se sincronizarán sus pendientes. Se informará al usuario y no se borrarán pendientes de forma automática y silenciosa; su tratamiento y posible recuperación siguen pendientes de especificación.
 - **V1-ROL-009:** El PLAN debe adaptar Item y la persistencia para que los favoritos se asocien a cada usuario, no al objeto global.
 - **V1-ROL-010:** Conservar información básica de quién creó un objeto y quién lo modificó por última vez. Esto no exige un historial técnico completo de cada edición.
 - **V1-ROL-011:** No introducir permisos individuales por objeto en V1. Los permisos de inventario serán iguales para los miembros y administradores autorizados.
@@ -106,7 +107,7 @@ Los acuerdos proceden de los mensajes de Rafael en esta conversación, anteriore
 
 - **P-ROL-001:** Flujos de promoción, retirada o transferencia entre administradores y protección del último administrador; no asumir que transferir siempre degrada al anterior.
 - **P-ROL-002:** Cierre de hogar y salida del último administrador/miembro: efectos, confirmaciones y tratamiento de datos.
-- **P-ROL-003:** Momento en que se conoce una revocación offline, bloqueo de acceso, tratamiento de copias locales y conservación/información sobre cambios pendientes.
+- **P-ROL-003:** Cómo detectar una revocación cuando el dispositivo está offline y cómo tratar, conservar e informar sobre las copias locales y los cambios pendientes bloqueados. Una vez confirmada la pérdida de acceso, no se mostrará el hogar ni se sincronizarán sus pendientes; estos no se borrarán automáticamente y su posible recuperación sigue por definir.
 - **P-ROL-004:** Privacidad y presentación de autoría de antiguos miembros, sin perder los objetos e historial que deban permanecer.
 
 ## 03. Invitaciones mediante código — ITC
@@ -142,14 +143,14 @@ Los acuerdos proceden de los mensajes de Rafael en esta conversación, anteriore
 - **V1-HOG-007:** Aceptar una invitación permite unirse a otro hogar sin abandonar los anteriores.
 - **V1-HOG-008:** Separar los inventarios también en almacenamiento local. Consultar y modificar offline la información previamente sincronizada de los hogares accesibles, respetando las limitaciones de seguridad por definir.
 - **V1-HOG-009:** Asociar los pendientes al hogar correspondiente. Cambiar de hogar no pierde datos ni mezcla operaciones pendientes.
-- **V1-HOG-010:** Al abandonar o ser expulsado se pierde el acceso al inventario del hogar; se definirán el tratamiento local y los cambios sin sincronizar.
+- **V1-HOG-010:** Al abandonar o ser expulsado se pierde el acceso al inventario del hogar. Una vez confirmada la pérdida de acceso, no se mostrará ese inventario ni se sincronizarán sus operaciones pendientes. No se borrarán pendientes de forma automática y silenciosa; su tratamiento y posible recuperación quedan pendientes de especificación.
 - **V1-HOG-011:** Los favoritos son por usuario y asociados a objetos de su hogar correspondiente.
 - **V1-HOG-012:** No establecer inicialmente un límite arbitrario de hogares por usuario. Cualquier restricción técnica razonable futura deberá justificarse.
 
 **Pendiente de especificación:**
 
 - **P-HOG-001:** Selección inicial o alternativa si el último hogar ya no existe o no es accesible, y comportamiento mientras se comprueban pertenencias.
-- **P-HOG-002:** Datos todavía no descargados de un hogar y límites del acceso offline; coordinar con P-ROL-003.
+- **P-HOG-002:** Datos de un hogar todavía no descargados y límites del acceso offline, incluida la detección de una pérdida de permisos aún no recibida; coordinar con P-ROL-003 y P-SYN-004. Tras confirmar la pérdida de acceso, se aplican V1-HOG-010.
 - **P-HOG-003:** Gestión de hogar activo al abrir una alerta de otro hogar y al perder acceso, sin mezclar consultas ni operaciones.
 
 ## 05. Fotografías de objetos — FOT
@@ -350,9 +351,9 @@ Los acuerdos proceden de los mensajes de Rafael en esta conversación, anteriore
 
 - **P-ALE-001:** Horarios, zonas horarias, umbrales, repeticiones, antelaciones y configuración inicial; distinguir umbral de una alerta compartida de antelación personal.
 - **P-ALE-002:** Significado, duración y sincronización de silencio y descarte.
-- **P-ALE-003:** Comportamiento entre dispositivos, duplicados, avisos ya entregados/programados y cambios recibidos tarde.
+- **P-ALE-003:** Comportamiento entre dispositivos, duplicados, avisos ya entregados y cambios recibidos tarde. Las notificaciones ya entregadas, remotas o en curso cuando se cierra sesión quedan pendientes según PROP-SES-007; los recordatorios locales programados del dispositivo actual sí se cancelan al cerrar sesión.
 - **P-ALE-004:** Tratamiento de archivados y otros estados, tareas pausadas y correcciones que reactiven avisos.
-- **P-ALE-005:** Pérdida de acceso offline y privacidad de avisos hasta conocer la revocación; no prometer conocimiento instantáneo de cambios remotos.
+- **P-ALE-005:** Pérdida de acceso offline y privacidad de avisos hasta conocer la revocación; no prometer conocimiento instantáneo de cambios remotos. La cancelación local de recordatorios al cerrar sesión se rige por PROP-SES-007.
 
 ## 13. Búsqueda, filtros y ordenación — BUS
 
@@ -429,7 +430,7 @@ Los acuerdos proceden de los mensajes de Rafael en esta conversación, anteriore
 - **V1-SYN-011:** Conservar fotografías y documentos pendientes hasta confirmar sincronización; los reintentos no duplican archivos ni eliminan originales prematuramente.
 - **V1-SYN-012:** Reintentos idempotentes de creación de objetos, acontecimientos, documentos y realizaciones: no generan registros duplicados. Concretar detalles en SPEC/PLAN.
 - **V1-SYN-013:** Al entrar en otro dispositivo, recuperar hogares autorizados y datos sincronizados. Explicar que los cambios que nunca llegaron al servidor no son recuperables automáticamente desde otro dispositivo.
-- **V1-SYN-014:** Al detectar pérdida de pertenencia/permisos, impedir nuevas sincronizaciones no autorizadas y gestionar de forma segura datos locales y pendientes.
+- **V1-SYN-014:** Al detectar pérdida de pertenencia/permisos, impedir nuevas sincronizaciones no autorizadas, no mostrar el inventario afectado y no sincronizar sus pendientes. Informar al usuario y no borrar pendientes de forma automática y silenciosa; su tratamiento y posible recuperación quedan pendientes de especificación.
 - **V1-SYN-015:** Definir políticas para eliminación simultánea con edición, realizaciones duplicadas, garantías/documentos concurrentes y cambios de permisos.
 - **V1-SYN-016:** Respetar elementos de sincronización Figma de ambas plataformas. Documentar los estados/pantallas adicionales necesarios para conflictos y proponer su integración visual antes de implementar.
 - **V1-SYN-017:** No borrar pendientes ni versiones en conflicto por un reintento fallido. Proporcionar recuperación y errores comprensibles.
@@ -440,7 +441,7 @@ Los acuerdos proceden de los mensajes de Rafael en esta conversación, anteriore
 - **P-SYN-001:** Políticas concretas de compatibilidad, unidades lógicas, versiones conservadas y quién puede resolver cada conflicto.
 - **P-SYN-002:** Eliminación frente a edición y conservación de trabajo afectado, incluidas referencias entre registros.
 - **P-SYN-003:** Realizaciones offline duplicadas y conflictos de garantías, documentos y fotografía principal.
-- **P-SYN-004:** Revocaciones offline: acceso local, notificaciones, publicación y recuperación segura de pendientes. No se puede conocer una revocación remota aún no recibida.
+- **P-SYN-004:** Cómo detectar revocaciones aún no recibidas mientras se está offline, privacidad de notificaciones hasta conocerlas y tratamiento y posible recuperación de pendientes bloqueados. Tras confirmar la pérdida de acceso, se aplican V1-ROL-008, V1-HOG-010 y V1-SYN-014; los pendientes no se borran automáticamente ni se sincronizan.
 - **P-SYN-005:** Recuperación ante errores, reintentos, operaciones interrumpidas, información parcial y confirmación separada de archivos.
 - **P-SYN-006:** Integración visual para resolver conflictos, sincronizar manualmente y presentar estados en ambas plataformas.
 - **P-SYN-007:** Algoritmos de idempotencia, transacciones, versiones remotas, reglas Firebase y migraciones pertenecen al PLAN tras concretar el comportamiento; no adoptarlos por el estado actual del outbox.
@@ -461,8 +462,8 @@ Los acuerdos proceden de los mensajes de Rafael en esta conversación, anteriore
 - **V1-AUT-010:** Si Firebase crea la cuenta pero falla el perfil, permitir completarlo sin registrar una segunda cuenta.
 - **V1-AUT-011:** Tras autenticar en otro dispositivo, recuperar perfil y hogares existentes. No interpretar falta de datos locales como registro incompleto antes de comprobar el estado remoto.
 - **V1-AUT-012:** Sin hogares, ofrecer crear uno o aceptar invitación; con varios, aplicar reglas de selección ya aprobadas.
-- **V1-AUT-013:** Registro, nuevos inicios de sesión, vinculación y recuperación de contraseña requieren conexión. El acceso posterior al inventario local sigue las reglas offline de sesiones previamente establecidas.
-- **V1-AUT-014:** Usar mecanismos oficiales Firebase/proveedores; no almacenar contraseñas ni tokens sensibles inseguramente. Concretar cierre, revocación y datos locales al cambiar cuenta.
+- **V1-AUT-013:** Registro, nuevos inicios de sesión, vinculación y recuperación de contraseña requieren conexión. Tras cerrar sesión offline, se requiere conexión a Internet para volver a iniciar sesión, incluso con la misma cuenta. El acceso posterior al inventario local sigue las reglas offline de sesiones previamente establecidas.
+- **V1-AUT-014:** Usar mecanismos oficiales Firebase/proveedores; no almacenar contraseñas ni tokens sensibles inseguramente. El cierre local y el cambio de cuenta se rigen por SES; no eliminan la cuenta ni cierran sesiones de otros dispositivos.
 - **V1-AUT-015:** Contemplar correo oculto de Apple y datos de perfil que solo se proporcionan en la primera autorización.
 - **V1-AUT-016:** Respetar Figma Android/iOS y adaptar la verificación iOS al enlace aprobado. Definir visualmente vinculación y errores adicionales antes de implementar.
 - **V1-AUT-017:** Mantener sesión, perfil y estados coherentes en ambas plataformas, con lógica compartible en KMP e integraciones nativas adecuadas.
@@ -474,26 +475,29 @@ Los acuerdos proceden de los mensajes de Rafael en esta conversación, anteriore
 - **P-AUT-003:** Vinculación segura, credenciales en otra cuenta, posibles identidades duplicadas y recuperación de acceso sin fusión automática.
 - **P-AUT-004:** Disponibilidad e integración de ambos proveedores en cada plataforma, datos iniciales de Apple y correo oculto; validar continuidad real.
 - **P-AUT-005:** Recuperación del perfil remoto frente a alta incompleta y fallo remoto: una consulta con error no demuestra que el perfil no existe.
-- **P-AUT-006:** Cierre de sesión, revocación, cambio de cuenta y tratamiento local: PROP-SES aún sin aprobar.
+- **P-AUT-006:** La conducta funcional de cierre local y cambio de cuenta está aprobada en SES. Siguen pendientes la política de almacenamiento, caducidad y limpieza de datos locales (P-SES-002), el tratamiento de pendientes tras revocación (P-SES-002, P-ROL-003 y P-SYN-004) y si la revocación de otras sesiones o la eliminación de cuenta se ofrecerán como funciones independientes (P-SES-003).
 
-## Propuesta de cierre de sesión y cambio de cuenta
+## Cierre de sesión y cambio de cuenta — SES
 
-**Estado de todas las entradas PROP-SES: Propuesta todavía no aprobada. Fuente: S17. No implementar ni presentar como requisito confirmado.**
+**Estado:** Las decisiones `PROP-SES-001..008` están aprobadas para V1 por Rafael (S19). Se conservan sus identificadores de origen para mantener la trazabilidad. Esta aprobación funcional no inicia una SPEC, un PLAN ni la implementación.
 
-- **PROP-SES-001:** Cerrar la sesión en este dispositivo y volver al acceso, conservando la cuenta y sus pertenencias.
-- **PROP-SES-002:** Avisar antes si hay cambios, archivos o conflictos pendientes y ofrecer cancelar, sincronizar primero cuando sea posible o cerrar conservando los pendientes.
-- **PROP-SES-003:** Conservar pendientes protegidos, asociados exclusivamente a la cuenta y hogar; otra cuenta no podría consultarlos, modificarlos ni sincronizarlos como propios.
-- **PROP-SES-004:** Recuperar pendientes tras autenticar la misma identidad mediante cualquier método vinculado, sin basarse solo en coincidencia de correo.
-- **PROP-SES-005:** Comprobar permisos vigentes antes de publicar pendientes recuperados; definir qué acceso local se permite tras una revocación.
-- **PROP-SES-006:** Separar inventarios, favoritos, preferencias, búsquedas recientes, operaciones y pantallas abiertas al cambiar de cuenta.
-- **PROP-SES-007:** Detener nuevos intentos de sincronización de la cuenta cerrada y cancelar recordatorios locales programados; concretar operaciones en curso, avisos ya entregados y notificaciones remotas.
-- **PROP-SES-008:** Permitir cerrar offline explicando que volver a iniciar sesión requiere conexión.
+- **PROP-SES-001 — Aprobado para V1:** Cerrar sesión afecta únicamente al dispositivo actual. No elimina la cuenta ni sus datos, y no cierra las sesiones de otros dispositivos. Cambiar de cuenta consiste en cerrar la sesión actual e iniciar sesión con otra cuenta.
+- **PROP-SES-002 — Aprobado para V1:** Si hay cambios, fotografías, documentos o conflictos pendientes, avisar antes de cerrar sesión y ofrecer cancelar, intentar sincronizar o cerrar conservando todos los pendientes asociados a la cuenta y al hogar originales. Solo se intentará sincronizar si hay conexión. Si quedan pendientes, errores o conflictos tras el intento, informar del resultado y esperar una decisión expresa; no cerrar sesión automáticamente. Nunca descartar pendientes de forma silenciosa.
+- **PROP-SES-003 — Aprobado para V1:** Conservar los datos locales, documentos, preferencias y operaciones pendientes asociados a la identidad original, pero hacerlos inaccesibles mientras la sesión esté cerrada y desde cualquier otra cuenta.
+- **PROP-SES-004 — Aprobado para V1:** Para recuperar esos datos se debe autenticar exactamente la misma identidad de Firebase, identificada por el mismo UID. La coincidencia de la dirección de correo no basta.
+- **PROP-SES-005 — Aprobado para V1:** Antes de mostrar los datos de un hogar o sincronizar sus operaciones, comprobar que la identidad conserva permisos de acceso. Si los ha perdido, no mostrar el inventario ni sincronizar sus operaciones pendientes. La pérdida de permisos no debe borrar pendientes de forma automática y silenciosa; su tratamiento y posible recuperación siguen pendientes de especificación.
+- **PROP-SES-006 — Aprobado para V1:** Al cerrar sesión, dejar de mostrar inmediatamente los datos del usuario, sus hogares y su estado de navegación. Mantener separados por identidad los favoritos, las preferencias personales, las búsquedas recientes y cualquier otro estado local del usuario.
+- **PROP-SES-007 — Aprobado para V1, con asuntos pendientes:** Al cerrar sesión, cancelar en el dispositivo actual los recordatorios locales pendientes asociados a esa cuenta; no afectar los recordatorios de otros dispositivos. Al volver a iniciar sesión con la misma identidad, los recordatorios podrán recalcularse y programarse según las preferencias y permisos vigentes. El tratamiento de notificaciones ya entregadas, remotas o en curso queda pendiente y se relaciona con P-ALE-003.
+- **PROP-SES-008 — Aprobado para V1:** Permitir cerrar sesión sin conexión y sin intentar sincronizar. Antes de confirmar, informar de que se necesitará conexión a Internet para volver a iniciar sesión, incluso con la misma cuenta. No borrar automáticamente datos locales pendientes por cerrar sesión offline.
+
+**Decisión de aprobación resuelta:**
+
+- **P-SES-001 (resuelto):** Rafael aprobó para V1 las decisiones funcionales de `PROP-SES-001..008` descritas arriba (S19). Esta aprobación no autoriza iniciar una SPEC, un PLAN ni la implementación.
 
 **Pendiente de especificación:**
 
-- **P-SES-001:** Aprobar, modificar o rechazar el bloque completo después de revisar esta consolidación; conservarlo como propuesta hasta entonces.
-- **P-SES-002:** Protección real del almacenamiento, caché ya sincronizada, pendientes y acceso tras revocación.
-- **P-SES-003:** Diferenciar cierre local, revocación de otras sesiones y eliminación de cuenta. Estas dos últimas funciones no quedan aprobadas por esta propuesta.
+- **P-SES-002:** Definir la política técnica de almacenamiento y protección, la caducidad y limpieza de caché, y el tratamiento y posible recuperación de pendientes asociados a un hogar cuyo acceso se ha perdido. El comportamiento funcional de no mostrar esos datos, no sincronizarlos y no borrar pendientes silenciosamente ya está aprobado.
+- **P-SES-003:** La revocación de sesiones en otros dispositivos y la eliminación de cuenta no forman parte del cierre local aprobado. No queda decidido aquí si se ofrecerán como funcionalidades independientes de V1.
 
 ## Exclusiones, aplazamientos y ampliaciones futuras
 
@@ -523,7 +527,7 @@ Revisión en SOLO LECTURA con `figma_get_metadata` del archivo `Mej8DX4EZrTL98FR
 
 La existencia de una pantalla no demuestra soporte completo de requisitos ni su aprobación funcional. «No identificado» se limita a las páginas y metadatos consultados; la inspección visual y de conexiones deberá completarse en cada SPEC.
 
-Tabla de 17 áreas (16 bloques aprobados y una propuesta); 76 nodos únicos en la tabla y 20 complementarios: 96 nodos comprobados. Las correspondencias son parciales; verificar un nodo no demuestra cobertura integral. El selector multihogar no tiene un flujo específico identificado.
+Tabla de 17 áreas (17 bloques con comportamiento funcional aprobado); 76 nodos únicos en la tabla y 20 complementarios: 96 nodos comprobados. Las correspondencias son parciales; verificar un nodo no demuestra cobertura integral. El selector multihogar no tiene un flujo específico identificado.
 
 | Bloque | Android: nombres e IDs comprobados | iOS: nombres e IDs comprobados | Diferencias, alcance y pendientes |
 | --- | --- | --- | --- |
@@ -543,7 +547,7 @@ Tabla de 17 áreas (16 bloques aprobados y una propuesta); 76 nodos únicos en l
 | Estadísticas | [06 · Android / Statistics overview (35:175)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=35-175); [08 · Android / Statistics by year (35:479)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=35-479); [09 · Android / Statistics brands and warranties (35:557)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=35-557) | [06 · iOS / Statistics overview (38:531)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=38-531); [08 · iOS / Statistics by year (38:851)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=38-851); [09 · iOS / Statistics by brand (38:986)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=38-986) | Resumen, año y marcas/garantías verificados. iOS muestra gasto mensual; su coherencia funcional con Android está aprobada. Etiquetas «valor total» deben interpretarse como precio histórico, no valoración actual. Pendientes selector de moneda, recuentos independientes y distinción garantías/objetos cubiertos, desconocidos e inventario parcial. |
 | Sincronización | [19 · Android / Storage and data (35:1366)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=35-1366) | [19 · iOS / Data management (38:2061)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=38-2061) | Android incluye «Sincronizar ahora»; iOS muestra copia/restauración iCloud, que no está aprobada y no equivale a sincronización compartida Firebase. No se identifica flujo de resolución de conflictos, sus estados ni la recuperación de operaciones pendientes. |
 | Autenticación | [Login (6:23685)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=6-23685); [Register (6:23743)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=6-23743); [Verificar correo v2 (6:23947)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=6-23947) | [03 · iOS / Sign in (39:41)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=39-41); [04 · iOS / Create account (39:92)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=39-92); [07 · iOS / Verify email (39:209)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=39-209) | Android muestra Google y verificación por enlace; iOS Apple y código. El acuerdo exige correo+Google+Apple y verificación por enlace; adaptar iOS y estudiar continuidad de proveedores. Vinculación, credenciales ocupadas, perfil remoto pendiente, recuperación de perfil y restauración de sesión requieren correspondencia adicional. |
-| Cierre de sesión y cambio de cuenta — PROPUESTA NO APROBADA | [21 · Android / Log out confirmation (35:1528)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=35-1528) | [21 · iOS / Log out confirmation (38:2286)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=38-2286) | Confirmaciones existentes, sin aprobar su comportamiento. Android afirma que los datos están guardados en la nube; no cubre pendientes exclusivamente locales. No se verifica conservación protegida, cambio de identidad, cierre offline ni cancelación de notificaciones. |
+| Cierre de sesión y cambio de cuenta — comportamiento aprobado; detalles pendientes | [21 · Android / Log out confirmation (35:1528)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=35-1528) | [21 · iOS / Log out confirmation (38:2286)](https://www.figma.com/design/Mej8DX4EZrTL98FRWyV7Jo/MIsCosas-App?node-id=38-2286) | Metadatos consultados directamente: ambas pantallas muestran confirmación/cancelación, pero no opciones para cambios pendientes ni cierre offline. El texto Android que afirma que los datos están guardados en la nube puede ser engañoso si hay cambios aún locales. El diseño deberá reflejar el aviso y las opciones aprobadas; notificaciones ya entregadas/remotas/en curso siguen pendientes (P-ALE-003). |
 
 Referencias complementarias comprobadas:
 
@@ -597,10 +601,10 @@ Esta lista identifica trabajo derivado; no decide su implementación ni crea tar
 | Sincronización | El outbox existente no implementa envío/descarga, conflictos ni permisos. Diseñar protocolo, versiones, archivos, migraciones y recuperación tras aprobar reglas. | SYN |
 | Autenticación | Completar integración nativa, vinculación y estados; recuperar perfil remoto, validar cancelación e interoperabilidad Swift. | AUT |
 | Fechas e identidades | Estrategia compartida de IDs, fechas civiles, instantes UTC y zonas; seleccionar campos de sincronización por necesidad, no añadirlos todos automáticamente. | V1-GEN-007, SYN |
-| Cierre y cambio de cuenta | No planificar implementación hasta aprobar PROP-SES. | PROP-SES, P-SES |
+| Cierre y cambio de cuenta | Comportamiento funcional aprobado; concretar los pendientes aplicables antes de SPEC/PLAN. | PROP-SES, P-SES |
 
 Las SPEC deben preservar todos estos requisitos y resolver los pendientes que afecten a su comportamiento antes de marcarse Aprobadas. El PLAN desarrollará la solución técnica y su validación; los tests existentes no prueban automáticamente el alcance nuevo.
 
 ## Punto de reanudación funcional
 
-La consolidación documental fue revisada y aprobada por Rafael, y quedó confirmada en el commit `7b0891e` (`docs: consolidate MisCosas V1 product requirements`). El siguiente bloque funcional pendiente es cierre de sesión y cambio de cuenta (`PROP-SES-001..008`), todavía no aprobado. El último avance técnico sigue siendo el test de propagación de errores de NativeAuthenticationRepository, con resultado comunicado por Rafael; no se volvió a ejecutar durante la consolidación.
+La consolidación documental fue revisada y confirmada en el commit `7b0891e` (`docs: consolidate MisCosas V1 product requirements`). Posteriormente Rafael aprobó funcionalmente `PROP-SES-001..008` (S19); se registraron en este documento sin iniciar una SPEC. Recuento actual: 217 entradas V1 aprobadas, 84 cuestiones P- abiertas, 8 entradas PROP-SES aprobadas y 15 exclusiones/aplazamientos X-. El último avance técnico sigue siendo el test de propagación de errores de NativeAuthenticationRepository, con resultado comunicado por Rafael; no se volvió a ejecutar durante esta actualización documental.
