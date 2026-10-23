@@ -17,6 +17,10 @@ Antes de recomendar trabajo:
 Recomienda un único siguiente paso pequeño, explica por qué corresponde,
 qué resultado permitirá obtener y qué rutas se verían afectadas. Espera a que
 Rafael haga ese paso y comparta el resultado antes de guiar el siguiente.
+Avanza por incrementos funcionales: no exijas resolver todos los pendientes
+P- de V1 antes de empezar. Para cada incremento, identifica los pendientes
+que afecten a su alcance y deja abiertos los demás; no continúes por el
+siguiente ID P- automáticamente.
 
 «Continuamos», «siguiente paso», «vamos con esto» y «¿qué toca ahora?» piden
 una recomendación; no autorizan cambios ni el avance a otra fase. Las fases

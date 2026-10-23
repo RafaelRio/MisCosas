@@ -39,6 +39,13 @@
 - Avanzar un paso cada vez. No entregar una lista extensa de trabajo para
   ejecutar en bloque; explicar los conceptos necesarios para que Rafael
   entienda lo que está construyendo.
+- Trabajar por incrementos funcionales pequeños. No exigir resolver todas las
+  cuestiones P- de V1 antes de empezar a desarrollar: para cada incremento,
+  identificar solo las decisiones que afecten materialmente a su alcance,
+  comportamiento, criterios de aceptación o dependencias. Mantener abiertas y
+  trazadas las demás cuestiones; no recorrer los P- automáticamente en orden.
+  Recomendar el siguiente incremento según las dependencias y el estado real
+  del código, distinguiendo una recomendación de una decisión aprobada.
 - Al orientar una prueba, indicar el comando y qué resultado comprobar.
   Rafael lo ejecuta y comparte la salida; el asistente ayuda a interpretarla.
   No afirmar que una prueba se ejecutó si no hay evidencia del resultado.
