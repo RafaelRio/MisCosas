@@ -37,7 +37,14 @@ edición documental dentro de ese ámbito. Este permiso no permite inventar o
 aprobar decisiones de producto, avanzar de fase sin acuerdo, modificar código
 o pruebas, ejecutar comandos que alteren el proyecto ni realizar operaciones
 Git. Codex debe explicar los cambios documentales para que Rafael pueda
-revisarlos. Rafael realiza personalmente stage, commits y push.
+revisarlos. Rafael realiza personalmente stage, commits y push. Codex debe
+recomendar commits proactivamente al cerrar incrementos pequeños coherentes y
+revisados, normalmente después de que la comprobación acordada pase y antes de
+cambiar de tarea o acumular cambios no relacionados. No debe sugerir un commit
+por cada microcambio ni esperar a que termine toda la funcionalidad. Cada
+recomendación incluirá la evidencia disponible, los archivos exactos, un
+mensaje sugerido y comandos para revisar el diff preparado. La recomendación
+no autoriza a Codex a modificar el índice ni a ejecutar Git.
 
 Los agentes especializados solo pueden analizar y revisar en modo de solo
 lectura. Indica qué agente participó, si estaba disponible en esta sesión,

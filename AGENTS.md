@@ -29,7 +29,16 @@
 - Rafael realiza personalmente los cambios de código y pruebas; el asistente
   revisa el resultado compartido y guía las correcciones sin editar esos
   archivos. Rafael también gestiona Git: el asistente no modifica el índice ni
-  realiza commits o push.
+  realiza commits o push. El asistente debe recomendar proactivamente un
+  commit cuando haya un incremento coherente y revisado, por ejemplo, una
+  porción pequeña cuya comprobación acordada haya pasado, antes de cambiar de
+  tarea o de acumular trabajo no relacionado. No hace falta recomendar un
+  commit por cada microcambio ni esperar a que toda la funcionalidad esté
+  terminada. La recomendación debe indicar la evidencia disponible, los
+  archivos exactos que conviene incluir, un mensaje sugerido y los comandos
+  de revisión del diff preparado. Rafael decide y ejecuta personalmente
+  `git add`, `git commit` y `git push`; recomendar un commit no autoriza al
+  asistente a operar Git.
 - Las fases funcionales, documentación de requisitos, SPEC, PLAN, TASKS,
   implementación, pruebas y revisión se acuerdan por separado. Aprobar una
   fase no inicia ni autoriza la siguiente. No avanzar de fase hasta revisar
@@ -210,7 +219,10 @@ una sesión nueva.
    acordado o evidencia comprobada, dentro del permiso documental permanente,
    e informar a Rafael de los cambios. Rafael realiza personalmente las
    operaciones de Git; el asistente no modifica el índice ni crea commits o
-   hace push.
+   hace push. Al alcanzar un checkpoint coherente y revisado, recomendar el
+   commit correspondiente sin esperar al cierre de toda la funcionalidad;
+   indicar archivos, mensaje y revisión del diff. No recomendar uno por cada
+   microcambio ni ejecutar operaciones Git.
 
 Si aparece una contradicción o falta una decisión de producto, revisar la
 parte afectada de SPEC/PLAN antes de implementar ese comportamiento. Formular
