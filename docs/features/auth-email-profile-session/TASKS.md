@@ -127,10 +127,33 @@ comprueba y se registra evidencia en vez de rehacerlo.
   nuevas, sin modificar, borrar ni atribuir automáticamente a un UID, incluso
   si no se pudo inspeccionar su contenido.
 - **Progreso/evidencia:** Rafael creó
-  `sharedLogic/src/commonMain/kotlin/com/rafario/miscosas/data/local/database/UserDatabaseProvider.kt`
-  con el package correcto y una clase `internal` vacía. Todavía no implementa
-  apertura diferida, reutilización, cierre por cambio de UID ni conservación;
-  no se han escrito ni ejecutado pruebas.
+  `sharedLogic/src/commonMain/kotlin/com/rafario/miscosas/data/local/database/UserDatabaseProvider.kt`.
+  El proveedor implementa apertura diferida bajo demanda, reutilización de la
+  instancia para el mismo UID, cierre de la instancia anterior al cambiar de
+  UID y cierre del contexto sin borrar los archivos. Rafael escribió
+  `UserDatabaseProviderTest` en `commonTest` para comprobar que construir el
+  proveedor no invoca el callback de apertura y comunicó que pasó
+  `./gradlew :sharedLogic:testAndroidHostTest --tests "com.rafario.miscosas.data.local.database.UserDatabaseProviderTest" --console=plain`.
+  Rafael añadió `UserDatabaseProviderReuseTest` en `iosTest` para comprobar la
+  reutilización de la misma instancia cuando se solicita el mismo UID. La
+  compilación y ejecución de
+  `./gradlew :sharedLogic:iosSimulatorArm64Test --console=plain` terminaron
+  con `BUILD SUCCESSFUL`, según la salida comunicada por Rafael, después de
+  seleccionar `/Applications/Xcode.app/Contents/Developer` mediante
+  `xcode-select`. Rafael añadió además un test que solicita bases para dos UID
+  distintos, comprueba que las instancias son distintas, que el callback se
+  invoca dos veces y que recibe ambos UID en el orden solicitado; Rafael
+  comunicó que la suite `iosSimulatorArm64Test` volvió a terminar en verde tras
+  corregir la lista mutable de UID capturados. Aún
+  añadió al test de cierre una consulta al DAO sobre la referencia anterior y
+  comprobó que falla después de `closeCurrentDatabase()`; Rafael comunicó que
+  `./gradlew :sharedLogic:iosSimulatorArm64Test --console=plain` terminó en
+  verde. Añadió la misma comprobación al test de cambio de UID y comunicó que
+  la suite iOS también pasó; esto verifica que la referencia anterior deja de
+  aceptar consultas tanto tras el cierre explícito como al cambiar de UID. Aún
+  no demuestra la persistencia de datos/outbox en un archivo tras cerrar. Las
+  bases reales por UID y la comprobación del nombre de archivo no reversible en los builders
+  corresponden a AUTH-T04/AUTH-T05.
 - **Estado:** En curso.
 
 ### AUTH-T04 — Abrir y cerrar la partición UID en Android
