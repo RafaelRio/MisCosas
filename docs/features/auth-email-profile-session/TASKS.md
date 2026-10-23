@@ -144,17 +144,19 @@ comprueba y se registra evidencia en vez de rehacerlo.
   distintos, comprueba que las instancias son distintas, que el callback se
   invoca dos veces y que recibe ambos UID en el orden solicitado; Rafael
   comunicó que la suite `iosSimulatorArm64Test` volvió a terminar en verde tras
-  corregir la lista mutable de UID capturados. Aún
-  añadió al test de cierre una consulta al DAO sobre la referencia anterior y
+  corregir la lista mutable de UID capturados. Rafael añadió al test de cierre
+  una consulta al DAO sobre la referencia anterior y
   comprobó que falla después de `closeCurrentDatabase()`; Rafael comunicó que
   `./gradlew :sharedLogic:iosSimulatorArm64Test --console=plain` terminó en
   verde. Añadió la misma comprobación al test de cambio de UID y comunicó que
   la suite iOS también pasó; esto verifica que la referencia anterior deja de
   aceptar consultas tanto tras el cierre explícito como al cambiar de UID. Aún
-  no demuestra la persistencia de datos/outbox en un archivo tras cerrar. Las
-  bases reales por UID y la comprobación del nombre de archivo no reversible en los builders
+  no demuestra la persistencia de datos/outbox en un archivo tras cerrar. La
+  persistencia en archivos de plataforma y el uso del nombre no reversible
   corresponden a AUTH-T04/AUTH-T05.
-- **Estado:** En curso.
+- **Estado:** Completada — proveedor compartido y pruebas reportadas como
+  exitosas por Rafael. La apertura persistente por UID se valida en las tareas
+  de integración de cada plataforma.
 
 ### AUTH-T04 — Abrir y cerrar la partición UID en Android
 
@@ -169,7 +171,32 @@ comprueba y se registra evidencia en vez de rehacerlo.
   logout no borra la partición de A.
 - **Finalización:** evidencia en Android de apertura por UID y desasociación del
   contexto al cerrar/cambiar cuenta; ninguna ruta abre `miscosas.db` legacy.
-- **Estado:** Pendiente.
+- **Progreso/evidencia:** Rafael añadió en
+  `sharedLogic/src/androidMain/kotlin/com/rafario/miscosas/data/local/database/MisCosasDatabaseBuilder.android.kt`
+  un helper que produce `miscosas-<sha256(uid)>.db`. La prueba
+  `AndroidDatabaseFileNameTest` comprueba determinismo, diferencia entre UID,
+  ausencia del UID literal y formato hexadecimal de 64 caracteres. Rafael
+  comunicó que
+  `./gradlew :sharedLogic:testAndroidHostTest --tests "com.rafario.miscosas.data.local.database.AndroidDatabaseFileNameTest" --console=plain`
+  terminó en `BUILD SUCCESSFUL`. Rafael modificó también
+  `createAndroidDatabaseBuilder` para recibir `UserId` y resolver la ruta con
+  el helper, evitando el nombre legacy en este builder. La composición Android
+  crea ahora `UserDatabaseProvider` en una factoría interna que captura
+  `applicationContext` y construye cada base con
+  `buildMisCosasDatabase(createAndroidDatabaseBuilder(appContext, userId))`
+  dentro del callback. El proveedor todavía no está conectado a un UID real de
+  sesión en la app. Rafael comunicó que volvió a pasar
+  `./gradlew :sharedLogic:testAndroidHostTest --tests "com.rafario.miscosas.data.local.database.AndroidDatabaseFileNameTest" --console=plain`
+  después de añadir la factoría, por lo que el código Android actualizado
+  compila; todavía no se ha comprobado la apertura real en un contexto Android.
+  Rafael habilitó además `withDeviceTest` en `sharedLogic/build.gradle.kts` y
+  comunicó que `./gradlew :sharedLogic:tasks --all --console=plain` terminó en
+  `BUILD SUCCESSFUL`, mostrando tareas de compilación e instalación de
+  `androidDeviceTest` y `connectedAndroidDeviceTest`. Esto confirma que Gradle
+  registró la configuración, no que se haya ejecutado un test en dispositivo.
+  Aún hay que comprobar las dependencias mínimas de runner/assertions antes de
+  escribir y ejecutar la prueba instrumentada.
+- **Estado:** En curso.
 
 ### AUTH-T05 — Abrir y cerrar la partición UID en iOS
 
