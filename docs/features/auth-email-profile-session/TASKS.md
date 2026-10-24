@@ -189,13 +189,18 @@ comprueba y se registra evidencia en vez de rehacerlo.
   `./gradlew :sharedLogic:testAndroidHostTest --tests "com.rafario.miscosas.data.local.database.AndroidDatabaseFileNameTest" --console=plain`
   después de añadir la factoría, por lo que el código Android actualizado
   compila; todavía no se ha comprobado la apertura real en un contexto Android.
-  Rafael habilitó además `withDeviceTest` en `sharedLogic/build.gradle.kts` y
-  comunicó que `./gradlew :sharedLogic:tasks --all --console=plain` terminó en
+  Rafael configuró `withDeviceTestBuilder` en `sharedLogic/build.gradle.kts`,
+  estableció `sourceSetTreeName = "test"` para incluir `commonTest` y definió
+  `AndroidJUnitRunner`. Comunicó que
+  `./gradlew :sharedLogic:tasks --all --console=plain` terminó en
   `BUILD SUCCESSFUL`, mostrando tareas de compilación e instalación de
   `androidDeviceTest` y `connectedAndroidDeviceTest`. Esto confirma que Gradle
-  registró la configuración, no que se haya ejecutado un test en dispositivo.
-  Aún hay que comprobar las dependencias mínimas de runner/assertions antes de
-  escribir y ejecutar la prueba instrumentada.
+  registró la configuración. Después, Rafael comunicó `BUILD SUCCESSFUL` en
+  `./gradlew :sharedLogic:compileAndroidDeviceTest --console=plain`. Esto
+  confirma que el source set de dispositivo compila; no se ha ejecutado todavía
+  ninguna prueba instrumentada en el dispositivo ni se ha comprobado la
+  apertura real de Room con un `Context`. El siguiente paso será preparar esa
+  comprobación instrumentada y añadir únicamente las dependencias que requiera.
 - **Estado:** En curso.
 
 ### AUTH-T05 — Abrir y cerrar la partición UID en iOS
