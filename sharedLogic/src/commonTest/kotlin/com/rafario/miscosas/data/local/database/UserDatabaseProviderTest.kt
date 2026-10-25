@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 class UserDatabaseProviderTest {
 
     @Test
-    fun `testing how many times is called`() {
+    fun providerDoesNotOpenDatabaseOnCreation() {
         var openCalls = 0
 
         val provider = UserDatabaseProvider(

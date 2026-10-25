@@ -171,36 +171,7 @@ comprueba y se registra evidencia en vez de rehacerlo.
   logout no borra la partición de A.
 - **Finalización:** evidencia en Android de apertura por UID y desasociación del
   contexto al cerrar/cambiar cuenta; ninguna ruta abre `miscosas.db` legacy.
-- **Progreso/evidencia:** Rafael añadió en
-  `sharedLogic/src/androidMain/kotlin/com/rafario/miscosas/data/local/database/MisCosasDatabaseBuilder.android.kt`
-  un helper que produce `miscosas-<sha256(uid)>.db`. La prueba
-  `AndroidDatabaseFileNameTest` comprueba determinismo, diferencia entre UID,
-  ausencia del UID literal y formato hexadecimal de 64 caracteres. Rafael
-  comunicó que
-  `./gradlew :sharedLogic:testAndroidHostTest --tests "com.rafario.miscosas.data.local.database.AndroidDatabaseFileNameTest" --console=plain`
-  terminó en `BUILD SUCCESSFUL`. Rafael modificó también
-  `createAndroidDatabaseBuilder` para recibir `UserId` y resolver la ruta con
-  el helper, evitando el nombre legacy en este builder. La composición Android
-  crea ahora `UserDatabaseProvider` en una factoría interna que captura
-  `applicationContext` y construye cada base con
-  `buildMisCosasDatabase(createAndroidDatabaseBuilder(appContext, userId))`
-  dentro del callback. El proveedor todavía no está conectado a un UID real de
-  sesión en la app. Rafael comunicó que volvió a pasar
-  `./gradlew :sharedLogic:testAndroidHostTest --tests "com.rafario.miscosas.data.local.database.AndroidDatabaseFileNameTest" --console=plain`
-  después de añadir la factoría, por lo que el código Android actualizado
-  compila; todavía no se ha comprobado la apertura real en un contexto Android.
-  Rafael configuró `withDeviceTestBuilder` en `sharedLogic/build.gradle.kts`,
-  estableció `sourceSetTreeName = "test"` para incluir `commonTest` y definió
-  `AndroidJUnitRunner`. Comunicó que
-  `./gradlew :sharedLogic:tasks --all --console=plain` terminó en
-  `BUILD SUCCESSFUL`, mostrando tareas de compilación e instalación de
-  `androidDeviceTest` y `connectedAndroidDeviceTest`. Esto confirma que Gradle
-  registró la configuración. Después, Rafael comunicó `BUILD SUCCESSFUL` en
-  `./gradlew :sharedLogic:compileAndroidDeviceTest --console=plain`. Esto
-  confirma que el source set de dispositivo compila; no se ha ejecutado todavía
-  ninguna prueba instrumentada en el dispositivo ni se ha comprobado la
-  apertura real de Room con un `Context`. El siguiente paso será preparar esa
-  comprobación instrumentada y añadir únicamente las dependencias que requiera.
+- **Progreso/evidencia:** Rafael implementó el helper Android de nombre SHA-256 y modificó `createAndroidDatabaseBuilder` para recibir `UserId` y abrir el archivo derivado, nunca `miscosas.db`. `AndroidDatabaseFileNameTest` pasó en Android Host según informó Rafael. La factoría interna `createAndroidUserDatabaseProvider` captura `applicationContext` y construye `UserDatabaseProvider` con el builder persistente. Se habilitó `androidDeviceTest`, incorporando `commonTest` al árbol `test`; el source set compiló y la ejecución instrumentada llegó al Pixel 10. Hubo que renombrar un método de commonTest con espacios para que D8 pudiera convertirlo. La prueba `opensUidDatabaseWithAndroidContext` usa `targetContext`, abre Room mediante la factoría, ejecuta una consulta y cierra el proveedor. `persistsUserWhenSameUidDatabaseIsReopened` guarda un perfil y lo recupera tras cerrar/recrear el proveedor. Finalmente, `switchingUidKeepsProfilesIsolatedAndPreservesData` usa una misma instancia: guarda `profile-a` en A, comprueba que B no lo encuentra y vuelve a A para verificar que sigue guardado. Rafael informó que las pruebas de dispositivo pasaron en verde; la inspección del test confirma que las aserciones corresponden a esos comportamientos. Falta conectar la factoría al ciclo de sesión real de Android y comprobar su cierre desde ese flujo; la integración del proveedor con Firebase queda en las tareas posteriores correspondientes.
 - **Estado:** En curso.
 
 ### AUTH-T05 — Abrir y cerrar la partición UID en iOS

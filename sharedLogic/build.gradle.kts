@@ -48,6 +48,14 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
         }
+
+        getByName("androidDeviceTest") {
+            dependencies {
+                implementation(libs.androidx.test.runner)
+                implementation(libs.androidx.testExt.junit)
+                implementation(libs.androidx.test.core)
+            }
+        }
     }
 }
 
