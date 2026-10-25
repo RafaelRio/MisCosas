@@ -257,7 +257,19 @@ comprueba y se registra evidencia en vez de rehacerlo.
   partición de datos y outbox por UID, conservación de A y ausencia de borrado
   o falsa sincronización. La comprobación de perfil de AUTH-T04 no cuenta como
   evidencia de persistencia del outbox.
-- **Estado:** Pendiente.
+- **Progreso/evidencia:** Rafael añadió en
+  `sharedLogic/src/androidDeviceTest/.../AndroidUserDatabaseProviderTest.kt`
+  una prueba instrumentada que siembra perfil, hogar y operación pendiente en
+  A, comprueba que B no los encuentra y que vuelven a estar en A al regresar.
+  La aserción del outbox compara la fila completa por su destino y mutation ID;
+  `SyncOutboxEntity` no contiene un estado de sincronización. Los identificadores
+  de prueba llevan el prefijo `auth-t06-android`. Rafael intentó ejecutar
+  `:sharedLogic:connectedAndroidDeviceTest`, pero Gradle informó
+  `No connected devices` en el primer intento. Tras conectar el móvil, Rafael
+  comunicó que `:sharedLogic:connectedAndroidDeviceTest` terminó en verde. La
+  prueba iOS equivalente aún está pendiente.
+- **Estado:** En curso — prueba Android de perfil, hogar y outbox reportada en
+  verde; falta implementar y validar la cobertura iOS.
 
 ## Fase B — contratos y lógica compartida
 
