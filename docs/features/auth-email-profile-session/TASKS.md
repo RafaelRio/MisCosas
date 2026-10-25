@@ -158,37 +158,85 @@ comprueba y se registra evidencia en vez de rehacerlo.
   exitosas por Rafael. La apertura persistente por UID se valida en las tareas
   de integración de cada plataforma.
 
-### AUTH-T04 — Abrir y cerrar la partición UID en Android
+### AUTH-T04 — Persistencia Room Android por UID
 
-- **Objetivo:** conectar el UID de la sesión al builder/composición Room de
-  Android y cerrar el contexto al cerrar sesión o cambiar de identidad.
+- **Objetivo:** abrir y conservar en Android una base Room persistente cuyo
+  nombre se derive de forma determinista y no reversible del `UserId`. Esta
+  tarea establece la integración de persistencia de plataforma; no conecta la
+  base al ciclo real de autenticación/sesión.
 - **Dependencias:** AUTH-T03.
-- **Archivos candidatos:** `sharedLogic/src/androidMain/.../MisCosasDatabaseBuilder.android.kt`,
-  composición de `androidApp/` y ciclo de vida de sesión.
-- **RF/CA:** RF-08, RF-09; CA-16, CA-18–CA-20, CA-22.
-- **Comprobar:** pruebas del builder/composición Android para UID ausente, UID A,
-  cierre y UID B; verificar que B no consulta el archivo/outbox de A y que el
-  logout no borra la partición de A.
-- **Finalización:** evidencia en Android de apertura por UID y desasociación del
-  contexto al cerrar/cambiar cuenta; ninguna ruta abre `miscosas.db` legacy.
-- **Progreso/evidencia:** Rafael implementó el helper Android de nombre SHA-256 y modificó `createAndroidDatabaseBuilder` para recibir `UserId` y abrir el archivo derivado, nunca `miscosas.db`. `AndroidDatabaseFileNameTest` pasó en Android Host según informó Rafael. La factoría interna `createAndroidUserDatabaseProvider` captura `applicationContext` y construye `UserDatabaseProvider` con el builder persistente. Se habilitó `androidDeviceTest`, incorporando `commonTest` al árbol `test`; el source set compiló y la ejecución instrumentada llegó al Pixel 10. Hubo que renombrar un método de commonTest con espacios para que D8 pudiera convertirlo. La prueba `opensUidDatabaseWithAndroidContext` usa `targetContext`, abre Room mediante la factoría, ejecuta una consulta y cierra el proveedor. `persistsUserWhenSameUidDatabaseIsReopened` guarda un perfil y lo recupera tras cerrar/recrear el proveedor. Finalmente, `switchingUidKeepsProfilesIsolatedAndPreservesData` usa una misma instancia: guarda `profile-a` en A, comprueba que B no lo encuentra y vuelve a A para verificar que sigue guardado. Rafael informó que las pruebas de dispositivo pasaron en verde; la inspección del test confirma que las aserciones corresponden a esos comportamientos. Falta conectar la factoría al ciclo de sesión real de Android y comprobar su cierre desde ese flujo; la integración del proveedor con Firebase queda en las tareas posteriores correspondientes.
-- **Estado:** En curso.
+- **Archivos afectados:** `sharedLogic/src/androidMain/.../MisCosasDatabaseBuilder.android.kt`,
+  `sharedLogic/build.gradle.kts`, `gradle/libs.versions.toml` y pruebas de
+  `sharedLogic/src/androidHostTest/` y `sharedLogic/src/androidDeviceTest/`.
+- **RF/CA:** RF-08, RF-09; CA-16, CA-18–CA-20, CA-22, en lo que concierne a
+  persistencia Android por UID. La integración con sesión real se valida en
+  AUTH-T16/AUTH-T25.
+- **Comprobar:** formato determinista de nombre, apertura Room con contexto
+  Android real, persistencia del mismo perfil al cerrar/reabrir y aislamiento
+  A→B→A al cambiar UID mediante una instancia del proveedor. Ninguna ruta abre
+  la base legacy `miscosas.db`.
+- **Finalización:** pruebas Android Host e instrumentadas demuestran el nombre
+  derivado del UID, apertura/cierre de Room, recuperación del dato de A tras
+  reabrir y cambio A→B→A sin exponer el perfil de A a B. No se afirma con esta
+  tarea que el proveedor esté conectado a autenticación real, restauración de
+  sesión o cierre de sesión de la app.
+- **Progreso/evidencia:** Rafael implementó `returnDeterministicName` con
+  SHA-256 sobre bytes UTF-8, modificó `createAndroidDatabaseBuilder` para
+  recibir `UserId` y creó `createAndroidUserDatabaseProvider`, que captura
+  `applicationContext` y construye Room persistente por UID. `AndroidDatabaseFileNameTest`
+  pasó en Android Host según informó Rafael. Se configuró `androidDeviceTest`
+  con árbol `test`, AndroidX Test runner/core/JUnit; el source set compiló y
+  las pruebas instrumentadas llegaron al Pixel 10. Tras renombrar un método
+  `commonTest` con espacios que D8 rechazaba, Rafael comunicó ejecuciones
+  instrumentadas verdes. `opensUidDatabaseWithAndroidContext` abre Room por la
+  factoría y ejecuta una consulta; `persistsUserWhenSameUidDatabaseIsReopened`
+  recupera un perfil tras cierre y reapertura; `switchingUidKeepsProfilesIsolatedAndPreservesData`
+  guarda `profile-a` en A, comprueba que B no lo ve y vuelve a A para comprobar
+  que el perfil persiste. La inspección confirma que esas aserciones corresponden
+  a los comportamientos descritos.
+- **Límite de evidencia:** las pruebas usan `UserEntity`; no prueban conservación
+  del outbox. Esa comprobación queda pendiente para AUTH-T06 o validación
+  posterior. La conexión con la sesión real y la invalidación del contexto al
+  cerrar sesión/cambiar la cuenta quedan expresamente en AUTH-T16 y AUTH-T25.
+- **Estado:** Completada según los criterios de persistencia Android por UID
+  anteriores; no implica integración real del ciclo de sesión.
 
-### AUTH-T05 — Abrir y cerrar la partición UID en iOS
+### AUTH-T05 — Persistencia Room iOS por UID
 
-- **Objetivo:** conectar el UID al builder/composición Room iOS con el mismo
-  aislamiento y ciclo de vida observables que Android.
+- **Objetivo:** abrir y conservar en iOS una base Room persistente por `UserId`,
+  con aislamiento equivalente a Android. Esta tarea integra persistencia de
+  plataforma, pero no conecta la base al ciclo real de autenticación/sesión.
 - **Dependencias:** AUTH-T03, AUTH-T01.
 - **Archivos candidatos:** `sharedLogic/src/iosMain/.../MisCosasDatabaseBuilder.ios.kt`,
   composición de `iosApp/iosApp/App/`.
 - **RF/CA:** RF-08, RF-09; CA-16, CA-18–CA-20, CA-22.
-- **Comprobar:** integración Room de iOS con UID A/B, cierre de sesión y
-  reautenticación del UID original; confirmar persistencia aislada y que no se
-  abre la base legacy.
-- **Finalización:** pruebas Room reales de iOS demuestran los mismos límites de
-  identidad y conservación que los criterios; no se usa solo la compilación
-  del framework como evidencia.
-- **Estado:** Pendiente.
+- **Comprobar:** integración Room real con UID A/B; verificar apertura,
+  persistencia al cerrar/reabrir, aislamiento entre bases y que no se abre la
+  base legacy. No usar solo la compilación del framework como evidencia.
+- **Finalización:** pruebas de iOS demuestran persistencia aislada por UID.
+  Restauración autenticada, cierre de sesión y cambio de identidad real se
+  conectan y validan en AUTH-T16/AUTH-T25.
+- **Progreso/evidencia:** Rafael adaptó `createIosDatabaseBuilder` para
+  recibir `UserId`, derivar el nombre del archivo mediante SHA-256 de sus bytes
+  UTF-8 y guardarlo en `Application Support`; añadió
+  `createIosUserDatabaseProvider` reutilizando `buildMisCosasDatabase` y
+  `UserDatabaseProvider`. Rafael comunicó compilaciones exitosas de
+  `:sharedLogic:compileKotlinIosSimulatorArm64`. El test
+  `persistsProfileAfterClosingAndReopeningDatabase` en
+  `sharedLogic/src/iosTest/` escribe un perfil, cierra el proveedor, abre otro
+  para el mismo UID y comprueba el nombre recuperado; Rafael comunicó que
+  `:sharedLogic:iosSimulatorArm64Test` terminó en verde. La revisión confirma
+  que la prueba cierra la primera base antes de abrir la segunda y no usa la
+  base legacy. El test `isolatesProfilesWhenSwitchingUids` usa el proveedor con
+  UID A→B→A, confirma que B no encuentra el perfil guardado por A y que A lo
+  recupera al volver. Rafael comunicó que `:sharedLogic:iosSimulatorArm64Test`
+  terminó en verde con ambos tests. La inspección confirma que el test usa
+  Room real mediante la factoría iOS, no una base en memoria.
+- **Estado:** Completada — la persistencia tras cierre/reapertura y el
+  aislamiento A→B→A del perfil en iOS están probados con Room real, según el
+  resultado comunicado por Rafael. La integración con autenticación real y la
+  conservación del outbox no forman parte de esta evidencia; corresponden a
+  AUTH-T16/AUTH-T25 y AUTH-T06 o una validación posterior, respectivamente.
 
 ### AUTH-T06 — Verificar aislamiento local entre UID
 
@@ -198,14 +246,17 @@ comprueba y se registra evidencia en vez de rehacerlo.
 - **Archivos candidatos:** tests de `sharedLogic/src/iosTest/` y pruebas de
   composición/ciclo de cuenta en `androidApp/` e `iosApp/`.
 - **RF/CA:** RF-09; CA-19, CA-20.
-- **Comprobar:** usar UID sintéticos y el proveedor local de prueba para sembrar
-  datos/outbox de A, cerrar ese contexto y abrir el contexto de B; comprobar que
-  B no ve datos de A y volver a abrir A para confirmar que siguen allí. Esta
-  prueba no requiere Firebase Authentication real; el recorrido autenticado se
-  valida posteriormente. Verificar que la base legacy no se abre ni se reasigna.
-- **Finalización:** pruebas de integración y evidencia de recorrido en ambas
-  plataformas; ninguna operación de A se elimina o declara sincronizada por el
-  cierre/cambio de cuenta.
+- **Comprobar:** usar UID sintéticos y el proveedor local para sembrar perfil,
+  otro dato y una operación de outbox de A; cerrar ese contexto y abrir B.
+  Comprobar que B no ve el perfil, el dato ni la operación; volver a abrir A y
+  confirmar que los tres siguen allí. Verificar que cerrar/cambiar contexto no
+  borra ni marca como sincronizada la operación y que la base legacy no se abre
+  ni se reasigna. No se necesita Firebase Authentication real en esta tarea;
+  la conexión del UID de sesión se valida en AUTH-T16.
+- **Finalización:** pruebas de integración en ambas plataformas demuestran la
+  partición de datos y outbox por UID, conservación de A y ausencia de borrado
+  o falsa sincronización. La comprobación de perfil de AUTH-T04 no cuenta como
+  evidencia de persistencia del outbox.
 - **Estado:** Pendiente.
 
 ## Fase B — contratos y lógica compartida
@@ -398,21 +449,33 @@ comprueba y se registra evidencia en vez de rehacerlo.
 
 ## Fase D — restauración, verificación y experiencia nativa
 
-### AUTH-T16 — Orquestar restauración de sesión y perfil
+### AUTH-T16 — Orquestar restauración, partición local y ciclo de sesión
 
-- **Objetivo:** conectar sesión nativa, Room por UID, perfil remoto y estados
-  comunes al iniciar o reabrir la aplicación.
-- **Dependencias:** AUTH-T04, AUTH-T05, AUTH-T08, AUTH-T11, AUTH-T12,
-  AUTH-T13, AUTH-T14, AUTH-T15-ANDROID, AUTH-T15-IOS.
-- **Archivos candidatos:** `GetSessionStateUseCase.kt`, repositorios y
-  composición raíz Android/iOS.
-- **RF/CA:** RF-06, RF-08; CA-12–CA-16, CA-28.
-- **Comprobar:** pruebas comunes con falsos para perfil local/remoto/ausente,
-  error remoto y cancelación; integración por plataforma para sesión ya
-  existente y arranque en frío.
-- **Finalización:** se muestran estados distintos de comprobación, sesión
-  ausente, perfil recuperado/pendiente y error; fallo remoto no crea perfil ni
-  cuenta y perfil local válido no se descarta.
+- **Objetivo:** conectar el UID observado desde la autenticación nativa con la
+  factoría Room de cada plataforma durante restauración y uso de la sesión;
+  cerrar/inutilizar el contexto anterior en cierre de sesión y cambio de UID,
+  antes de exponer datos de otra identidad. Orquestar también perfil local,
+  perfil remoto y estados comunes.
+- **Dependencias:** AUTH-T06, AUTH-T08, AUTH-T11, AUTH-T12, AUTH-T13, AUTH-T14,
+  AUTH-T15-ANDROID y AUTH-T15-IOS. AUTH-T06 depende de AUTH-T04/AUTH-T05, por
+  lo que la dependencia de persistencia es acíclica: T04/T05 → T06 → T16.
+- **Archivos candidatos:** `GetSessionStateUseCase.kt`, repositorios, factorías
+  por plataforma y composición raíz Android/iOS.
+- **RF/CA:** RF-06, RF-08, RF-09; CA-12–CA-20, CA-28.
+- **Comprobar:** tests comunes para perfil local/remoto/ausente, error remoto y
+  cancelación; integración Android/iOS de sesión existente y arranque en frío.
+  Verificar que el UID actual abre solo su partición; logout cierra/inutiliza
+  ese contexto sin borrar archivos/outbox; el cambio A→B nunca deja accesible
+  ni reutiliza un contexto de A; volver a A recupera su partición y pendientes,
+  siempre sujeto a permisos vigentes. Comprobar callbacks tardíos y errores de
+  restauración sin repoblar estado de la identidad anterior.
+- **Finalización:** los estados de sesión/perfil son observables y coherentes;
+  un error remoto no crea perfil/cuenta ni descarta un perfil local válido. La
+  composición de ambas plataformas usa Room para el UID autenticado, y los
+  recorridos de restauración, cierre y cambio de UID prueban que no se conserva
+  ni expone contexto anterior. La conservación de outbox debe tener evidencia
+  explícita (AUTH-T06 o esta tarea); no inferirla de persistir una fila de
+  perfil.
 - **Estado:** Pendiente.
 
 ### AUTH-T17 — Persistir y refrescar verificación ligada al UID
@@ -558,8 +621,11 @@ comprueba y se registra evidencia en vez de rehacerlo.
 - **RF/CA:** RF-01–RF-11; CA-01–CA-29. CA-30 está diferido y no aplica.
 - **Comprobar:** regresión de casos de uso, Room real en iOS, Firebase Auth y
   Firestore Rules Emulator, recorridos UI, ciclo de vida, enlaces, offline y
-  cambio de UID. Completar CA-01–CA-29 por la matriz del PLAN; no usar el
-  resultado de una plataforma como evidencia de la otra.
+  cambio de UID. Verificar en ambas plataformas restauración, logout y cambio
+  A→B→A sin reutilizar contexto de la identidad anterior, y conservación del
+  outbox sin borrarlo ni presentarlo como sincronizado. Completar CA-01–CA-29
+  por la matriz del PLAN; no usar el resultado de una plataforma como evidencia
+  de la otra.
 - **Finalización:** solo se completa cuando CA-01 a CA-29 están comprobados
   satisfactoriamente con evidencia observada en las plataformas que aplican.
   Un CA fallido o bloqueado puede registrarse con su motivo y siguiente paso,
@@ -575,7 +641,9 @@ AUTH-T01 → AUTH-T07 → AUTH-T08 → adaptadores Firebase → perfil remoto/re
 AUTH-T01 → AUTH-T02 (inventario deseable, no bloqueante)
 AUTH-T01 + preservación/aislamiento legacy → AUTH-T03 → AUTH-T04/AUTH-T05 → AUTH-T06
 AUTH-T10 → AUTH-T11/AUTH-T12 → AUTH-T15-ANDROID/AUTH-T15-IOS
-AUTH-T13 → AUTH-T14 → AUTH-T15-ANDROID/AUTH-T15-IOS → AUTH-T16 → verificación y pantallas
+AUTH-T13 → AUTH-T14 → AUTH-T15-ANDROID/AUTH-T15-IOS
+AUTH-T06 + AUTH-T08 + AUTH-T11/T12 + AUTH-T13/T14 + AUTH-T15-ANDROID/IOS → AUTH-T16 → verificación y pantallas
+AUTH-T16 → AUTH-T17/AUTH-T18/AUTH-T19 → AUTH-T25
 AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 ```
 
@@ -594,7 +662,13 @@ AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 
 ## Registro de progreso
 
-AUTH-T01 y AUTH-T02 están completadas con la evidencia registrada en cada
-tarea. Las demás tareas siguen pendientes. Al revisar el trabajo de Rafael,
-actualizar solo la tarea correspondiente y registrar el resultado real,
-plataforma, comprobaciones ejecutadas y evidencia compartida.
+AUTH-T01–AUTH-T05 están completadas con la evidencia registrada en cada tarea;
+AUTH-T06–AUTH-T25 siguen pendientes. AUTH-T04 acredita persistencia Room
+Android por UID y pruebas instrumentadas en Pixel 10, pero no integra el ciclo
+real de sesión. Sus tests verifican `UserEntity`, no el outbox; esa comprobación
+queda para AUTH-T06 o una validación posterior. AUTH-T16 tiene asignado conectar la factoría al
+ciclo real de restauración/cierre/cambio de UID y comprobar que no se reutilice
+ni exponga el contexto anterior; AUTH-T25 conserva la validación final de los
+criterios aplicables. Al revisar trabajo de Rafael, actualizar solo la tarea
+correspondiente y registrar el resultado, plataforma, comprobaciones ejecutadas
+y evidencia compartida.

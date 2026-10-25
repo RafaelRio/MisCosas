@@ -49,6 +49,11 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
         }
 
+        iosMain.dependencies {
+            implementation(libs.cryptography.core)
+            implementation(libs.cryptography.provider.optimal)
+        }
+
         getByName("androidDeviceTest") {
             dependencies {
                 implementation(libs.androidx.test.runner)
