@@ -194,9 +194,9 @@ comprueba y se registra evidencia en vez de rehacerlo.
   guarda `profile-a` en A, comprueba que B no lo ve y vuelve a A para comprobar
   que el perfil persiste. La inspección confirma que esas aserciones corresponden
   a los comportamientos descritos.
-- **Límite de evidencia:** las pruebas usan `UserEntity`; no prueban conservación
-  del outbox. Esa comprobación queda pendiente para AUTH-T06 o validación
-  posterior. La conexión con la sesión real y la invalidación del contexto al
+- **Límite de evidencia:** las pruebas de esta tarea usan `UserEntity`; la
+  conservación del outbox se verificó posteriormente en AUTH-T06. La conexión
+  con la sesión real y la invalidación del contexto al
   cerrar sesión/cambiar la cuenta quedan expresamente en AUTH-T16 y AUTH-T25.
 - **Estado:** Completada según los criterios de persistencia Android por UID
   anteriores; no implica integración real del ciclo de sesión.
@@ -267,9 +267,23 @@ comprueba y se registra evidencia en vez de rehacerlo.
   `:sharedLogic:connectedAndroidDeviceTest`, pero Gradle informó
   `No connected devices` en el primer intento. Tras conectar el móvil, Rafael
   comunicó que `:sharedLogic:connectedAndroidDeviceTest` terminó en verde. La
-  prueba iOS equivalente aún está pendiente.
-- **Estado:** En curso — prueba Android de perfil, hogar y outbox reportada en
-  verde; falta implementar y validar la cobertura iOS.
+  prueba iOS equivalente está escrita en
+  `sharedLogic/src/iosTest/.../IosUserDatabaseProviderTest.kt`: siembra perfil,
+  hogar y outbox de A, comprueba ausencia desde B y conservación al volver a A.
+  La inspección confirma que usa `createIosUserDatabaseProvider()` y cierra el
+  proveedor en `finally`. En la primera ejecución iOS, Rafael comunicó 344
+  tests con uno fallido por una discrepancia en el texto del perfil. Tras
+  corregirlo, Rafael comunicó que `:sharedLogic:iosSimulatorArm64Test` pasó en
+  verde. La evidencia cubre el aislamiento y conservación del perfil, hogar y
+  fila pendiente del outbox en ambas plataformas, mediante Room real y UID
+  sintéticos. Los builders usados derivan los nombres de base del UID y no
+  abren `miscosas.db`; no se modifica ni reasigna la base legacy.
+- **Límite de evidencia:** el outbox no tiene una columna de estado de
+  sincronización; la igualdad de la fila persistida demuestra que la operación
+  no se eliminó ni cambió durante el cambio de UID. No se integraron Firebase ni
+  sesiones reales, que corresponden a AUTH-T16/AUTH-T25.
+- **Estado:** Completada — tests Android instrumentados e iOS comunicados en
+  verde por Rafael; Room real verifica separación A/B y conservación A.
 
 ## Fase B — contratos y lógica compartida
 
@@ -674,11 +688,11 @@ AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 
 ## Registro de progreso
 
-AUTH-T01–AUTH-T05 están completadas con la evidencia registrada en cada tarea;
-AUTH-T06–AUTH-T25 siguen pendientes. AUTH-T04 acredita persistencia Room
+AUTH-T01–AUTH-T06 están completadas con la evidencia registrada en cada tarea;
+AUTH-T07–AUTH-T25 siguen pendientes. AUTH-T04 acredita persistencia Room
 Android por UID y pruebas instrumentadas en Pixel 10, pero no integra el ciclo
-real de sesión. Sus tests verifican `UserEntity`, no el outbox; esa comprobación
-queda para AUTH-T06 o una validación posterior. AUTH-T16 tiene asignado conectar la factoría al
+real de sesión. Sus tests verifican `UserEntity`; AUTH-T06 verifica además
+perfil, hogar y conservación de outbox en ambas plataformas. AUTH-T16 tiene asignado conectar la factoría al
 ciclo real de restauración/cierre/cambio de UID y comprobar que no se reutilice
 ni exponga el contexto anterior; AUTH-T25 conserva la validación final de los
 criterios aplicables. Al revisar trabajo de Rafael, actualizar solo la tarea
