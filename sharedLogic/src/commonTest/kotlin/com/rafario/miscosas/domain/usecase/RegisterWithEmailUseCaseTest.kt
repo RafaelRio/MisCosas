@@ -446,6 +446,13 @@ class RegisterWithEmailUseCaseTest {
             return userIdToReturn
         }
 
+        override suspend fun signInWithEmail(
+            email: String,
+            password: String
+        ): UserId {
+            return UserId("native-user-id")
+        }
+
         override suspend fun getCurrentSession(): AuthenticationSessionResult {
             error("No se debe consultar la sesión durante el registro")
         }
@@ -470,6 +477,13 @@ class RegisterWithEmailUseCaseTest {
             receivedEmail = email
             receivedPassword = password
             throw TestAuthenticationException()
+        }
+
+        override suspend fun signInWithEmail(
+            email: String,
+            password: String
+        ): UserId {
+            return UserId("native-user-id")
         }
 
         override suspend fun getCurrentSession(): AuthenticationSessionResult {

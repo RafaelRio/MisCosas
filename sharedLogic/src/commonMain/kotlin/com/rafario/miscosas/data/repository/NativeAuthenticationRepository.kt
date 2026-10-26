@@ -16,6 +16,12 @@ internal class NativeAuthenticationRepository(
         TODO("Registrar mediante el proveedor nativo")
     }
 
+    override suspend fun signInWithEmail(
+        email: String,
+        password: String
+    ) = UserId(provider.signInWithEmail(email, password))
+
+
     override suspend fun getCurrentSession(): AuthenticationSessionResult {
         return when (val nativeResult = provider.getCurrentSession()) {
             is NativeSessionLookupResult.Authenticated -> AuthenticationSessionResult.Authenticated(

@@ -63,6 +63,12 @@ class NativeAuthenticationRepositoryTest {
             override suspend fun getCurrentSession(): NativeSessionLookupResult {
                 throw exception
             }
+
+            override suspend fun signInWithEmail(
+                email: String, password: String
+            ): String {
+                return "unused-user-id"
+            }
         }
         val repository = NativeAuthenticationRepository(provider)
 
@@ -73,14 +79,42 @@ class NativeAuthenticationRepositoryTest {
         assertSame(exception, caughtException)
     }
 
+    @Test
+    fun mapsNativeSignInUidAndForwardsCredentials() = runTest {
+        val provider = FakeNativeAuthenticationProvider()
+        val nativeRepository = NativeAuthenticationRepository(
+            provider = provider
+        )
+
+        val result = nativeRepository.signInWithEmail(
+            email = "Ana@Example.com", password = "x"
+        )
+
+        assertEquals(UserId("native-user-id"), result)
+        assertEquals("Ana@Example.com", provider.receivedEmail)
+        assertEquals("x", provider.receivedPassword)
+        assertEquals(1, provider.signInCalls)
+    }
+
     private class FakeNativeAuthenticationProvider(
-        private val result: NativeSessionLookupResult =
-            NativeSessionLookupResult.NoSession,
-    ) :
-        NativeAuthenticationProvider {
+        private val result: NativeSessionLookupResult = NativeSessionLookupResult.NoSession,
+    ) : NativeAuthenticationProvider {
+
+        var receivedEmail: String? = null
+        var receivedPassword: String? = null
+        var signInCalls = 0
 
         override suspend fun getCurrentSession(): NativeSessionLookupResult {
             return result
+        }
+
+        override suspend fun signInWithEmail(
+            email: String, password: String
+        ): String {
+            receivedEmail = email
+            receivedPassword = password
+            signInCalls++
+            return "native-user-id"
         }
     }
 }

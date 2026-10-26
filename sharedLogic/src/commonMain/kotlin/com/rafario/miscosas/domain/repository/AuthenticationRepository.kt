@@ -9,5 +9,10 @@ internal interface AuthenticationRepository {
         password: String,
     ): UserId
 
+    suspend fun signInWithEmail(
+        email: String,
+        password: String,
+    ): UserId
+
     suspend fun getCurrentSession(): AuthenticationSessionResult
 }

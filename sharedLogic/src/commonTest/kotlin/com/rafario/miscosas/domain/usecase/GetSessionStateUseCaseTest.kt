@@ -118,6 +118,13 @@ class GetSessionStateUseCaseTest {
                 error("No se debe registrar una cuenta al consultar la sesión")
             }
 
+            override suspend fun signInWithEmail(
+                email: String,
+                password: String,
+            ): UserId {
+                error("No se debe iniciar sesión al consultar el estado de sesión")
+            }
+
             override suspend fun getCurrentSession(): AuthenticationSessionResult {
                 throw exception
             }
@@ -148,6 +155,13 @@ class GetSessionStateUseCaseTest {
             ): UserId {
                 error("No se debe registrar una cuenta al consultar la sesión")
             }
+
+            override suspend fun signInWithEmail(
+                email: String,
+                password: String,
+            ): UserId {
+                error("No se debe iniciar sesión al consultar el estado de sesión")
+            }
         }
         val useCase = GetSessionStateUseCase(
             repository = authenticationRepository,
@@ -171,6 +185,13 @@ class GetSessionStateUseCaseTest {
             email: String, password: String
         ): UserId {
             error("No se debe registrar una cuenta al consultar la sesión")
+        }
+
+        override suspend fun signInWithEmail(
+            email: String,
+            password: String,
+        ): UserId {
+            error("No se debe iniciar sesión al consultar el estado de sesión")
         }
 
         override suspend fun getCurrentSession(): AuthenticationSessionResult {

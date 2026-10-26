@@ -334,7 +334,14 @@ comprueba y se registra evidencia en vez de rehacerlo.
 - **Finalización:** casos comunes cumplen las reglas y conservan la identidad
   autenticada tras fallo parcial; nunca guardan contraseñas en `User`, Room ni
   outbox.
-- **Estado:** Pendiente.
+- **Progreso/evidencia:** Rafael comunicó tests Android Host en verde para
+  normalización/validación del registro, reintento del perfil después de un
+  fallo de guardado, conversión y reenvío del UID al iniciar sesión, y
+  validaciones compartidas del inicio de sesión. También comunicó enlace del
+  framework iOS y compilación de Xcode exitosos tras añadir
+  `signInWithEmail` al puente neutral. No se ha integrado Firebase ni se ha
+  validado el acceso real en un proveedor nativo.
+- **Estado:** En progreso.
 
 ### AUTH-T09 — Guardias compartidas de acceso para cuenta no verificada
 
@@ -698,8 +705,8 @@ AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 
 ## Registro de progreso
 
-AUTH-T01–AUTH-T06 están completadas con la evidencia registrada en cada tarea;
-AUTH-T08–AUTH-T25 siguen pendientes. AUTH-T04 acredita persistencia Room
+AUTH-T01–AUTH-T07 están completadas con la evidencia registrada en cada tarea;
+AUTH-T08 está en progreso y AUTH-T09–AUTH-T25 siguen pendientes. AUTH-T04 acredita persistencia Room
 Android por UID y pruebas instrumentadas en Pixel 10, pero no integra el ciclo
 real de sesión. Sus tests verifican `UserEntity`; AUTH-T06 verifica además
 perfil, hogar y conservación de outbox en ambas plataformas. AUTH-T16 tiene asignado conectar la factoría al
