@@ -6,6 +6,8 @@ import com.rafario.miscosas.domain.repository.UserRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertSame
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -112,6 +114,43 @@ class CompleteUserProfileUseCaseTest {
         assertEquals(1, repository.saveCalls)
     }
 
+    @Test
+    fun retriesProfileSaveAfterFailureUsingTheSameUserId() = runTest {
+        val userId = UserId("firebase-user-retry")
+        val displayName = "Rafael"
+        val createdAt = Instant.parse("2026-08-29T09:00:00Z")
+        val localFailure = TestLocalProfileException()
+        val repository = FailsFirstSaveUserRepository(localFailure)
+        val useCase = CompleteUserProfileUseCase(
+            userRepository = repository,
+            createUserUseCase = CreateUserUseCase(
+                repository,
+                object : Clock {
+                    override fun now(): Instant = createdAt
+                },
+            ),
+        )
+
+        val firstFailure = assertFailsWith<TestLocalProfileException> {
+            useCase(userId, displayName)
+        }
+        assertSame(localFailure, firstFailure)
+
+        useCase(userId, displayName)
+
+        assertEquals(listOf(userId, userId), repository.requestedUserIds)
+        assertEquals(2, repository.saveCalls)
+        assertEquals(
+            User(
+                id = userId,
+                displayName = displayName,
+                createdAt = createdAt,
+                updatedAt = createdAt,
+            ),
+            repository.savedUser,
+        )
+    }
+
     private class InMemoryUserRepository : UserRepository {
         private val users = mutableMapOf<UserId, User>()
 
@@ -167,4 +206,27 @@ class CompleteUserProfileUseCaseTest {
             saveCalls++
         }
     }
+
+    private class FailsFirstSaveUserRepository(
+        private val failure: Exception,
+    ) : UserRepository {
+        val requestedUserIds = mutableListOf<UserId>()
+        var saveCalls: Int = 0
+            private set
+        var savedUser: User? = null
+            private set
+
+        override suspend fun findById(userId: UserId): User? {
+            requestedUserIds.add(userId)
+            return savedUser?.takeIf { it.id == userId }
+        }
+
+        override suspend fun save(user: User) {
+            saveCalls++
+            if (saveCalls == 1) throw failure
+            savedUser = user
+        }
+    }
+
+    private class TestLocalProfileException : Exception()
 }
