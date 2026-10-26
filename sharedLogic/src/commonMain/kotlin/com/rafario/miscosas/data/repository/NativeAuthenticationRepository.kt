@@ -1,6 +1,8 @@
 package com.rafario.miscosas.data.repository
 
 import com.rafario.miscosas.api.auth.NativeAuthenticationProvider
+import com.rafario.miscosas.api.auth.NativeSessionLookupResult
+import com.rafario.miscosas.domain.model.AuthenticationSessionResult
 import com.rafario.miscosas.domain.model.UserId
 import com.rafario.miscosas.domain.repository.AuthenticationRepository
 
@@ -14,9 +16,14 @@ internal class NativeAuthenticationRepository(
         TODO("Registrar mediante el proveedor nativo")
     }
 
-    override suspend fun getCurrentUserId(): UserId? {
-        val userId = provider.getCurrentUserId() ?: return null
-        return UserId(userId)
+    override suspend fun getCurrentSession(): AuthenticationSessionResult {
+        return when (val nativeResult = provider.getCurrentSession()) {
+            is NativeSessionLookupResult.Authenticated -> AuthenticationSessionResult.Authenticated(
+                userId = UserId(nativeResult.userId),
+                isEmailVerified = nativeResult.isEmailVerified
+            )
+            NativeSessionLookupResult.NoSession -> AuthenticationSessionResult.NoSession
+            NativeSessionLookupResult.RecoverableError -> AuthenticationSessionResult.RecoverableError
+        }
     }
-
 }

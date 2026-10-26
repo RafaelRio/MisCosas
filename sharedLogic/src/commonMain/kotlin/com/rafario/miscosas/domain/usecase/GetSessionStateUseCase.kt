@@ -1,5 +1,6 @@
 package com.rafario.miscosas.domain.usecase
 
+import com.rafario.miscosas.domain.model.AuthenticationSessionResult
 import com.rafario.miscosas.domain.model.SessionState
 import com.rafario.miscosas.domain.repository.AuthenticationRepository
 import com.rafario.miscosas.domain.repository.UserRepository
@@ -9,10 +10,24 @@ internal class GetSessionStateUseCase(
     private val userRepository: UserRepository,
 ) {
     suspend operator fun invoke(): SessionState {
-        val userId = repository.getCurrentUserId() ?: return SessionState.SignedOut
-        val user = userRepository.findById(userId)
+        return when (val session = repository.getCurrentSession()) {
+            is AuthenticationSessionResult.Authenticated -> {
+                val user = userRepository.findById(userId = session.userId)
+                when {
+                    user == null ->
+                        SessionState.ProfilePending(session.userId)
 
-        return if (user != null) SessionState.Ready(user)
-        else SessionState.ProfilePending(userId)
+                    !session.isEmailVerified ->
+                        SessionState.Unverified(session.userId)
+
+                    else ->
+                        SessionState.Ready(user)
+                }
+
+            }
+
+            AuthenticationSessionResult.NoSession -> SessionState.SignedOut
+            AuthenticationSessionResult.RecoverableError -> SessionState.RecoverableError
+        }
     }
 }

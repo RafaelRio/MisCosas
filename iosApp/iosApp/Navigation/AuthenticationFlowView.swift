@@ -21,7 +21,6 @@ struct AuthenticationFlowView: View {
                     path.append(.register)
                 },
                 onHowItWorksClick: {
-                    // ...
                 }
             )
             .navigationDestination(for: AuthRoute.self) { route in

@@ -1,34 +1,58 @@
 package com.rafario.miscosas.data.repository
 
 import com.rafario.miscosas.api.auth.NativeAuthenticationProvider
+import com.rafario.miscosas.api.auth.NativeSessionLookupResult
+import com.rafario.miscosas.domain.model.AuthenticationSessionResult
 import com.rafario.miscosas.domain.model.UserId
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertNull
 import kotlin.test.assertSame
 
 class NativeAuthenticationRepositoryTest {
 
     @Test
-    fun returnsNullWhenNativeProviderHasNoSession() = runTest {
+    fun mapsNoNativeSessionToDomainNoSession() = runTest {
         val provider = FakeNativeAuthenticationProvider()
         val repository = NativeAuthenticationRepository(provider)
 
-        val result = repository.getCurrentUserId()
+        val result = repository.getCurrentSession()
 
-        assertNull(result)
+        assertEquals(AuthenticationSessionResult.NoSession, result)
     }
 
     @Test
-    fun returnsUserIdWhenNativeProviderHasSession() = runTest {
-        val provider = FakeNativeAuthenticationProvider(id = "user-123")
+    fun mapsAuthenticatedNativeSessionToDomainSession() = runTest {
+        val provider = FakeNativeAuthenticationProvider(
+            result = NativeSessionLookupResult.Authenticated(
+                userId = "user-123",
+                isEmailVerified = false,
+            ),
+        )
         val repository = NativeAuthenticationRepository(provider)
 
-        val result = repository.getCurrentUserId()
+        val result = repository.getCurrentSession()
 
-        assertEquals(UserId("user-123"), result)
+        assertEquals(
+            AuthenticationSessionResult.Authenticated(
+                userId = UserId("user-123"),
+                isEmailVerified = false,
+            ),
+            result,
+        )
+    }
+
+    @Test
+    fun mapsNativeRecoverableErrorToDomainRecoverableError() = runTest {
+        val provider = FakeNativeAuthenticationProvider(
+            result = NativeSessionLookupResult.RecoverableError,
+        )
+        val repository = NativeAuthenticationRepository(provider)
+
+        val result = repository.getCurrentSession()
+
+        assertEquals(AuthenticationSessionResult.RecoverableError, result)
     }
 
     @Test
@@ -36,22 +60,27 @@ class NativeAuthenticationRepositoryTest {
         val exception = IllegalStateException("No se pudo consultar la sesión")
 
         val provider = object : NativeAuthenticationProvider {
-            override suspend fun getCurrentUserId(): String? {
+            override suspend fun getCurrentSession(): NativeSessionLookupResult {
                 throw exception
             }
         }
         val repository = NativeAuthenticationRepository(provider)
 
         val caughtException = assertFailsWith<IllegalStateException> {
-            repository.getCurrentUserId()
+            repository.getCurrentSession()
         }
 
         assertSame(exception, caughtException)
     }
 
-    private class FakeNativeAuthenticationProvider(val id: String? = null) :
+    private class FakeNativeAuthenticationProvider(
+        private val result: NativeSessionLookupResult =
+            NativeSessionLookupResult.NoSession,
+    ) :
         NativeAuthenticationProvider {
 
-        override suspend fun getCurrentUserId(): String? = id
+        override suspend fun getCurrentSession(): NativeSessionLookupResult {
+            return result
+        }
     }
 }

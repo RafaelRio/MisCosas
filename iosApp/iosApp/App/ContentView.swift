@@ -18,10 +18,10 @@ struct ContentView: View {
                     appFlow = .main
                 }
             )
-
         case .main:
-            // De momento, hasta que creemos MainTabView
             Text("Main App")
+            // De momento, hasta que creemos MainTabView
+           
         }
     }
 }

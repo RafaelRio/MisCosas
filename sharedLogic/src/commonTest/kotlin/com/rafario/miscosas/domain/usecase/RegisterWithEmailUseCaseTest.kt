@@ -1,5 +1,6 @@
 package com.rafario.miscosas.domain.usecase
 
+import com.rafario.miscosas.domain.model.AuthenticationSessionResult
 import com.rafario.miscosas.domain.model.User
 import com.rafario.miscosas.domain.model.UserId
 import com.rafario.miscosas.domain.repository.AuthenticationRepository
@@ -256,7 +257,7 @@ class RegisterWithEmailUseCaseTest {
             return userIdToReturn
         }
 
-        override suspend fun getCurrentUserId(): UserId? {
+        override suspend fun getCurrentSession(): AuthenticationSessionResult {
             error("No se debe consultar la sesión durante el registro")
         }
     }
@@ -282,14 +283,13 @@ class RegisterWithEmailUseCaseTest {
             throw TestAuthenticationException()
         }
 
-        override suspend fun getCurrentUserId(): UserId? {
+        override suspend fun getCurrentSession(): AuthenticationSessionResult {
             error("No se debe consultar la sesión durante el registro")
         }
     }
 
     private class TestAuthenticationException : Exception()
     private class TestLocalProfileException : Exception()
-
     private class RecordingUserRepository : UserRepository {
 
         override suspend fun findById(userId: UserId): User? {
@@ -303,7 +303,6 @@ class RegisterWithEmailUseCaseTest {
             savedUser = user
         }
     }
-
     private class FailingUserRepository(
         private val failure: Exception,
     ) : UserRepository {

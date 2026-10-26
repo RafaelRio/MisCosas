@@ -304,7 +304,17 @@ comprueba y se registra evidencia en vez de rehacerlo.
 - **Finalización:** estados no confunden error remoto con ausencia, cancelación
   con error, ni sesión no verificada con acceso listo; API exportada resulta
   consumible sin duplicar reglas de negocio en Swift.
-- **Estado:** Pendiente.
+- **Estado:** Completada. Rafael comunicó tests comunes en verde para los
+  estados, resultados neutrales, conversión de `NativeAuthenticationRepository`
+  y `GetSessionStateUseCase`, incluidos error recuperable, propagación de
+  errores y cancelación. Xcode compiló referencias Swift a `SessionState` y
+  `NativeSessionLookupResult`; en ejecución, Rafael comprobó las variantes
+  `Authenticated` (incluidos UID y verificación), `NoSession` y
+  `RecoverableError`. Tras retirar el control temporal de `ContentView.swift`,
+  comunicó un Build de Xcode exitoso. La llamada suspendida genérica y el
+  tratamiento de éxito/error se validaron en AUTH-T01. No se integraron SDKs
+  Firebase ni la restauración/ciclo real de sesión; permanecen en AUTH-T11,
+  AUTH-T12 y AUTH-T16.
 
 ### AUTH-T08 — Validación y casos de uso de alta, acceso y perfil
 
@@ -689,7 +699,7 @@ AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 ## Registro de progreso
 
 AUTH-T01–AUTH-T06 están completadas con la evidencia registrada en cada tarea;
-AUTH-T07–AUTH-T25 siguen pendientes. AUTH-T04 acredita persistencia Room
+AUTH-T08–AUTH-T25 siguen pendientes. AUTH-T04 acredita persistencia Room
 Android por UID y pruebas instrumentadas en Pixel 10, pero no integra el ciclo
 real de sesión. Sus tests verifican `UserEntity`; AUTH-T06 verifica además
 perfil, hogar y conservación de outbox en ambas plataformas. AUTH-T16 tiene asignado conectar la factoría al

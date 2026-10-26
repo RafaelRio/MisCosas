@@ -1,5 +1,6 @@
 package com.rafario.miscosas.domain.repository
 
+import com.rafario.miscosas.domain.model.AuthenticationSessionResult
 import com.rafario.miscosas.domain.model.UserId
 
 internal interface AuthenticationRepository {
@@ -8,5 +9,5 @@ internal interface AuthenticationRepository {
         password: String,
     ): UserId
 
-    suspend fun getCurrentUserId(): UserId?
+    suspend fun getCurrentSession(): AuthenticationSessionResult
 }
