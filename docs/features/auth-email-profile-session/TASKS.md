@@ -346,7 +346,11 @@ comprueba y se registra evidencia en vez de rehacerlo.
   comunicó enlace del framework iOS y compilación de Xcode exitosos tras añadir
   `signInWithEmail` al puente neutral. No se ha integrado Firebase ni se ha
   validado el acceso real en un proveedor nativo.
-- **Estado:** En progreso.
+- **Cierre:** completada para los casos de uso y reglas compartidas definidos
+  por esta tarea. Los criterios globales de perfil remoto, Firebase y ciclo
+  real de sesión conservan su alcance y su validación en AUTH-T11–AUTH-T16 y
+  AUTH-T25; este cierre no afirma que estén integrados.
+- **Estado:** Completada.
 
 ### AUTH-T09 — Guardias compartidas de acceso para cuenta no verificada
 
@@ -710,8 +714,8 @@ AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 
 ## Registro de progreso
 
-AUTH-T01–AUTH-T07 están completadas con la evidencia registrada en cada tarea;
-AUTH-T08 está en progreso y AUTH-T09–AUTH-T25 siguen pendientes. AUTH-T04 acredita persistencia Room
+AUTH-T01–AUTH-T08 están completadas con la evidencia registrada en cada tarea;
+AUTH-T09–AUTH-T25 siguen pendientes. AUTH-T04 acredita persistencia Room
 Android por UID y pruebas instrumentadas en Pixel 10, pero no integra el ciclo
 real de sesión. Sus tests verifican `UserEntity`; AUTH-T06 verifica además
 perfil, hogar y conservación de outbox en ambas plataformas. AUTH-T16 tiene asignado conectar la factoría al
