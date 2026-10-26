@@ -423,6 +423,64 @@ class RegisterWithEmailUseCaseTest {
         assertEquals(1, fakeAuthenticationRepository.registerCalls)
     }
 
+    @Test
+    fun retriesProfileAfterPartialRegistrationWithoutRegisteringAgain() = runTest {
+        val userId = UserId("firebase-user-123")
+        val name = "  Rafael  "
+        val email = "rafael@example.com"
+        val password = "12345678"
+        val instant = Instant.parse("2026-08-30T18:43:00.000000400Z")
+        val localFailure = TestLocalProfileException()
+        val authenticationRepository = FakeAuthenticationRepository(userId)
+        val userRepository = SecondTryUserRepository(localFailure)
+        val createUserUseCase = CreateUserUseCase(
+            userRepository = userRepository,
+            clock = object : Clock {
+                override fun now(): Instant = instant
+            },
+        )
+        val registerUseCase = RegisterWithEmailUseCase(
+            authenticationRepository = authenticationRepository,
+            createUserUseCase = createUserUseCase,
+        )
+
+        val partialFailure = assertFailsWith<RegistrationPartiallyCompletedException> {
+            registerUseCase(
+                displayName = name,
+                email = email,
+                password = password,
+            )
+        }
+
+        assertEquals(userId, partialFailure.authenticatedUserId)
+        assertEquals("Rafael", partialFailure.displayName)
+        assertSame(localFailure, partialFailure.cause)
+        assertEquals(1, authenticationRepository.registerCalls)
+
+        val completeProfileUseCase = CompleteUserProfileUseCase(
+            userRepository = userRepository,
+            createUserUseCase = createUserUseCase,
+        )
+        completeProfileUseCase(
+            userId = partialFailure.authenticatedUserId,
+            displayName = partialFailure.displayName,
+        )
+
+        assertEquals(listOf(userId), userRepository.requestedUserIds)
+        assertEquals(2, userRepository.saveCalls)
+        assertEquals(1, authenticationRepository.registerCalls)
+        assertEquals(
+            User(
+                id = userId,
+                displayName = "Rafael",
+                createdAt = instant,
+                updatedAt = instant,
+            ),
+            userRepository.savedUser,
+        )
+
+    }
+
     private class FakeAuthenticationRepository(
         private val userIdToReturn: UserId,
     ) : AuthenticationRepository {
@@ -506,6 +564,7 @@ class RegisterWithEmailUseCaseTest {
             savedUser = user
         }
     }
+
     private class FailingUserRepository(
         private val failure: Exception,
     ) : UserRepository {
@@ -524,6 +583,32 @@ class RegisterWithEmailUseCaseTest {
             saveCalls++
             savedUser = user
             throw failure
+        }
+    }
+
+    private class SecondTryUserRepository(
+        private val firstSaveFailure: Exception,
+    ) : UserRepository {
+        val requestedUserIds = mutableListOf<UserId>()
+
+        var savedUser: User? = null
+            private set
+
+        override suspend fun findById(userId: UserId): User? {
+            requestedUserIds.add(userId)
+            return savedUser?.takeIf { it.id == userId }
+        }
+
+        var saveCalls: Int = 0
+            private set
+
+        override suspend fun save(user: User) {
+            saveCalls++
+            if (saveCalls == 1) {
+                throw firstSaveFailure
+            } else {
+                savedUser = user
+            }
         }
     }
 }

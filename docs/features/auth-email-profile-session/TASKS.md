@@ -340,9 +340,12 @@ comprueba y se registra evidencia en vez de rehacerlo.
   validaciones compartidas del inicio de sesión. La suite Android Host de
   `GetSessionStateUseCaseTest` y la suite completa `iosSimulatorArm64Test`
   terminaron en verde, incluida la propagación del fallo de lectura del perfil
-  local. También comunicó enlace del framework iOS y compilación de Xcode
-  exitosos tras añadir `signInWithEmail` al puente neutral. No se ha integrado
-  Firebase ni se ha validado el acceso real en un proveedor nativo.
+  local. El test integrado de reintento tras fallo parcial de registro pasó en
+  Android Host e iOS Simulator: usa el UID y nombre de la excepción, guarda el
+  perfil al segundo intento y no vuelve a registrar la cuenta. También
+  comunicó enlace del framework iOS y compilación de Xcode exitosos tras añadir
+  `signInWithEmail` al puente neutral. No se ha integrado Firebase ni se ha
+  validado el acceso real en un proveedor nativo.
 - **Estado:** En progreso.
 
 ### AUTH-T09 — Guardias compartidas de acceso para cuenta no verificada
