@@ -175,6 +175,31 @@ class GetSessionStateUseCaseTest {
         assertSame(cancellation, caught)
     }
 
+    @Test
+    fun propagatesLocalProfileLookupFailureInsteadOfReturningProfilePending() = runTest {
+        val userId = UserId("firebase-user-unverified")
+        val exception = IllegalStateException("Fallo de lectura")
+
+        val repository = FakeAuthenticationRepository(
+            result = AuthenticationSessionResult.Authenticated(
+                userId = userId,
+                isEmailVerified = false
+            )
+        )
+
+        val userRepository = FakeUserExceptionRepository(exception)
+
+        val useCase = GetSessionStateUseCase(
+            repository = repository,
+            userRepository = userRepository
+        )
+
+        val caught = assertFailsWith<IllegalStateException> {
+            useCase()
+        }
+
+        assertSame(exception, caught)
+    }
 
     private class FakeAuthenticationRepository(
         private val result: AuthenticationSessionResult = AuthenticationSessionResult.NoSession,
@@ -207,7 +232,15 @@ class GetSessionStateUseCaseTest {
         override suspend fun save(user: User) {
             error("consultar el estado no debe guardar nada.")
         }
+    }
 
+    private class FakeUserExceptionRepository(val exception: Exception): UserRepository {
 
+        override suspend fun findById(userId: UserId): User? =
+            throw exception
+
+        override suspend fun save(user: User) {
+            error("consultar el estado no debe guardar nada.")
+        }
     }
 }
