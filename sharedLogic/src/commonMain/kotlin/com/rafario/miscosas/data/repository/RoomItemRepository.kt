@@ -13,6 +13,8 @@ import com.rafario.miscosas.domain.model.ItemId
 import com.rafario.miscosas.domain.repository.ItemRepository
 import com.rafario.miscosas.domain.session.VerifiedSessionAccessGuard
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
@@ -32,14 +34,19 @@ internal class RoomItemRepository(
     }
 
     override fun observeByHouseholdId(householdId: HouseholdId): Flow<List<Item>> {
-        return database
-            .itemDao()
-            .observeByHouseholdId(householdId.value)
-            .map { itemEntities ->
-                itemEntities.map { itemEntity ->
-                    itemEntity.toDomain()
-                }
-            }
+        return flow {
+            verifiedSessionAccessGuard.requireVerifiedSession()
+            emitAll(
+                database
+                    .itemDao()
+                    .observeByHouseholdId(householdId.value)
+                    .map { itemEntities ->
+                        itemEntities.map { itemEntity ->
+                            itemEntity.toDomain()
+                        }
+                    },
+            )
+        }
     }
 
     override suspend fun save(item: Item) {

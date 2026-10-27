@@ -233,6 +233,69 @@ class RoomItemRepositoryTest {
     }
 
     @Test
+    fun observeByHouseholdIdRejectsUnverifiedSessionBeforeEmittingItems() = runTest {
+        val database = createTestDatabase()
+        try {
+            val userEntity = UserEntity(
+                id = "550e8400-e29b-41d4-a716-446655440000",
+                displayName = "John Doe",
+                createdAtEpochSeconds = 1_000L,
+                createdAtNanoseconds = 400,
+                updatedAtEpochSeconds = 1_000L,
+                updatedAtNanoseconds = 500,
+            )
+            val householdEntity = HouseholdEntity(
+                id = "550e8400-e29b-41d4-a716-446655440001",
+                name = "My Household",
+                createdBy = userEntity.id,
+                createdAtEpochSeconds = 1_000L,
+                createdAtNanoseconds = 400,
+                updatedAtEpochSeconds = 1_000L,
+                updatedAtNanoseconds = 500,
+            )
+            val itemEntity = ItemEntity(
+                id = "550e8400-e29b-41d4-a716-446655440002",
+                householdId = householdEntity.id,
+                name = "Private item",
+                categoryId = "550e8400-e29b-41d4-a716-446655440003",
+                brand = null,
+                model = null,
+                serialNumber = null,
+                purchaseDateEpochDay = null,
+                purchasePriceMinorUnits = null,
+                purchaseCurrencyCode = null,
+                purchaseSeller = null,
+                statusCode = "active",
+                isFavorite = false,
+                isArchived = false,
+                createdAtEpochSeconds = 1_000L,
+                createdAtNanoseconds = 400,
+                updatedAtEpochSeconds = 1_000L,
+                updatedAtNanoseconds = 500,
+            )
+            database.userDao().upsert(userEntity)
+            database.householdDao().upsert(householdEntity)
+            database.itemDao().upsert(itemEntity)
+
+            val repository = RoomItemRepository(
+                database = database,
+                verifiedSessionAccessGuard = verifiedSessionAccessGuard(
+                    userId = UserId(userEntity.id),
+                    isEmailVerified = false,
+                ),
+            )
+
+            assertFailsWith<SessionAccessDeniedException> {
+                repository
+                    .observeByHouseholdId(HouseholdId(householdEntity.id))
+                    .first()
+            }
+        } finally {
+            database.close()
+        }
+    }
+
+    @Test
     fun savePersistsItemAndEnqueuesUpsert() = runTest {
         val database = createTestDatabase()
 
