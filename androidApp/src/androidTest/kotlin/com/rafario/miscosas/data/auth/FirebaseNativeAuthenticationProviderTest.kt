@@ -4,6 +4,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.firebase.auth.FirebaseAuth
 import com.rafario.miscosas.api.auth.NativeAuthenticationException
 import com.rafario.miscosas.api.auth.NativeAuthenticationFailure
+import com.rafario.miscosas.api.auth.NativeSessionLookupResult
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -97,6 +98,49 @@ class FirebaseNativeAuthenticationProviderTest {
                 failure?.failure,
             )
             assertNull(firebaseAuth.currentUser)
+        } finally {
+            firebaseAuth.signOut()
+        }
+    }
+
+    @Test
+    fun returnsNoSessionWhenThereIsNoAuthenticatedUser() = runBlocking {
+        val firebaseAuth = FirebaseAuth.getInstance()
+        firebaseAuth.useEmulator("127.0.0.1", 9099)
+        firebaseAuth.signOut()
+
+        val provider = FirebaseNativeAuthenticationProvider(firebaseAuth)
+
+        val result = provider.getCurrentSession()
+
+        assertEquals(NativeSessionLookupResult.NoSession, result)
+    }
+
+    @Test
+    fun returnsAuthenticatedSessionAfterRefreshingCurrentUser() = runBlocking {
+        val firebaseAuth = FirebaseAuth.getInstance()
+        firebaseAuth.useEmulator("127.0.0.1", 9099)
+        firebaseAuth.signOut()
+
+        val provider = FirebaseNativeAuthenticationProvider(firebaseAuth)
+        val email = "auth-t11-session-${UUID.randomUUID()}@example.com"
+        val password = "Valid-test-password-123!"
+
+        try {
+            val registeredUid = provider.registerWithEmail(
+                email = email,
+                password = password,
+            )
+
+            val result = provider.getCurrentSession()
+
+            assertEquals(
+                NativeSessionLookupResult.Authenticated(
+                    userId = registeredUid,
+                    isEmailVerified = false,
+                ),
+                result,
+            )
         } finally {
             firebaseAuth.signOut()
         }
