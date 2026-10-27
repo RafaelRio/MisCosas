@@ -369,13 +369,13 @@ comprueba y se registra evidencia en vez de rehacerlo.
   hogares/inventario.
 - **Progreso/evidencia:** se añadió `VerifiedSessionAccessGuard` y se aplicó a
   `RoomHouseholdRepository.create`, `RoomItemRepository.findById` y
-  `RoomItemRepository.observeByHouseholdId`. Rafael comunicó en verde la suite
-  `iosSimulatorArm64Test`; los tests Room llaman directamente a los
-  repositorios con una sesión no verificada. El test de hogares comprueba que
-  hogar, membresía y outbox quedan sin cambios; los tests de objetos rechazan
-  leer un objeto existente tanto por ID como al recoger el `Flow` del hogar.
-  `RoomItemRepository.save` y la comprobación de acceso permitido al perfil
-  siguen pendientes.
+  `RoomItemRepository.observeByHouseholdId` y `RoomItemRepository.save`.
+  Rafael comunicó en verde la suite `iosSimulatorArm64Test`; los tests Room
+  llaman directamente a los repositorios con una sesión no verificada. El test
+  de hogares comprueba que hogar, membresía y outbox quedan sin cambios; los
+  tests de objetos rechazan la lectura por ID y al recoger el `Flow` del hogar,
+  y `save` no escribe el objeto ni outbox ni consulta reloj/ID de mutación. La
+  comprobación de acceso permitido al perfil sigue pendiente.
 - **Estado:** En progreso.
 
 ## Fase C — entorno Firebase e integración remota

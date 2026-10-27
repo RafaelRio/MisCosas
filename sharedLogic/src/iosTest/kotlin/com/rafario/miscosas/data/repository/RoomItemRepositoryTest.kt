@@ -394,6 +394,88 @@ class RoomItemRepositoryTest {
     }
 
     @Test
+    fun saveRejectsUnverifiedSessionWithoutWritingItemOrOutbox() = runTest {
+        val database = createTestDatabase()
+        try {
+            val userEntity = UserEntity(
+                id = "550e8400-e29b-41d4-a716-446655440000",
+                displayName = "John Doe",
+                createdAtEpochSeconds = 1_000L,
+                createdAtNanoseconds = 400,
+                updatedAtEpochSeconds = 1_000L,
+                updatedAtNanoseconds = 500,
+            )
+            val householdEntity = HouseholdEntity(
+                id = "550e8400-e29b-41d4-a716-446655440001",
+                name = "My Household",
+                createdBy = userEntity.id,
+                createdAtEpochSeconds = 1_000L,
+                createdAtNanoseconds = 400,
+                updatedAtEpochSeconds = 1_000L,
+                updatedAtNanoseconds = 500,
+            )
+            val itemEntity = ItemEntity(
+                id = "550e8400-e29b-41d4-a716-446655440002",
+                householdId = householdEntity.id,
+                name = "Private item",
+                categoryId = "550e8400-e29b-41d4-a716-446655440003",
+                brand = null,
+                model = null,
+                serialNumber = null,
+                purchaseDateEpochDay = null,
+                purchasePriceMinorUnits = null,
+                purchaseCurrencyCode = null,
+                purchaseSeller = null,
+                statusCode = "active",
+                isFavorite = false,
+                isArchived = false,
+                createdAtEpochSeconds = 1_000L,
+                createdAtNanoseconds = 400,
+                updatedAtEpochSeconds = 1_000L,
+                updatedAtNanoseconds = 500,
+            )
+            val item = itemEntity.toDomain()
+            database.userDao().upsert(userEntity)
+            database.householdDao().upsert(householdEntity)
+
+            var clockCalls = 0
+            var mutationIdCalls = 0
+            val fixedClock = object : Clock {
+                override fun now(): Instant {
+                    clockCalls++
+                    return Instant.parse("2026-08-26T10:15:30.000000789Z")
+                }
+            }
+            val repository = RoomItemRepository(
+                database = database,
+                verifiedSessionAccessGuard = verifiedSessionAccessGuard(
+                    userId = UserId(userEntity.id),
+                    isEmailVerified = false,
+                ),
+                clock = fixedClock,
+                generateMutationId = {
+                    mutationIdCalls++
+                    "550e8400-e29b-41d4-a716-446655440099"
+                },
+            )
+
+            assertFailsWith<SessionAccessDeniedException> {
+                repository.save(item)
+            }
+
+            assertNull(database.itemDao().findById(item.id.value))
+            assertEquals(
+                emptyList<SyncOutboxEntity>(),
+                database.syncOutboxDao().findAllPending(),
+            )
+            assertEquals(0, clockCalls)
+            assertEquals(0, mutationIdCalls)
+        } finally {
+            database.close()
+        }
+    }
+
+    @Test
     fun saveRollsBackItemWhenOutboxWriteFails() = runTest {
         val database = createTestDatabase()
         try {

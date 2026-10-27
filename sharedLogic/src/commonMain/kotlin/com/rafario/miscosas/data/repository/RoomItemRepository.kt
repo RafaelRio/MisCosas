@@ -50,6 +50,8 @@ internal class RoomItemRepository(
     }
 
     override suspend fun save(item: Item) {
+        verifiedSessionAccessGuard.requireVerifiedSession()
+
         val itemEntity = item.toEntity()
         val enqueuedAt = clock.now()
         val mutationId = generateMutationId()
