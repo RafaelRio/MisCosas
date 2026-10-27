@@ -7,4 +7,6 @@ interface NativeAuthenticationProvider {
     suspend fun signInWithEmail(email: String, password: String): String
 
     suspend fun registerWithEmail(email: String, password: String): String
+
+    suspend fun sendEmailVerification()
 }

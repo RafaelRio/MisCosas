@@ -84,6 +84,23 @@ class FirebaseNativeAuthenticationProvider(
             )
         }
     }
+
+    override suspend fun sendEmailVerification() {
+        try {
+            val currentUser = firebaseAuth.currentUser
+                ?: throw NativeAuthenticationException(
+                    failure = NativeAuthenticationFailure.UNEXPECTED,
+                )
+
+            currentUser.sendEmailVerification().await()
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (exception: FirebaseException) {
+            throw NativeAuthenticationException(
+                failure = exception.toNativeAuthenticationFailure()
+            )
+        }
+    }
 }
 
 private fun FirebaseException.toNativeAuthenticationFailure(): NativeAuthenticationFailure {

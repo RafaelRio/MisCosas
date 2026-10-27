@@ -7,6 +7,7 @@ import com.rafario.miscosas.api.auth.NativeAuthenticationFailure
 import com.rafario.miscosas.api.auth.NativeSessionLookupResult
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -141,6 +142,32 @@ class FirebaseNativeAuthenticationProviderTest {
                 ),
                 result,
             )
+        } finally {
+            firebaseAuth.signOut()
+        }
+    }
+
+    @Test
+    fun sendsVerificationEmailForAuthenticatedUser() = runBlocking {
+        val firebaseAuth = FirebaseAuth.getInstance()
+        firebaseAuth.useEmulator("127.0.0.1", 9099)
+        firebaseAuth.signOut()
+
+        val provider = FirebaseNativeAuthenticationProvider(firebaseAuth)
+        val email = "auth-t11-verify-${UUID.randomUUID()}@example.com"
+        val password = "Valid-test-password-123!"
+
+        try {
+            val registeredUid = provider.registerWithEmail(
+                email = email,
+                password = password,
+            )
+
+            provider.sendEmailVerification()
+
+            val currentUser = firebaseAuth.currentUser
+            assertEquals(registeredUid, currentUser?.uid)
+            assertFalse(currentUser?.isEmailVerified ?: true)
         } finally {
             firebaseAuth.signOut()
         }
