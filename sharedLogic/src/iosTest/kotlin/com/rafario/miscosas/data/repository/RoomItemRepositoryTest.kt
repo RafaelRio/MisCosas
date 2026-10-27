@@ -12,8 +12,13 @@ import com.rafario.miscosas.data.local.database.mapper.toDomain
 import com.rafario.miscosas.data.local.database.mapper.toEntity
 import com.rafario.miscosas.data.sync.model.SyncOperation
 import com.rafario.miscosas.data.sync.model.SyncRecordType
+import com.rafario.miscosas.domain.model.AuthenticationSessionResult
 import com.rafario.miscosas.domain.model.HouseholdId
 import com.rafario.miscosas.domain.model.ItemId
+import com.rafario.miscosas.domain.model.UserId
+import com.rafario.miscosas.domain.repository.AuthenticationRepository
+import com.rafario.miscosas.domain.session.SessionAccessDeniedException
+import com.rafario.miscosas.domain.session.VerifiedSessionAccessGuard
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -74,10 +79,79 @@ class RoomItemRepositoryTest {
             database.householdDao().upsert(householdEntity)
             database.itemDao().upsert(itemEntity)
 
-            val repository = RoomItemRepository(database)
+            val repository = RoomItemRepository(
+                database = database,
+                verifiedSessionAccessGuard = verifiedSessionAccessGuard(
+                    userId = UserId(userEntity.id),
+                    isEmailVerified = true,
+                ),
+            )
             val result = repository.findById(ItemId(itemEntity.id))
             val expected = itemEntity.toDomain()
             assertEquals(expected, result)
+        } finally {
+            database.close()
+        }
+    }
+
+    @Test
+    fun findByIdRejectsUnverifiedSessionWithoutReturningItem() = runTest {
+        val database = createTestDatabase()
+        try {
+            val userEntity = UserEntity(
+                id = "550e8400-e29b-41d4-a716-446655440000",
+                displayName = "John Doe",
+                createdAtEpochSeconds = 1_000L,
+                createdAtNanoseconds = 400,
+                updatedAtEpochSeconds = 1_000L,
+                updatedAtNanoseconds = 500,
+            )
+            val householdEntity = HouseholdEntity(
+                id = "550e8400-e29b-41d4-a716-446655440001",
+                name = "My Household",
+                createdBy = userEntity.id,
+                createdAtEpochSeconds = 1_000L,
+                createdAtNanoseconds = 400,
+                updatedAtEpochSeconds = 1_000L,
+                updatedAtNanoseconds = 500,
+            )
+            val itemEntity = ItemEntity(
+                id = "550e8400-e29b-41d4-a716-446655440002",
+                householdId = householdEntity.id,
+                name = "Private item",
+                categoryId = "550e8400-e29b-41d4-a716-446655440003",
+                brand = null,
+                model = null,
+                serialNumber = null,
+                purchaseDateEpochDay = null,
+                purchasePriceMinorUnits = null,
+                purchaseCurrencyCode = null,
+                purchaseSeller = null,
+                statusCode = "active",
+                isFavorite = false,
+                isArchived = false,
+                createdAtEpochSeconds = 1_000L,
+                createdAtNanoseconds = 400,
+                updatedAtEpochSeconds = 1_000L,
+                updatedAtNanoseconds = 500,
+            )
+            database.userDao().upsert(userEntity)
+            database.householdDao().upsert(householdEntity)
+            database.itemDao().upsert(itemEntity)
+
+            val repository = RoomItemRepository(
+                database = database,
+                verifiedSessionAccessGuard = verifiedSessionAccessGuard(
+                    userId = UserId(userEntity.id),
+                    isEmailVerified = false,
+                ),
+            )
+
+            assertEquals(itemEntity, database.itemDao().findById(itemEntity.id))
+
+            assertFailsWith<SessionAccessDeniedException> {
+                repository.findById(ItemId(itemEntity.id))
+            }
         } finally {
             database.close()
         }
@@ -143,7 +217,13 @@ class RoomItemRepositoryTest {
             database.itemDao().upsert(itemHomeOne)
             database.itemDao().upsert(targetItem)
 
-            val repository = RoomItemRepository(database)
+            val repository = RoomItemRepository(
+                database = database,
+                verifiedSessionAccessGuard = verifiedSessionAccessGuard(
+                    userId = UserId(userEntity.id),
+                    isEmailVerified = true,
+                ),
+            )
             val result = repository.observeByHouseholdId(HouseholdId(targetHousehold.id)).first()
 
             assertEquals(listOf(targetItem.toDomain()), result)
@@ -210,6 +290,10 @@ class RoomItemRepositoryTest {
             }
             val repository = RoomItemRepository(
                 database = database,
+                verifiedSessionAccessGuard = verifiedSessionAccessGuard(
+                    userId = UserId(userEntity.id),
+                    isEmailVerified = true,
+                ),
                 clock = fixedClock,
                 generateMutationId = { mutationId },
             )
@@ -296,6 +380,10 @@ class RoomItemRepositoryTest {
 
             val repository = RoomItemRepository(
                 database = database,
+                verifiedSessionAccessGuard = verifiedSessionAccessGuard(
+                    userId = UserId(userEntity.id),
+                    isEmailVerified = true,
+                ),
             )
             database.useWriterConnection { connection ->
                 connection.executeSQL(
@@ -327,5 +415,29 @@ class RoomItemRepositoryTest {
         } finally {
             database.close()
         }
+    }
+
+    private fun verifiedSessionAccessGuard(
+        userId: UserId,
+        isEmailVerified: Boolean,
+    ): VerifiedSessionAccessGuard = VerifiedSessionAccessGuard(
+        authenticationRepository = FakeAuthenticationRepository(
+            result = AuthenticationSessionResult.Authenticated(
+                userId = userId,
+                isEmailVerified = isEmailVerified,
+            ),
+        ),
+    )
+
+    private class FakeAuthenticationRepository(
+        private val result: AuthenticationSessionResult,
+    ) : AuthenticationRepository {
+        override suspend fun registerWithEmail(email: String, password: String): UserId =
+            error("Registration is not expected in this repository test")
+
+        override suspend fun signInWithEmail(email: String, password: String): UserId =
+            error("Sign-in is not expected in this repository test")
+
+        override suspend fun getCurrentSession(): AuthenticationSessionResult = result
     }
 }

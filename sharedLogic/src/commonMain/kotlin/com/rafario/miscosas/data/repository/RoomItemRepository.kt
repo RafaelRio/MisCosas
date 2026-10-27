@@ -11,6 +11,7 @@ import com.rafario.miscosas.domain.model.HouseholdId
 import com.rafario.miscosas.domain.model.Item
 import com.rafario.miscosas.domain.model.ItemId
 import com.rafario.miscosas.domain.repository.ItemRepository
+import com.rafario.miscosas.domain.session.VerifiedSessionAccessGuard
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
@@ -18,13 +19,15 @@ import kotlin.uuid.Uuid
 
 internal class RoomItemRepository(
     private val database: MisCosasDatabase,
+    private val verifiedSessionAccessGuard: VerifiedSessionAccessGuard,
     private val clock: Clock = Clock.System,
     private val generateMutationId: () -> String = {
         Uuid.random().toString()
     },
-): ItemRepository {
+) : ItemRepository {
 
     override suspend fun findById(itemId: ItemId): Item? {
+        verifiedSessionAccessGuard.requireVerifiedSession()
         return database.itemDao().findById(itemId.value)?.toDomain()
     }
 

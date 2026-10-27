@@ -24,9 +24,9 @@ internal class VerifiedSessionAccessGuard(
 }
 
 internal class SessionAccessDeniedException : IllegalStateException(
-    "A verified session is required to access household data",
+    "A verified session is required to access protected household and item data",
 )
 
 internal class SessionAccessStateUnavailableException : IllegalStateException(
-    "Could not verify the current session before accessing household data",
+    "Could not verify the current session before accessing protected data",
 )
