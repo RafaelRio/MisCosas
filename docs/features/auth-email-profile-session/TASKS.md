@@ -374,9 +374,18 @@ comprueba y se registra evidencia en vez de rehacerlo.
   llaman directamente a los repositorios con una sesión no verificada. El test
   de hogares comprueba que hogar, membresía y outbox quedan sin cambios; los
   tests de objetos rechazan la lectura por ID y al recoger el `Flow` del hogar,
-  y `save` no escribe el objeto ni outbox ni consulta reloj/ID de mutación. La
-  comprobación de acceso permitido al perfil sigue pendiente.
-- **Estado:** En progreso.
+  y `save` no escribe el objeto ni outbox ni consulta reloj/ID de mutación.
+  Se añadió `OwnProfileAccessGuard` a `RoomUserRepository.findById` y
+  `RoomUserRepository.save`: la sesión no verificada puede leer/guardar solo
+  el perfil cuyo UID coincide con el autenticado. El test Room
+  `unverifiedSessionCanSaveOnlyItsOwnProfile` comprueba el guardado del perfil
+  propio y que intentar guardar otro UID no crea perfil ni outbox. Rafael
+  comunicó `iosSimulatorArm64Test` en verde tras este cambio. La suite iOS
+  cubre Room real; la evidencia comunicada no incluye un test separado de
+  lectura del perfil propio con correo no verificado.
+- **Estado:** Completada — guardias aplicadas a las rutas existentes de
+  hogares/objetos y al acceso al perfil propio; suite Room iOS comunicada en
+  verde por Rafael.
 
 ## Fase C — entorno Firebase e integración remota
 
@@ -723,8 +732,8 @@ AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 
 ## Registro de progreso
 
-AUTH-T01–AUTH-T08 están completadas con la evidencia registrada en cada tarea;
-AUTH-T09–AUTH-T25 siguen pendientes. AUTH-T04 acredita persistencia Room
+AUTH-T01–AUTH-T09 están completadas con la evidencia registrada en cada tarea;
+AUTH-T10–AUTH-T25 siguen pendientes. AUTH-T04 acredita persistencia Room
 Android por UID y pruebas instrumentadas en Pixel 10, pero no integra el ciclo
 real de sesión. Sus tests verifican `UserEntity`; AUTH-T06 verifica además
 perfil, hogar y conservación de outbox en ambas plataformas. AUTH-T16 tiene asignado conectar la factoría al

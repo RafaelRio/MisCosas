@@ -10,8 +10,12 @@ import com.rafario.miscosas.data.local.database.mapper.toDomain
 import com.rafario.miscosas.data.local.database.mapper.toEntity
 import com.rafario.miscosas.data.sync.model.SyncOperation
 import com.rafario.miscosas.data.sync.model.SyncRecordType
+import com.rafario.miscosas.domain.model.AuthenticationSessionResult
 import com.rafario.miscosas.domain.model.User
 import com.rafario.miscosas.domain.model.UserId
+import com.rafario.miscosas.domain.repository.AuthenticationRepository
+import com.rafario.miscosas.domain.session.OwnProfileAccessGuard
+import com.rafario.miscosas.domain.session.ProfileAccessDeniedException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,7 +40,12 @@ class RoomUserRepositoryTest {
                     Instant.parse("2026-08-27T09:00:00.000000500Z"),
             )
             database.userDao().upsert(rafa.toEntity())
-            val repository = RoomUserRepository(database = database)
+            val repository = RoomUserRepository(
+                database = database,
+                ownProfileAccessGuard = ownProfileAccessGuard(
+                    userId = UserId("firebase-user-123"),
+                ),
+            )
 
             val user = repository.findById(UserId("firebase-user-123"))
 
@@ -72,6 +81,7 @@ class RoomUserRepositoryTest {
 
             val repository = RoomUserRepository(
                 database = database,
+                ownProfileAccessGuard = ownProfileAccessGuard(user.id),
                 clock = fixedClock,
                 generateMutationId = { mutationId },
             )
@@ -107,6 +117,51 @@ class RoomUserRepositoryTest {
     }
 
     @Test
+    fun unverifiedSessionCanSaveOnlyItsOwnProfile() = runTest {
+        val database = createTestDatabase()
+        try {
+            val authenticatedUserId = UserId("firebase-user-123")
+            val ownProfile = User(
+                id = authenticatedUserId,
+                displayName = "Rafael Río",
+                createdAt = Instant.parse("2026-08-27T09:00:00.000000400Z"),
+                updatedAt = Instant.parse("2026-08-27T09:00:00.000000500Z"),
+            )
+            val anotherProfile = ownProfile.copy(
+                id = UserId("firebase-user-456"),
+                displayName = "Another User",
+            )
+            val repository = RoomUserRepository(
+                database = database,
+                ownProfileAccessGuard = ownProfileAccessGuard(
+                    userId = authenticatedUserId,
+                    isEmailVerified = false,
+                ),
+            )
+
+            repository.save(ownProfile)
+
+            assertEquals(
+                ownProfile.toEntity(),
+                database.userDao().findById(authenticatedUserId.value),
+            )
+            assertFailsWith<ProfileAccessDeniedException> {
+                repository.save(anotherProfile)
+            }
+            assertNull(database.userDao().findById(anotherProfile.id.value))
+            assertNull(
+                database.syncOutboxDao().findByTarget(
+                    scopeId = anotherProfile.id.value,
+                    recordTypeCode = SyncRecordType.USER.code,
+                    recordId = anotherProfile.id.value,
+                ),
+            )
+        } finally {
+            database.close()
+        }
+    }
+
+    @Test
     fun saveRollsBackUserWhenOutboxWriteFails() = runTest {
         val database = createTestDatabase()
         try {
@@ -122,6 +177,9 @@ class RoomUserRepositoryTest {
 
             val repository = RoomUserRepository(
                 database = database,
+                ownProfileAccessGuard = ownProfileAccessGuard(
+                    userId = UserId(userEntity.id),
+                ),
             )
             database.useWriterConnection { connection ->
                 connection.executeSQL(
@@ -178,7 +236,10 @@ class RoomUserRepositoryTest {
             database.userDao().upsert(anto.toEntity())
             database.userDao().upsert(user.toEntity())
 
-            val repository = RoomUserRepository(database = database)
+            val repository = RoomUserRepository(
+                database = database,
+                ownProfileAccessGuard = ownProfileAccessGuard(user.id),
+            )
 
             val savedUser = repository.findById(user.id)
 
@@ -187,5 +248,29 @@ class RoomUserRepositoryTest {
         } finally {
             database.close()
         }
+    }
+
+    private fun ownProfileAccessGuard(
+        userId: UserId,
+        isEmailVerified: Boolean = true,
+    ): OwnProfileAccessGuard = OwnProfileAccessGuard(
+        authenticationRepository = FakeAuthenticationRepository(
+            result = AuthenticationSessionResult.Authenticated(
+                userId = userId,
+                isEmailVerified = isEmailVerified,
+            ),
+        ),
+    )
+
+    private class FakeAuthenticationRepository(
+        private val result: AuthenticationSessionResult,
+    ) : AuthenticationRepository {
+        override suspend fun registerWithEmail(email: String, password: String): UserId =
+            error("Registration is not expected in this repository test")
+
+        override suspend fun signInWithEmail(email: String, password: String): UserId =
+            error("Sign-in is not expected in this repository test")
+
+        override suspend fun getCurrentSession(): AuthenticationSessionResult = result
     }
 }

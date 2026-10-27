@@ -10,11 +10,13 @@ import com.rafario.miscosas.data.sync.model.SyncRecordType
 import com.rafario.miscosas.domain.model.User
 import com.rafario.miscosas.domain.model.UserId
 import com.rafario.miscosas.domain.repository.UserRepository
+import com.rafario.miscosas.domain.session.OwnProfileAccessGuard
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
 internal class RoomUserRepository(
     private val database: MisCosasDatabase,
+    private val ownProfileAccessGuard: OwnProfileAccessGuard,
     private val clock: Clock = Clock.System,
     private val generateMutationId: () -> String = {
         Uuid.random().toString()
@@ -22,10 +24,13 @@ internal class RoomUserRepository(
 ) : UserRepository {
 
     override suspend fun findById(userId: UserId): User? {
+        ownProfileAccessGuard.requireOwnProfileAccess(userId)
         return database.userDao().findById(userId.value)?.toDomain()
     }
 
     override suspend fun save(user: User) {
+        ownProfileAccessGuard.requireOwnProfileAccess(user.id)
+
         val userEntity = user.toEntity()
         val enqueuedAt = clock.now()
         val mutationId = generateMutationId()
