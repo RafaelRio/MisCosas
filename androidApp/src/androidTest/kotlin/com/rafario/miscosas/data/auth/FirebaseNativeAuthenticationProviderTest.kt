@@ -3,8 +3,10 @@ package com.rafario.miscosas.data.auth
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.firebase.auth.FirebaseAuth
 import com.rafario.miscosas.api.auth.NativeAuthenticationException
+import com.rafario.miscosas.api.auth.NativeAuthenticationFailure
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,6 +69,34 @@ class FirebaseNativeAuthenticationProviderTest {
 
             assertEquals(registeredUid, signedInUid)
             assertEquals(signedInUid, firebaseAuth.currentUser?.uid)
+        } finally {
+            firebaseAuth.signOut()
+        }
+    }
+
+    @Test
+    fun rejectsUnknownAccountAsCredentialsRejected() = runBlocking {
+        val firebaseAuth = FirebaseAuth.getInstance()
+        firebaseAuth.useEmulator("127.0.0.1", 9099)
+        firebaseAuth.signOut()
+
+        val provider = FirebaseNativeAuthenticationProvider(firebaseAuth)
+        val email = "auth-t11-invalid-${UUID.randomUUID()}@example.com"
+        val password = "Valid-test-password-123!"
+
+        try {
+            val failure = try {
+                provider.signInWithEmail(email, password)
+                null
+            } catch (exception: NativeAuthenticationException) {
+                exception
+            }
+
+            assertEquals(
+                NativeAuthenticationFailure.CREDENTIALS_REJECTED,
+                failure?.failure,
+            )
+            assertNull(firebaseAuth.currentUser)
         } finally {
             firebaseAuth.signOut()
         }
