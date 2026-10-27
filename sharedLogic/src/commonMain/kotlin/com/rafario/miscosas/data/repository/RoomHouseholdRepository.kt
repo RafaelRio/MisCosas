@@ -8,12 +8,14 @@ import com.rafario.miscosas.data.sync.model.SyncOperation
 import com.rafario.miscosas.data.sync.model.SyncRecordType
 import com.rafario.miscosas.domain.model.Household
 import com.rafario.miscosas.domain.model.HouseholdMember
+import com.rafario.miscosas.domain.session.VerifiedSessionAccessGuard
 import com.rafario.miscosas.domain.repository.HouseholdRepository
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
 internal class RoomHouseholdRepository(
     private val database: MisCosasDatabase,
+    private val verifiedSessionAccessGuard: VerifiedSessionAccessGuard,
     private val clock: Clock = Clock.System,
     private val generateMutationId: () -> String = {
         Uuid.random().toString()
@@ -24,6 +26,8 @@ internal class RoomHouseholdRepository(
         household: Household,
         ownerMembership: HouseholdMember,
     ) {
+        verifiedSessionAccessGuard.requireVerifiedSession()
+
         val householdEntity = household.toEntity()
         val ownerMembershipEntity = ownerMembership.toEntity()
 
