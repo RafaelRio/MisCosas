@@ -42,4 +42,33 @@ class FirebaseNativeAuthenticationProviderTest {
             firebaseAuth.signOut()
         }
     }
+
+    @Test
+    fun signsInWithAuthEmulatorAndReturnsExistingUid() = runBlocking {
+        val firebaseAuth = FirebaseAuth.getInstance()
+        firebaseAuth.useEmulator("127.0.0.1", 9099)
+        firebaseAuth.signOut()
+
+        val provider = FirebaseNativeAuthenticationProvider(firebaseAuth)
+        val email = "auth-t11-signin-${UUID.randomUUID()}@example.com"
+        val password = "Valid-test-password-123!"
+
+        try {
+            val registeredUid = provider.registerWithEmail(
+                email = email,
+                password = password,
+            )
+            firebaseAuth.signOut()
+
+            val signedInUid = provider.signInWithEmail(
+                email = email,
+                password = password,
+            )
+
+            assertEquals(registeredUid, signedInUid)
+            assertEquals(signedInUid, firebaseAuth.currentUser?.uid)
+        } finally {
+            firebaseAuth.signOut()
+        }
+    }
 }
