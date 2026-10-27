@@ -432,7 +432,7 @@ comprueba y se registra evidencia en vez de rehacerlo.
 - **Finalización:** Firebase Android se traduce al contrato común sin tipos
   Firebase en dominio; los mensajes respetan enumeración protegida y estados
   aprobados. Adjuntar resultados del entorno Android usado.
-- **Estado:** En progreso. Rafael comunicó que el `google-services.json` local se procesó y `:androidApp:assembleDebug` terminó en BUILD SUCCESSFUL tras añadir Google Services y Firebase Auth mediante el catálogo de versiones. Esto valida configuración y empaquetado, no operaciones de autenticación.
+- **Estado:** En progreso. Rafael comunicó que el `google-services.json` local se procesó y `:androidApp:assembleDebug` terminó en BUILD SUCCESSFUL tras añadir Google Services y Firebase Auth mediante el catálogo de versiones. El puente común ya expone registro; `NativeAuthenticationRepository` reenvía las credenciales y convierte el UID nativo a `UserId`. Rafael comunicó `:sharedLogic:testAndroidHostTest --tests "com.rafario.miscosas.data.repository.NativeAuthenticationRepositoryTest"` en BUILD SUCCESSFUL, validando ese mapeo y reenvío con un falso. Esto no valida operaciones contra Firebase Auth ni el Emulator.
 
 ### AUTH-T12 — Integrar Firebase Authentication en iOS
 

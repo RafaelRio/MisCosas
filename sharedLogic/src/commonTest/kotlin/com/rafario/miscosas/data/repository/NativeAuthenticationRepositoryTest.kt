@@ -69,6 +69,13 @@ class NativeAuthenticationRepositoryTest {
             ): String {
                 return "unused-user-id"
             }
+
+            override suspend fun registerWithEmail(
+                email: String,
+                password: String
+            ): String {
+                return "unused-user-id"
+            }
         }
         val repository = NativeAuthenticationRepository(provider)
 
@@ -96,6 +103,23 @@ class NativeAuthenticationRepositoryTest {
         assertEquals(1, provider.signInCalls)
     }
 
+    @Test
+    fun mapsNativeRegistrationUidAndForwardsCredentials() = runTest {
+        val provider = FakeNativeAuthenticationProvider()
+        val repository = NativeAuthenticationRepository(provider)
+
+        val result = repository.registerWithEmail(
+            email = "Ana@Example.com",
+            password = "Password123",
+        )
+
+        assertEquals(UserId("native-user-id"), result)
+        assertEquals("Ana@Example.com", provider.registeredEmail)
+        assertEquals("Password123", provider.registeredPassword)
+        assertEquals(1, provider.registerCalls)
+        assertEquals(0, provider.signInCalls)
+    }
+
     private class FakeNativeAuthenticationProvider(
         private val result: NativeSessionLookupResult = NativeSessionLookupResult.NoSession,
     ) : NativeAuthenticationProvider {
@@ -103,6 +127,9 @@ class NativeAuthenticationRepositoryTest {
         var receivedEmail: String? = null
         var receivedPassword: String? = null
         var signInCalls = 0
+        var registeredEmail: String? = null
+        var registeredPassword: String? = null
+        var registerCalls = 0
 
         override suspend fun getCurrentSession(): NativeSessionLookupResult {
             return result
@@ -114,6 +141,16 @@ class NativeAuthenticationRepositoryTest {
             receivedEmail = email
             receivedPassword = password
             signInCalls++
+            return "native-user-id"
+        }
+
+        override suspend fun registerWithEmail(
+            email: String,
+            password: String
+        ): String {
+            registeredEmail = email
+            registeredPassword = password
+            registerCalls++
             return "native-user-id"
         }
     }

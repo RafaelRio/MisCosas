@@ -13,7 +13,7 @@ internal class NativeAuthenticationRepository(
         email: String,
         password: String
     ): UserId {
-        TODO("Registrar mediante el proveedor nativo")
+        return UserId(provider.registerWithEmail(email, password))
     }
 
     override suspend fun signInWithEmail(
