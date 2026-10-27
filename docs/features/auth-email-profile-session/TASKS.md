@@ -406,7 +406,14 @@ comprueba y se registra evidencia en vez de rehacerlo.
 - **Finalización:** procedimiento local queda documentado, reglas de perfil
   propio y denegación de recursos fuera de alcance se ejercitan en Emulator, y
   no se incorpora configuración cliente real ni secreto al repositorio.
-- **Estado:** Pendiente.
+- **Estado:** Completada. Rafael comunicó que Auth y Firestore Emulator
+  arrancan juntos y que la suite `firebase-rules-tests` pasó (1 test, 0
+  fallidos): perfil propio permitido, perfil de otro UID y hogares denegados;
+  añadió también el rechazo de escritura sin sesión. `.gitignore` cubre los
+  archivos de configuración Firebase, `node_modules/` y `*-debug.log`. La
+  consulta CLI no encontró bases Firestore remotas y no se desplegaron reglas.
+  Las reglas locales siguen siendo un prototipo sin validación de esquema; la
+  integración de SDK y su endurecimiento no se dan por realizados aquí.
 
 ### AUTH-T11 — Integrar Firebase Authentication en Android
 
@@ -732,8 +739,8 @@ AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 
 ## Registro de progreso
 
-AUTH-T01–AUTH-T09 están completadas con la evidencia registrada en cada tarea;
-AUTH-T10–AUTH-T25 siguen pendientes. AUTH-T04 acredita persistencia Room
+AUTH-T01–AUTH-T10 están completadas con la evidencia registrada en cada tarea;
+AUTH-T11–AUTH-T25 siguen pendientes. AUTH-T04 acredita persistencia Room
 Android por UID y pruebas instrumentadas en Pixel 10, pero no integra el ciclo
 real de sesión. Sus tests verifican `UserEntity`; AUTH-T06 verifica además
 perfil, hogar y conservación de outbox en ambas plataformas. AUTH-T16 tiene asignado conectar la factoría al
