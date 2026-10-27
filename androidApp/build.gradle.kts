@@ -34,6 +34,10 @@ dependencies {
     implementation(libs.firebase.auth)
 
     implementation(libs.kotlinx.coroutines.play.services)
+
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.testExt.junit)
 }
 
 android {
@@ -46,6 +50,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     packaging {
         resources {
