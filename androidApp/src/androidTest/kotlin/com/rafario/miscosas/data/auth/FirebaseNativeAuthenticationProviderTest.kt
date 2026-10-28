@@ -2,6 +2,7 @@ package com.rafario.miscosas.data.auth
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
 import com.rafario.miscosas.api.auth.NativeAuthenticationException
 import com.rafario.miscosas.api.auth.NativeAuthenticationFailure
@@ -238,6 +239,15 @@ class FirebaseNativeAuthenticationProviderTest {
         assertEquals(
             NativeAuthenticationFailure.TEMPORARY,
             FirebaseNetworkException("Test network failure")
+                .toNativeAuthenticationFailure(),
+        )
+    }
+
+    @Test
+    fun mapsFirebaseTooManyRequestsExceptionToRateLimited() {
+        assertEquals(
+            NativeAuthenticationFailure.RATE_LIMITED,
+            FirebaseTooManyRequestsException("Test rate limit")
                 .toNativeAuthenticationFailure(),
         )
     }
