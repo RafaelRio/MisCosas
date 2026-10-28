@@ -1,6 +1,7 @@
 package com.rafario.miscosas.data.auth
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.rafario.miscosas.api.auth.NativeAuthenticationException
 import com.rafario.miscosas.api.auth.NativeAuthenticationFailure
@@ -197,5 +198,14 @@ class FirebaseNativeAuthenticationProviderTest {
         } finally {
             firebaseAuth.signOut()
         }
+    }
+
+    @Test
+    fun mapsFirebaseNetworkExceptionToTemporary() {
+        assertEquals(
+            NativeAuthenticationFailure.TEMPORARY,
+            FirebaseNetworkException("Test network failure")
+                .toNativeAuthenticationFailure(),
+        )
     }
 }

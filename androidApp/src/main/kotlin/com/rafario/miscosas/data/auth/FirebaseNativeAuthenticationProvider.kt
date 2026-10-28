@@ -103,7 +103,7 @@ class FirebaseNativeAuthenticationProvider(
     }
 }
 
-private fun FirebaseException.toNativeAuthenticationFailure(): NativeAuthenticationFailure {
+internal fun FirebaseException.toNativeAuthenticationFailure(): NativeAuthenticationFailure {
     return when (this) {
         is FirebaseNetworkException -> NativeAuthenticationFailure.TEMPORARY
         is FirebaseTooManyRequestsException -> NativeAuthenticationFailure.RATE_LIMITED
