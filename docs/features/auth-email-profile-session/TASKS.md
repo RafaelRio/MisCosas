@@ -427,12 +427,15 @@ comprueba y se registra evidencia en vez de rehacerlo.
 - **RF/CA:** RF-01–RF-04, RF-08; CA-01–CA-08, CA-10–CA-11, CA-16, CA-27,
   CA-29.
 - **Comprobar:** integración contra Auth Emulator para registro, acceso,
-  credenciales rechazadas, red/límites y reenvío; comprobar cancelación y que
-  la UI no presenta éxito ante rechazo.
+  credenciales rechazadas y reenvío; comprobar un fallo temporal de una
+  operación Auth, el mapeo de límites y la cancelación. La UI no presenta
+  éxito ante rechazo se valida en AUTH-T20, cuando sus pantallas se conecten
+  al caso de uso. La integración del proveedor con restauración y el ciclo de
+  cuenta se valida en AUTH-T16.
 - **Finalización:** Firebase Android se traduce al contrato común sin tipos
   Firebase en dominio; los mensajes respetan enumeración protegida y estados
   aprobados. Adjuntar resultados del entorno Android usado.
-- **Estado:** En progreso. Rafael comunicó que el `google-services.json` local se procesó y `:androidApp:assembleDebug` terminó en BUILD SUCCESSFUL tras añadir Google Services y Firebase Auth mediante el catálogo de versiones. El puente común expone registro; `NativeAuthenticationRepository` reenvía credenciales y convierte el UID a `UserId`, con prueba común comunicada en verde usando un falso. Existe `FirebaseNativeAuthenticationProvider` en `androidApp`: implementa consulta/refresco de sesión, registro, acceso y solicitud de verificación; clasifica fallos Firebase en categorías neutrales y propaga cancelación. Once pruebas instrumentadas se ejecutaron en Pixel 10 AVD y terminaron en BUILD SUCCESSFUL. Cubren registro/UID, acceso posterior con el mismo UID, rechazo de cuenta inexistente, rechazo de registro duplicado como `CREDENTIALS_REJECTED` seguido del acceso con el UID original, ausencia/restauración de sesión, envío de verificación con sesión, rechazo del envío sin sesión, y mapeos directos de `FirebaseNetworkException` a `TEMPORARY` y `FirebaseTooManyRequestsException` a `RATE_LIMITED`. Además, `mapsUnreachableAuthDuringSignInToTemporary` ejecuta un intento real del SDK contra una dirección reservada e inalcanzable y comprueba que el fallo de conexión se traduce a `TEMPORARY`; no consulta un backend Firebase de producción. El mapeo de exceso de solicitudes sigue probado directamente en el traductor, no mediante un límite efectivo del Auth Emulator. Para este AVD fue necesario ejecutar `adb reverse tcp:9099 tcp:9099` y usar `127.0.0.1:9099`; la conexión directa de la app a `10.0.2.2:9099` agotaba el tiempo aunque el navegador del AVD accedía al emulador. Queda pendiente conectar el adaptador a la composición de la app.
+- **Estado:** Completada. El adaptador Android implementa consulta/refresco de sesión, registro, acceso, reenvío de verificación y traducción de errores al contrato neutral; conserva la causa Firebase para diagnóstico y propaga cancelación. `:androidApp:connectedDebugAndroidTest --console=plain` pasó con 12 tests en Pixel 10 AVD. Comprueba registro/UID, acceso con el mismo UID, credenciales rechazadas, registro duplicado, estados de sesión, solicitud de verificación, traducción de fallo temporal durante una operación real del SDK y cancelación de una solicitud pendiente. Los mapeos de `FirebaseNetworkException` y `FirebaseTooManyRequestsException` se comprueban directamente; el Auth Emulator no reprodujo una cuota efectiva. `:sharedLogic:testAndroidHostTest --console=plain` y `:androidApp:assembleDebug --console=plain` también terminaron en BUILD SUCCESSFUL durante el cierre de esta tarea. La integración de la UI para impedir falsos éxitos queda en AUTH-T20; la composición con restauración y ciclo de cuenta, en AUTH-T16. Para el AVD fue necesario `adb reverse tcp:9099 tcp:9099` y usar `127.0.0.1:9099`; el intento previo mediante `10.0.2.2:9099` expiraba en este entorno.
   El 28 de octubre de 2026, Rafael comunicó `:sharedLogic:testAndroidHostTest --tests "com.rafario.miscosas.data.repository.NativeAuthenticationRepositoryTest" --console=plain` en BUILD SUCCESSFUL tras exponer `sendEmailVerification()` en `AuthenticationRepository`, delegarlo al proveedor nativo y añadir `forwardsEmailVerificationRequestToNativeProvider`; se añadieron implementaciones del contrato a los falsos de repositorio afectados. Esta evidencia valida el reenvío común con un falso, no un envío de correo real. Ese mismo día comunicó `:androidApp:connectedDebugAndroidTest --console=plain` en BUILD SUCCESSFUL con nueve pruebas en Pixel 10 AVD. `rejectsDuplicateRegistrationAsCredentialsRejected` comprueba que el Auth Emulator rechaza un registro duplicado como `CREDENTIALS_REJECTED` y que la cuenta original sigue permitiendo el acceso con el UID esperado.
 
 ### AUTH-T12 — Integrar Firebase Authentication en iOS
@@ -740,10 +743,9 @@ AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 
 ## Registro de progreso
 
-AUTH-T01–AUTH-T10 están completadas con la evidencia registrada en cada tarea;
-AUTH-T11 está en progreso y AUTH-T12–AUTH-T25 siguen pendientes. La evidencia
-comunicada para AUTH-T11 incluye también el reenvío común de la solicitud de
-verificación comprobado con un falso en Android Host. AUTH-T04 acredita persistencia Room
+AUTH-T01–AUTH-T11 están completadas con la evidencia registrada en cada tarea;
+AUTH-T12–AUTH-T25 siguen pendientes. AUTH-T11 incluye también el reenvío común
+de la solicitud de verificación comprobado con un falso en Android Host. AUTH-T04 acredita persistencia Room
 Android por UID y pruebas instrumentadas en Pixel 10, pero no integra el ciclo
 real de sesión. Sus tests verifican `UserEntity`; AUTH-T06 verifica además
 perfil, hogar y conservación de outbox en ambas plataformas. AUTH-T16 tiene asignado conectar la factoría al

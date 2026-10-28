@@ -7,6 +7,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.rafario.miscosas.api.auth.NativeAuthenticationException
 import com.rafario.miscosas.api.auth.NativeAuthenticationFailure
 import com.rafario.miscosas.api.auth.NativeSessionLookupResult
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -14,6 +17,11 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.net.ServerSocket
+import java.net.Socket
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
@@ -281,5 +289,60 @@ class FirebaseNativeAuthenticationProviderTest {
             FirebaseTooManyRequestsException("Test rate limit")
                 .toNativeAuthenticationFailure(),
         )
+    }
+
+    @Test
+    fun propagatesCancellationWhileSignInRequestIsPending() = runBlocking {
+        val server = ServerSocket(0)
+        val requestAccepted = CountDownLatch(1)
+        val releaseServer = CountDownLatch(1)
+        val acceptedSocket = AtomicReference<Socket?>()
+        val serverThread = Thread {
+            try {
+                acceptedSocket.set(server.accept())
+                requestAccepted.countDown()
+                releaseServer.await()
+            } catch (_: Exception) {
+                // Closing the socket/server is the expected cleanup path.
+            }
+        }
+        serverThread.start()
+
+        val firebaseAuth = FirebaseAuth.getInstance()
+        firebaseAuth.useEmulator("127.0.0.1", server.localPort)
+        firebaseAuth.signOut()
+        val provider = FirebaseNativeAuthenticationProvider(firebaseAuth)
+
+        try {
+            val pendingSignIn = async(start = CoroutineStart.UNDISPATCHED) {
+                provider.signInWithEmail(
+                    email = "auth-t11-cancel@example.com",
+                    password = "Valid-test-password-123!",
+                )
+            }
+
+            assertTrue(
+                "Firebase Auth request did not reach the local test server",
+                requestAccepted.await(5, TimeUnit.SECONDS),
+            )
+
+            pendingSignIn.cancel(CancellationException("Test cancellation"))
+
+            val cancellation = try {
+                pendingSignIn.await()
+                null
+            } catch (exception: CancellationException) {
+                exception
+            }
+
+            assertTrue("Auth cancellation should propagate", cancellation != null)
+            assertNull(firebaseAuth.currentUser)
+        } finally {
+            firebaseAuth.signOut()
+            releaseServer.countDown()
+            acceptedSocket.get()?.close()
+            server.close()
+            serverThread.join(1_000)
+        }
     }
 }
