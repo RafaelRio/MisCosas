@@ -106,6 +106,39 @@ class FirebaseNativeAuthenticationProviderTest {
     }
 
     @Test
+    fun rejectsDuplicateRegistrationAsCredentialsRejected() = runBlocking {
+        val firebaseAuth = FirebaseAuth.getInstance()
+        firebaseAuth.useEmulator("127.0.0.1", 9099)
+        firebaseAuth.signOut()
+
+        val provider = FirebaseNativeAuthenticationProvider(firebaseAuth)
+        val email = "auth-t11-duplicate-${UUID.randomUUID()}@example.com"
+        val password = "Valid-test-password-123!"
+
+        try {
+            val originalUid = provider.registerWithEmail(email, password)
+            firebaseAuth.signOut()
+
+            val failure = try {
+                provider.registerWithEmail(email, password)
+                null
+            } catch (exception: NativeAuthenticationException) {
+                exception
+            }
+
+            assertEquals(
+                NativeAuthenticationFailure.CREDENTIALS_REJECTED,
+                failure?.failure,
+            )
+
+            firebaseAuth.signOut()
+            assertEquals(originalUid, provider.signInWithEmail(email, password))
+        } finally {
+            firebaseAuth.signOut()
+        }
+    }
+
+    @Test
     fun returnsNoSessionWhenThereIsNoAuthenticatedUser() = runBlocking {
         val firebaseAuth = FirebaseAuth.getInstance()
         firebaseAuth.useEmulator("127.0.0.1", 9099)
