@@ -57,7 +57,8 @@ class FirebaseNativeAuthenticationProvider(
             throw cancellation
         } catch (exception: FirebaseException) {
             throw NativeAuthenticationException(
-                failure = exception.toNativeAuthenticationFailure()
+                failure = exception.toNativeAuthenticationFailure(),
+                cause = exception,
             )
         }
     }
@@ -80,7 +81,8 @@ class FirebaseNativeAuthenticationProvider(
             throw cancellation
         } catch (exception: FirebaseException) {
             throw NativeAuthenticationException(
-                failure = exception.toNativeAuthenticationFailure()
+                failure = exception.toNativeAuthenticationFailure(),
+                cause = exception,
             )
         }
     }
@@ -97,7 +99,8 @@ class FirebaseNativeAuthenticationProvider(
             throw cancellation
         } catch (exception: FirebaseException) {
             throw NativeAuthenticationException(
-                failure = exception.toNativeAuthenticationFailure()
+                failure = exception.toNativeAuthenticationFailure(),
+                cause = exception,
             )
         }
     }

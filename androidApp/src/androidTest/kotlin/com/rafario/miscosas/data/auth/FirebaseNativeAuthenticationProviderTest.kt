@@ -244,6 +244,37 @@ class FirebaseNativeAuthenticationProviderTest {
     }
 
     @Test
+    fun mapsUnreachableAuthDuringSignInToTemporary() = runBlocking {
+        val firebaseAuth = FirebaseAuth.getInstance()
+        // TEST-NET-1 is reserved for documentation and has no Auth Emulator.
+        firebaseAuth.useEmulator("192.0.2.1", 9099)
+        firebaseAuth.signOut()
+
+        val provider = FirebaseNativeAuthenticationProvider(firebaseAuth)
+
+        try {
+            val failure = try {
+                provider.signInWithEmail(
+                    email = "auth-t11-network-${UUID.randomUUID()}@example.com",
+                    password = "Valid-test-password-123!",
+                )
+                null
+            } catch (exception: NativeAuthenticationException) {
+                exception
+            }
+
+            assertEquals(
+                "Firebase cause: ${failure?.cause?.javaClass?.name}: ${failure?.cause?.message}",
+                NativeAuthenticationFailure.TEMPORARY,
+                failure?.failure,
+            )
+            assertNull(firebaseAuth.currentUser)
+        } finally {
+            firebaseAuth.signOut()
+        }
+    }
+
+    @Test
     fun mapsFirebaseTooManyRequestsExceptionToRateLimited() {
         assertEquals(
             NativeAuthenticationFailure.RATE_LIMITED,
