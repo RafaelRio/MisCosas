@@ -172,4 +172,30 @@ class FirebaseNativeAuthenticationProviderTest {
             firebaseAuth.signOut()
         }
     }
+
+    @Test
+    fun rejectsVerificationRequestWhenSignedOut() = runBlocking {
+        val firebaseAuth = FirebaseAuth.getInstance()
+        firebaseAuth.useEmulator("127.0.0.1", 9099)
+        firebaseAuth.signOut()
+
+        val provider = FirebaseNativeAuthenticationProvider(firebaseAuth)
+
+        try {
+            val failure = try {
+                provider.sendEmailVerification()
+                null
+            } catch (exception: NativeAuthenticationException) {
+                exception
+            }
+
+            assertEquals(
+                NativeAuthenticationFailure.UNEXPECTED,
+                failure?.failure,
+            )
+            assertNull(firebaseAuth.currentUser)
+        } finally {
+            firebaseAuth.signOut()
+        }
+    }
 }
