@@ -15,4 +15,6 @@ internal interface AuthenticationRepository {
     ): UserId
 
     suspend fun getCurrentSession(): AuthenticationSessionResult
+
+    suspend fun sendEmailVerification()
 }

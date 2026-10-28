@@ -514,6 +514,10 @@ class RegisterWithEmailUseCaseTest {
         override suspend fun getCurrentSession(): AuthenticationSessionResult {
             error("No se debe consultar la sesión durante el registro")
         }
+
+        override suspend fun sendEmailVerification() {
+
+        }
     }
 
     private class FailingAuthenticationRepository : AuthenticationRepository {
@@ -546,6 +550,10 @@ class RegisterWithEmailUseCaseTest {
 
         override suspend fun getCurrentSession(): AuthenticationSessionResult {
             error("No se debe consultar la sesión durante el registro")
+        }
+
+        override suspend fun sendEmailVerification() {
+
         }
     }
 

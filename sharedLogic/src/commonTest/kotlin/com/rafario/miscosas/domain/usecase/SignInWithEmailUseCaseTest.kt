@@ -95,5 +95,9 @@ class SignInWithEmailUseCaseTest {
         override suspend fun getCurrentSession(): AuthenticationSessionResult {
             error("No se debe consultar la sesión durante el inicio de sesión")
         }
+
+        override suspend fun sendEmailVerification() {
+
+        }
     }
 }

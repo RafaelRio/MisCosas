@@ -433,6 +433,7 @@ comprueba y se registra evidencia en vez de rehacerlo.
   Firebase en dominio; los mensajes respetan enumeración protegida y estados
   aprobados. Adjuntar resultados del entorno Android usado.
 - **Estado:** En progreso. Rafael comunicó que el `google-services.json` local se procesó y `:androidApp:assembleDebug` terminó en BUILD SUCCESSFUL tras añadir Google Services y Firebase Auth mediante el catálogo de versiones. El puente común expone registro; `NativeAuthenticationRepository` reenvía credenciales y convierte el UID a `UserId`, con prueba común comunicada en verde usando un falso. Existe `FirebaseNativeAuthenticationProvider` en `androidApp`: implementa consulta/refresco de sesión, registro, acceso y solicitud de verificación; clasifica fallos Firebase en categorías neutrales y propaga cancelación. Ocho pruebas instrumentadas se ejecutaron en Pixel 10 AVD y terminaron en BUILD SUCCESSFUL: registro/UID, acceso posterior con el mismo UID, rechazo de cuenta inexistente, ausencia/restauración de sesión, envío de verificación con sesión, rechazo del envío sin sesión y mapeo directo de `FirebaseNetworkException` a `TEMPORARY`. El último caso valida la traducción de la excepción, no una operación Auth real con la red caída. Para este AVD fue necesario ejecutar `adb reverse tcp:9099 tcp:9099` y usar `127.0.0.1:9099`; la conexión directa de la app a `10.0.2.2:9099` agotaba el tiempo aunque el navegador del AVD accedía al emulador. Quedan pendientes validar el fallo temporal en la operación Auth, errores/límites y conectar el adaptador a la composición de la app.
+  El 28 de octubre de 2026, Rafael comunicó `:sharedLogic:testAndroidHostTest --tests "com.rafario.miscosas.data.repository.NativeAuthenticationRepositoryTest" --console=plain` en BUILD SUCCESSFUL tras exponer `sendEmailVerification()` en `AuthenticationRepository`, delegarlo al proveedor nativo y añadir `forwardsEmailVerificationRequestToNativeProvider`; se añadieron implementaciones del contrato a los falsos de repositorio afectados. Esta evidencia valida el reenvío común con un falso, no un envío de correo real.
 
 ### AUTH-T12 — Integrar Firebase Authentication en iOS
 
@@ -740,7 +741,9 @@ AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 ## Registro de progreso
 
 AUTH-T01–AUTH-T10 están completadas con la evidencia registrada en cada tarea;
-AUTH-T11–AUTH-T25 siguen pendientes. AUTH-T04 acredita persistencia Room
+AUTH-T11 está en progreso y AUTH-T12–AUTH-T25 siguen pendientes. La evidencia
+comunicada para AUTH-T11 incluye también el reenvío común de la solicitud de
+verificación comprobado con un falso en Android Host. AUTH-T04 acredita persistencia Room
 Android por UID y pruebas instrumentadas en Pixel 10, pero no integra el ciclo
 real de sesión. Sus tests verifican `UserEntity`; AUTH-T06 verifica además
 perfil, hogar y conservación de outbox en ambas plataformas. AUTH-T16 tiene asignado conectar la factoría al

@@ -76,6 +76,9 @@ class NativeAuthenticationRepositoryTest {
             ): String {
                 return "unused-user-id"
             }
+
+            override suspend fun sendEmailVerification() {
+            }
         }
         val repository = NativeAuthenticationRepository(provider)
 
@@ -120,6 +123,16 @@ class NativeAuthenticationRepositoryTest {
         assertEquals(0, provider.signInCalls)
     }
 
+    @Test
+    fun forwardsEmailVerificationRequestToNativeProvider() = runTest {
+        val provider = FakeNativeAuthenticationProvider()
+        val repository = NativeAuthenticationRepository(provider)
+
+        repository.sendEmailVerification()
+
+        assertEquals(1, provider.sendVerificationCalls)
+    }
+
     private class FakeNativeAuthenticationProvider(
         private val result: NativeSessionLookupResult = NativeSessionLookupResult.NoSession,
     ) : NativeAuthenticationProvider {
@@ -130,6 +143,7 @@ class NativeAuthenticationRepositoryTest {
         var registeredEmail: String? = null
         var registeredPassword: String? = null
         var registerCalls = 0
+        var sendVerificationCalls = 0
 
         override suspend fun getCurrentSession(): NativeSessionLookupResult {
             return result
@@ -152,6 +166,10 @@ class NativeAuthenticationRepositoryTest {
             registeredPassword = password
             registerCalls++
             return "native-user-id"
+        }
+
+        override suspend fun sendEmailVerification() {
+            sendVerificationCalls++
         }
     }
 }

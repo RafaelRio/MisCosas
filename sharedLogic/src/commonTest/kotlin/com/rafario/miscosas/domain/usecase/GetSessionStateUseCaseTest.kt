@@ -128,6 +128,10 @@ class GetSessionStateUseCaseTest {
             override suspend fun getCurrentSession(): AuthenticationSessionResult {
                 throw exception
             }
+
+            override suspend fun sendEmailVerification() {
+
+            }
         }
         val useCase = GetSessionStateUseCase(
             repository = authenticationRepository,
@@ -147,6 +151,10 @@ class GetSessionStateUseCaseTest {
         val authenticationRepository = object : AuthenticationRepository {
             override suspend fun getCurrentSession(): AuthenticationSessionResult {
                 throw cancellation
+            }
+
+            override suspend fun sendEmailVerification() {
+
             }
 
             override suspend fun registerWithEmail(
@@ -221,6 +229,10 @@ class GetSessionStateUseCaseTest {
 
         override suspend fun getCurrentSession(): AuthenticationSessionResult {
             return result
+        }
+
+        override suspend fun sendEmailVerification() {
+
         }
     }
 

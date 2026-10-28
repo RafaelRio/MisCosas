@@ -32,4 +32,8 @@ internal class NativeAuthenticationRepository(
             NativeSessionLookupResult.RecoverableError -> AuthenticationSessionResult.RecoverableError
         }
     }
+
+    override suspend fun sendEmailVerification() {
+        provider.sendEmailVerification()
+    }
 }
