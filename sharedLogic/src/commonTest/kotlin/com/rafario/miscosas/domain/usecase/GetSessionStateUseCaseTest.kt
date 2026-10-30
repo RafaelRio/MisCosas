@@ -190,16 +190,14 @@ class GetSessionStateUseCaseTest {
 
         val repository = FakeAuthenticationRepository(
             result = AuthenticationSessionResult.Authenticated(
-                userId = userId,
-                isEmailVerified = false
+                userId = userId, isEmailVerified = false
             )
         )
 
         val userRepository = FakeUserExceptionRepository(exception)
 
         val useCase = GetSessionStateUseCase(
-            repository = repository,
-            userRepository = userRepository
+            repository = repository, userRepository = userRepository
         )
 
         val caught = assertFailsWith<IllegalStateException> {
@@ -211,8 +209,7 @@ class GetSessionStateUseCaseTest {
 
     private class FakeAuthenticationRepository(
         private val result: AuthenticationSessionResult = AuthenticationSessionResult.NoSession,
-    ) :
-        AuthenticationRepository {
+    ) : AuthenticationRepository {
 
         override suspend fun registerWithEmail(
             email: String, password: String
@@ -244,15 +241,22 @@ class GetSessionStateUseCaseTest {
         override suspend fun save(user: User) {
             error("consultar el estado no debe guardar nada.")
         }
+
+        override suspend fun applyRemoteSnapshot(user: User) {
+            error("applyRemoteSnapshot no se espera en este test")
+        }
     }
 
-    private class FakeUserExceptionRepository(val exception: Exception): UserRepository {
+    private class FakeUserExceptionRepository(val exception: Exception) : UserRepository {
 
-        override suspend fun findById(userId: UserId): User? =
-            throw exception
+        override suspend fun findById(userId: UserId): User? = throw exception
 
         override suspend fun save(user: User) {
             error("consultar el estado no debe guardar nada.")
+        }
+
+        override suspend fun applyRemoteSnapshot(user: User) {
+            error("applyRemoteSnapshot no se espera en este test")
         }
     }
 }

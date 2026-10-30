@@ -62,5 +62,9 @@ class CreateUserUseCaseTest {
         ) {
             savedUser = user
         }
+
+        override suspend fun applyRemoteSnapshot(user: User) {
+            error("applyRemoteSnapshot no se espera en este test")
+        }
     }
 }

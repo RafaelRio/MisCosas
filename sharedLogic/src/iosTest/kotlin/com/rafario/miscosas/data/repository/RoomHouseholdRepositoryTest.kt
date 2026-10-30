@@ -14,6 +14,7 @@ import com.rafario.miscosas.domain.model.Household
 import com.rafario.miscosas.domain.model.HouseholdId
 import com.rafario.miscosas.domain.model.HouseholdMember
 import com.rafario.miscosas.domain.model.HouseholdRole
+import com.rafario.miscosas.domain.model.User
 import com.rafario.miscosas.domain.model.UserId
 import com.rafario.miscosas.domain.repository.AuthenticationRepository
 import com.rafario.miscosas.domain.session.SessionAccessDeniedException
@@ -332,5 +333,10 @@ class RoomHouseholdRepositoryTest {
             error("Sign-in is not expected in this repository test")
 
         override suspend fun getCurrentSession(): AuthenticationSessionResult = result
+        override suspend fun sendEmailVerification() {
+
+        }
+
+
     }
 }

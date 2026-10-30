@@ -469,9 +469,18 @@ comprueba y se registra evidencia en vez de rehacerlo.
 - **Comprobar:** integración Room real: snapshot remoto sin pendiente actualiza
   el perfil sin crear outbox; `save()` local sigue encolando dato y outbox de
   forma atómica.
-- **Finalización:** los dos caminos tienen efectos separados y pruebas que
-  comprueban contenido, outbox y rollback ante fallo transaccional.
-- **Estado:** Pendiente.
+- **Progreso/evidencia:** `RoomUserRepository.applyRemoteSnapshot()` valida
+  acceso al UID autenticado y escribe el perfil en Room mediante una
+  transacción, sin generar outbox. El test iOS comprueba el perfil persistido,
+  la ausencia de outbox y el rechazo de un snapshot de otro UID sin escrituras.
+  Los tests existentes de `save()` comprueban que la mutación local sí genera
+  el `USER/UPSERT` atómicamente y que se revierte si falla la escritura del
+  outbox. Rafael comunicó éxito en
+  `./gradlew :sharedLogic:iosSimulatorArm64Test --tests
+  "com.rafario.miscosas.data.repository.RoomUserRepositoryTest" --console=plain`.
+- **Estado:** Completada — suite RoomUserRepository iOS reportada en verde por
+  Rafael; cubre aplicación remota, aislamiento por UID, escritura local y
+  rollback local.
 
 ### AUTH-T14 — Proteger perfil local pendiente frente a snapshot antiguo
 
@@ -743,8 +752,8 @@ AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 
 ## Registro de progreso
 
-AUTH-T01–AUTH-T11 están completadas con la evidencia registrada en cada tarea;
-AUTH-T12–AUTH-T25 siguen pendientes. AUTH-T11 incluye también el reenvío común
+AUTH-T01–AUTH-T11 y AUTH-T13 están completadas con la evidencia registrada en
+cada tarea; AUTH-T12 y AUTH-T14–AUTH-T25 siguen pendientes. AUTH-T11 incluye también el reenvío común
 de la solicitud de verificación comprobado con un falso en Android Host. AUTH-T04 acredita persistencia Room
 Android por UID y pruebas instrumentadas en Pixel 10, pero no integra el ciclo
 real de sesión. Sus tests verifican `UserEntity`; AUTH-T06 verifica además

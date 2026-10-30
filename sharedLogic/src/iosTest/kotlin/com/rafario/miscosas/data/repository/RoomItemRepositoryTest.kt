@@ -584,5 +584,8 @@ class RoomItemRepositoryTest {
             error("Sign-in is not expected in this repository test")
 
         override suspend fun getCurrentSession(): AuthenticationSessionResult = result
+        override suspend fun sendEmailVerification() {
+
+        }
     }
 }

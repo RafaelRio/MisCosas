@@ -163,6 +163,10 @@ class CompleteUserProfileUseCaseTest {
             users[user.id] = user
             saveCalls++
         }
+
+        override suspend fun applyRemoteSnapshot(user: User) {
+            error("applyRemoteSnapshot no se espera en este test")
+        }
     }
 
     private class ExistingUserRepository(
@@ -182,6 +186,10 @@ class CompleteUserProfileUseCaseTest {
 
         override suspend fun save(user: User) {
             saveCalls++
+        }
+
+        override suspend fun applyRemoteSnapshot(user: User) {
+            error("applyRemoteSnapshot no se espera en este test")
         }
     }
 
@@ -205,6 +213,10 @@ class CompleteUserProfileUseCaseTest {
             savedUser = user
             saveCalls++
         }
+
+        override suspend fun applyRemoteSnapshot(user: User) {
+            error("applyRemoteSnapshot no se espera en este test")
+        }
     }
 
     private class FailsFirstSaveUserRepository(
@@ -225,6 +237,10 @@ class CompleteUserProfileUseCaseTest {
             saveCalls++
             if (saveCalls == 1) throw failure
             savedUser = user
+        }
+
+        override suspend fun applyRemoteSnapshot(user: User) {
+            error("applyRemoteSnapshot no se espera en este test")
         }
     }
 

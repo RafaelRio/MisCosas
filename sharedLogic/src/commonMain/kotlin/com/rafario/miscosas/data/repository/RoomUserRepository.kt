@@ -51,4 +51,12 @@ internal class RoomUserRepository(
             database.syncOutboxDao().upsert(syncOutboxEntity)
         }
     }
+
+    override suspend fun applyRemoteSnapshot(user: User) {
+        ownProfileAccessGuard.requireOwnProfileAccess(user.id)
+
+        database.withWriteTransaction {
+            database.userDao().upsert(user.toEntity())
+        }
+    }
 }

@@ -34,10 +34,8 @@ class RoomUserRepositoryTest {
             val rafa = User(
                 id = UserId("firebase-user-164"),
                 displayName = "Rafael Río",
-                createdAt =
-                    Instant.parse("2026-08-27T09:00:00.000000400Z"),
-                updatedAt =
-                    Instant.parse("2026-08-27T09:00:00.000000500Z"),
+                createdAt = Instant.parse("2026-08-27T09:00:00.000000400Z"),
+                updatedAt = Instant.parse("2026-08-27T09:00:00.000000500Z"),
             )
             database.userDao().upsert(rafa.toEntity())
             val repository = RoomUserRepository(
@@ -60,23 +58,19 @@ class RoomUserRepositoryTest {
         val database = createTestDatabase()
 
         try {
-            val enqueuedAt =
-                Instant.parse("2026-08-27T09:00:01.000000789Z")
+            val enqueuedAt = Instant.parse("2026-08-27T09:00:01.000000789Z")
 
             val fixedClock = object : Clock {
                 override fun now(): Instant = enqueuedAt
             }
 
-            val mutationId =
-                "550e8400-e29b-41d4-a716-446655440099"
+            val mutationId = "550e8400-e29b-41d4-a716-446655440099"
 
             val user = User(
                 id = UserId("firebase-user-123"),
                 displayName = "Rafael Río",
-                createdAt =
-                    Instant.parse("2026-08-27T09:00:00.000000400Z"),
-                updatedAt =
-                    Instant.parse("2026-08-27T09:00:00.000000500Z"),
+                createdAt = Instant.parse("2026-08-27T09:00:00.000000400Z"),
+                updatedAt = Instant.parse("2026-08-27T09:00:00.000000500Z"),
             )
 
             val repository = RoomUserRepository(
@@ -110,6 +104,74 @@ class RoomUserRepositoryTest {
                     enqueuedAtNanoseconds = enqueuedAt.nanosecondsOfSecond,
                 ),
                 storedSyncOperation,
+            )
+        } finally {
+            database.close()
+        }
+    }
+
+    @Test
+    fun applyRemoteSnapshotPersistsUserWithoutPendingUpsert() = runTest {
+        val database = createTestDatabase()
+
+        try {
+            val user = User(
+                id = UserId("firebase-user-remote-123"),
+                displayName = "Rafael Río",
+                createdAt = Instant.parse("2026-08-27T09:00:00.000000400Z"),
+                updatedAt = Instant.parse("2026-08-27T09:00:00.000000500Z"),
+            )
+            val repository = RoomUserRepository(
+                database = database,
+                ownProfileAccessGuard = ownProfileAccessGuard(user.id),
+            )
+
+            repository.applyRemoteSnapshot(user)
+
+            assertEquals(
+                user.toEntity(),
+                database.userDao().findById(user.id.value),
+            )
+            assertNull(
+                database.syncOutboxDao().findByTarget(
+                    scopeId = user.id.value,
+                    recordTypeCode = SyncRecordType.USER.code,
+                    recordId = user.id.value,
+                ),
+            )
+        } finally {
+            database.close()
+        }
+    }
+
+    @Test
+    fun applyRemoteSnapshotRejectsAnotherUsersProfile() = runTest {
+        val database = createTestDatabase()
+
+        try {
+            val authenticatedUserId = UserId("firebase-user-123")
+            val anotherUsersProfile = User(
+                id = UserId("firebase-user-remote-456"),
+                displayName = "Another User",
+                createdAt = Instant.parse("2026-08-27T09:00:00.000000400Z"),
+                updatedAt = Instant.parse("2026-08-27T09:00:00.000000500Z"),
+            )
+            val repository = RoomUserRepository(
+                database = database,
+                ownProfileAccessGuard = ownProfileAccessGuard(authenticatedUserId),
+            )
+
+            assertFailsWith<ProfileAccessDeniedException> {
+                repository.applyRemoteSnapshot(anotherUsersProfile)
+            }
+
+            assertNull(database.userDao().findById(anotherUsersProfile.id.value))
+            assertNull(
+                database.syncOutboxDao().findByTarget(
+                    scopeId = anotherUsersProfile.id.value,
+                    recordTypeCode = SyncRecordType.USER.code,
+                    recordId = anotherUsersProfile.id.value,
+                ),
             )
         } finally {
             database.close()
@@ -220,18 +282,14 @@ class RoomUserRepositoryTest {
             val anto = User(
                 id = UserId("firebase-user-124"),
                 displayName = "Anto Río",
-                createdAt =
-                    Instant.parse("2026-08-28T09:00:00.000000400Z"),
-                updatedAt =
-                    Instant.parse("2026-08-29T09:00:00.000000500Z"),
+                createdAt = Instant.parse("2026-08-28T09:00:00.000000400Z"),
+                updatedAt = Instant.parse("2026-08-29T09:00:00.000000500Z"),
             )
             val user = User(
                 id = UserId("firebase-user-123"),
                 displayName = "Rafael Río",
-                createdAt =
-                    Instant.parse("2026-08-27T09:00:00.000000400Z"),
-                updatedAt =
-                    Instant.parse("2026-08-27T09:00:00.000000500Z"),
+                createdAt = Instant.parse("2026-08-27T09:00:00.000000400Z"),
+                updatedAt = Instant.parse("2026-08-27T09:00:00.000000500Z"),
             )
             database.userDao().upsert(anto.toEntity())
             database.userDao().upsert(user.toEntity())
@@ -272,5 +330,7 @@ class RoomUserRepositoryTest {
             error("Sign-in is not expected in this repository test")
 
         override suspend fun getCurrentSession(): AuthenticationSessionResult = result
+        override suspend fun sendEmailVerification() {
+        }
     }
 }

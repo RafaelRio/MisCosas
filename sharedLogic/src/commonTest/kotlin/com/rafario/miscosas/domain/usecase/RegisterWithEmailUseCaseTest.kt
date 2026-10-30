@@ -403,8 +403,7 @@ class RegisterWithEmailUseCaseTest {
         val createUserUseCase = CreateUserUseCase(
             userRepository = failingUserRepository,
             clock = object : Clock {
-                override fun now(): Instant =
-                    Instant.parse("2020-08-30T18:43:00.000000400Z")
+                override fun now(): Instant = Instant.parse("2020-08-30T18:43:00.000000400Z")
             },
         )
 
@@ -505,8 +504,7 @@ class RegisterWithEmailUseCaseTest {
         }
 
         override suspend fun signInWithEmail(
-            email: String,
-            password: String
+            email: String, password: String
         ): UserId {
             return UserId("native-user-id")
         }
@@ -542,8 +540,7 @@ class RegisterWithEmailUseCaseTest {
         }
 
         override suspend fun signInWithEmail(
-            email: String,
-            password: String
+            email: String, password: String
         ): UserId {
             return UserId("native-user-id")
         }
@@ -571,6 +568,11 @@ class RegisterWithEmailUseCaseTest {
         override suspend fun save(user: User) {
             savedUser = user
         }
+
+        override suspend fun applyRemoteSnapshot(user: User) {
+            error("applyRemoteSnapshot no se espera en este test")
+        }
+
     }
 
     private class FailingUserRepository(
@@ -591,6 +593,10 @@ class RegisterWithEmailUseCaseTest {
             saveCalls++
             savedUser = user
             throw failure
+        }
+
+        override suspend fun applyRemoteSnapshot(user: User) {
+            error("applyRemoteSnapshot no se espera en este test")
         }
     }
 
@@ -617,6 +623,10 @@ class RegisterWithEmailUseCaseTest {
             } else {
                 savedUser = user
             }
+        }
+
+        override suspend fun applyRemoteSnapshot(user: User) {
+            error("applyRemoteSnapshot no se espera en este test")
         }
     }
 }

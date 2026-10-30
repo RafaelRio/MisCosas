@@ -7,4 +7,6 @@ internal interface UserRepository {
     suspend fun findById(userId: UserId): User?
 
     suspend fun save(user: User)
+
+    suspend fun applyRemoteSnapshot(user: User)
 }
