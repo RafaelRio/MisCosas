@@ -20,6 +20,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -179,6 +180,51 @@ class RoomUserRepositoryTest {
     }
 
     @Test
+    fun snapshotDoesNotOverrideLocalPendingProfile() = runTest {
+        val database = createTestDatabase()
+        try {
+            val user = User(
+                id = UserId("firebase-user-remote-456"),
+                displayName = "Another User",
+                createdAt = Instant.parse("2026-08-27T09:00:00.000000400Z"),
+                updatedAt = Instant.parse("2026-08-27T09:00:00.000000500Z"),
+            )
+
+            val repository = RoomUserRepository(
+                database = database,
+                ownProfileAccessGuard = ownProfileAccessGuard(user.id))
+
+            repository.save(user)
+            val profileBeforeSnapshot = database.userDao().findById(user.id.value)
+            assertNotNull(profileBeforeSnapshot)
+            val outboxBeforeSnapshot = database.syncOutboxDao().findByTarget(
+                scopeId = user.id.value,
+                recordTypeCode = SyncRecordType.USER.code,
+                recordId = user.id.value,
+            )
+            assertNotNull(outboxBeforeSnapshot)
+
+            val snapshot = user.copy(
+                displayName = "Snapshot antiguo",
+                updatedAt = Instant.parse("2026-08-27T09:10:00.000000500Z"),
+            )
+            repository.applyRemoteSnapshot(snapshot)
+
+            assertEquals(profileBeforeSnapshot, database.userDao().findById(user.id.value))
+            assertEquals(
+                outboxBeforeSnapshot,
+                database.syncOutboxDao().findByTarget(
+                    scopeId = user.id.value,
+                    recordTypeCode = SyncRecordType.USER.code,
+                    recordId = user.id.value,
+                ),
+            )
+        } finally {
+            database.close()
+        }
+    }
+
+    @Test
     fun unverifiedSessionCanSaveOnlyItsOwnProfile() = runTest {
         val database = createTestDatabase()
         try {
@@ -236,7 +282,6 @@ class RoomUserRepositoryTest {
                 updatedAtNanoseconds = 500,
             )
             val user = userEntity.toDomain()
-
             val repository = RoomUserRepository(
                 database = database,
                 ownProfileAccessGuard = ownProfileAccessGuard(

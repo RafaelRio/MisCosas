@@ -494,10 +494,16 @@ comprueba y se registra evidencia en vez de rehacerlo.
   snapshot remoto distinto; confirmar que la transacción conserva íntegros
   tanto el perfil local como la operación pendiente y no los marca como
   sincronizados. También probar snapshot sin operación pendiente.
-- **Finalización:** la prueba falla si se sobrescribe el perfil, se altera o
-  elimina el outbox o se encola otra operación; no se implementa resolución
-  general de conflictos.
-- **Estado:** Pendiente.
+- **Progreso/evidencia:** `RoomUserRepository.applyRemoteSnapshot()` consulta
+  el outbox por UID/perfil dentro de la misma transacción de escritura. Si hay
+  una mutación local pendiente, conserva el perfil y la operación sin cambios;
+  si no la hay, aplica el snapshot sin generar outbox (AUTH-T13). El test
+  `snapshotDoesNotOverrideLocalPendingProfile` verifica el caso pendiente. El
+  test de AUTH-T13 cubre el snapshot sin outbox. Rafael comunicó éxito en
+  `./gradlew :sharedLogic:iosSimulatorArm64Test --tests
+  "com.rafario.miscosas.data.repository.RoomUserRepositoryTest" --console=plain`.
+- **Estado:** Completada — la suite filtrada de integración Room iOS fue
+  reportada en verde por Rafael para ambos caminos.
 
 ### AUTH-T15-ANDROID — Leer y escribir el perfil remoto por UID en Android
 
@@ -752,8 +758,8 @@ AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 
 ## Registro de progreso
 
-AUTH-T01–AUTH-T11 y AUTH-T13 están completadas con la evidencia registrada en
-cada tarea; AUTH-T12 y AUTH-T14–AUTH-T25 siguen pendientes. AUTH-T11 incluye también el reenvío común
+AUTH-T01–AUTH-T11 y AUTH-T13–AUTH-T14 están completadas con la evidencia
+registrada en cada tarea; AUTH-T12 y AUTH-T15–AUTH-T25 siguen pendientes. AUTH-T11 incluye también el reenvío común
 de la solicitud de verificación comprobado con un falso en Android Host. AUTH-T04 acredita persistencia Room
 Android por UID y pruebas instrumentadas en Pixel 10, pero no integra el ciclo
 real de sesión. Sus tests verifican `UserEntity`; AUTH-T06 verifica además

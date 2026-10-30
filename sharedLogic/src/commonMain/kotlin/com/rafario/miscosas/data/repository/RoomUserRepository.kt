@@ -56,7 +56,14 @@ internal class RoomUserRepository(
         ownProfileAccessGuard.requireOwnProfileAccess(user.id)
 
         database.withWriteTransaction {
-            database.userDao().upsert(user.toEntity())
+            val entity = database.syncOutboxDao().findByTarget(
+                scopeId = user.id.value,
+                recordTypeCode = SyncRecordType.USER.code,
+                recordId = user.id.value
+            )
+            if (entity == null) {
+                database.userDao().upsert(user.toEntity())
+            }
         }
     }
 }
