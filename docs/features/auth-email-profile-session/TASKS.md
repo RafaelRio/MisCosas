@@ -522,6 +522,13 @@ comprueba y se registra evidencia en vez de rehacerlo.
   deniegan otros perfiles y recursos fuera del alcance en Emulator. Snapshot
   pasa por AUTH-T14. La integración iOS se comprueba por separado en
   AUTH-T15-IOS.
+- **Progreso/evidencia:** Firebase Firestore Android está añadido al catálogo
+  de versiones y a `androidApp`, usando el BoM existente. Rafael comunicó
+  `:androidApp:assembleDebug` en verde. Se creó el contrato neutral público
+  `RemoteUserProfileRepository` en `commonMain`; Rafael comunicó
+  `:sharedLogic:compileAndroidMain` en verde. Esto valida la dependencia y la
+  compilación del contrato, pero no la lectura/escritura Firestore ni las
+  reglas en Emulator.
 - **Estado:** Pendiente.
 
 ### AUTH-T15-IOS — Leer y escribir el perfil remoto por UID en iOS
