@@ -528,7 +528,11 @@ comprueba y se registra evidencia en vez de rehacerlo.
   `RemoteUserProfileRepository` en `commonMain`; Rafael comunicó
   `:sharedLogic:compileAndroidMain` en verde. Esto valida la dependencia y la
   compilación del contrato, pero no la lectura/escritura Firestore ni las
-  reglas en Emulator.
+  reglas en Emulator. Las reglas ahora validan propietario, forma exacta del
+  perfil, tipos, longitud del nombre y orden de timestamps. Rafael comunicó
+  `npm test` en `firebase-rules-tests` en verde contra Firestore Emulator;
+  cubre lectura/creación/actualización propias, perfiles inválidos, UID ajeno
+  y rutas denegadas. La integración SDK Android sigue pendiente.
 - **Estado:** Pendiente.
 
 ### AUTH-T15-IOS — Leer y escribir el perfil remoto por UID en iOS

@@ -8,7 +8,7 @@ import {
   initializeTestEnvironment,
 } from "@firebase/rules-unit-testing";
 
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { Timestamp, doc, getDoc, setDoc } from "firebase/firestore";
 
 let testEnvironment;
 
@@ -32,15 +32,26 @@ after(async () => {
   await testEnvironment?.cleanup();
 });
 
+function validUserProfile(displayName) {
+  const createdAt = Timestamp.fromDate(new Date("2026-08-27T09:00:00.000Z"));
+
+  return {
+    displayName,
+    createdAt,
+    updatedAt: Timestamp.fromDate(new Date("2026-08-27T09:10:00.000Z")),
+  };
+}
+
 test("cada UID solo puede acceder a su propio perfil", async () => {
   await testEnvironment.clearFirestore();
 
   const anonymousDatabase = testEnvironment.unauthenticatedContext().firestore();
 
   await assertFails(
-    setDoc(doc(anonymousDatabase, "users", "uid-anonimo"), {
-      displayName: "Perfil anónimo",
-    }),
+    setDoc(
+      doc(anonymousDatabase, "users", "uid-anonimo"),
+      validUserProfile("Perfil anónimo"),
+    ),
   );
 
   const databaseB = testEnvironment
@@ -48,9 +59,7 @@ test("cada UID solo puede acceder a su propio perfil", async () => {
     .firestore();
 
   await assertSucceeds(
-    setDoc(doc(databaseB, "users", "uid-b"), {
-      displayName: "Perfil B",
-    }),
+    setDoc(doc(databaseB, "users", "uid-b"), validUserProfile("Perfil B")),
   );
 
   const databaseA = testEnvironment
@@ -58,17 +67,40 @@ test("cada UID solo puede acceder a su propio perfil", async () => {
     .firestore();
 
   await assertSucceeds(
-    setDoc(doc(databaseA, "users", "uid-a"), {
-      displayName: "Perfil A",
-    }),
+    setDoc(doc(databaseA, "users", "uid-a"), validUserProfile("Perfil A")),
   );
+
+  const ownProfile = doc(databaseA, "users", "uid-a");
+  await assertSucceeds(getDoc(ownProfile));
+  await assertSucceeds(
+    setDoc(ownProfile, validUserProfile("Perfil A actualizado")),
+  );
+
+  const invalidProfiles = [
+    { displayName: "Perfil sin fechas" },
+    {
+      ...validUserProfile("Fecha con tipo incorrecto"),
+      createdAt: "2026-08-27T09:00:00.000Z",
+    },
+    validUserProfile(""),
+    { ...validUserProfile("Campo adicional"), unexpected: true },
+    {
+      ...validUserProfile("Actualización anterior al alta"),
+      updatedAt: Timestamp.fromDate(new Date("2026-08-27T08:00:00.000Z")),
+    },
+  ];
+
+  for (const invalidProfile of invalidProfiles) {
+    await assertFails(setDoc(ownProfile, invalidProfile));
+  }
 
   await assertFails(getDoc(doc(databaseA, "users", "uid-b")));
 
   await assertFails(
-    setDoc(doc(databaseA, "users", "uid-b"), {
-      displayName: "Intento de cambiar el perfil B",
-    }),
+    setDoc(
+      doc(databaseA, "users", "uid-b"),
+      validUserProfile("Intento de cambiar el perfil B"),
+    ),
   );
 
   await assertFails(
