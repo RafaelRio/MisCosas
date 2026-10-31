@@ -19,14 +19,27 @@ import kotlin.time.Instant
 class GetSessionStateUseCaseTest {
 
     @Test
-    fun returnsSignedOutWhenThereIsNoAuthenticatedUser() = runTest {
-        val repository = FakeAuthenticationRepository()
-        val userRepository = FakeUserRepository()
-        val useCase = createUseCase(repository, userRepository)
+    fun returnsSignedOutAndClosesProviderWhenThereIsNoAuthenticatedUser() = runTest {
+        val authenticationRepository = FakeAuthenticationRepository()
+        var closeCurrentCalls = 0
+        val userRepositoryProvider = object : UserRepositoryProvider {
+            override fun forUser(userId: UserId): UserRepository =
+                error("No se debe seleccionar un repositorio sin sesión")
+
+            override fun closeCurrent() {
+                closeCurrentCalls += 1
+            }
+        }
+        val useCase = GetSessionStateUseCase(
+            repository = authenticationRepository,
+            userRepositoryProvider = userRepositoryProvider,
+            remoteUserProfileRepository = FakeRemoteUserProfileRepository(user = null),
+        )
 
         val result = useCase()
 
         assertEquals(SessionState.SignedOut, result)
+        assertEquals(1, closeCurrentCalls)
     }
 
     @Test
@@ -46,7 +59,7 @@ class GetSessionStateUseCaseTest {
     }
 
     @Test
-    fun returnsReadyWhenAuthenticatedUserHasLocalProfile() = runTest {
+    fun returnsReadyAndDoesNotQueryRemoteWhenLocalProfileExists() = runTest {
         val user = User(
             id = UserId("firebase-user-123"),
             displayName = "Rafael Río",
@@ -59,11 +72,17 @@ class GetSessionStateUseCaseTest {
                 userId = user.id, isEmailVerified = true
             )
         )
-        val useCase = createUseCase(sessionRepository, repository)
+        val remoteUserProfileRepository = FakeRemoteUserProfileRepository(user = null)
+        val useCase = createUseCase(
+            authenticationRepository = sessionRepository,
+            userRepository = repository,
+            remoteUserProfileRepository = remoteUserProfileRepository,
+        )
 
         val result = useCase()
 
         assertEquals(SessionState.Ready(user), result)
+        assertEquals(emptyList(), remoteUserProfileRepository.requestedUserIds)
     }
 
     @Test
@@ -354,6 +373,41 @@ class GetSessionStateUseCaseTest {
         }
 
         assertSame(failure, caught)
+        assertEquals(listOf(userId), requestedUserIds)
+    }
+
+    @Test
+    fun propagatesRemoteProfileLookupCancellation() = runTest {
+        val userId = UserId("firebase-user-remote-cancelled")
+        val cancellation = CancellationException("Consulta remota cancelada")
+        val requestedUserIds = mutableListOf<UserId>()
+        val remoteUserProfileRepository = object : RemoteUserProfileRepository {
+            override suspend fun findById(userId: UserId): User? {
+                requestedUserIds += userId
+                throw cancellation
+            }
+
+            override suspend fun upsert(user: User) {
+                error("No se espera escribir en el repositorio remoto")
+            }
+        }
+        val authenticationRepository = FakeAuthenticationRepository(
+            result = AuthenticationSessionResult.Authenticated(
+                userId = userId,
+                isEmailVerified = true,
+            )
+        )
+        val useCase = createUseCase(
+            authenticationRepository = authenticationRepository,
+            userRepository = FakeUserRepository(),
+            remoteUserProfileRepository = remoteUserProfileRepository,
+        )
+
+        val caught = assertFailsWith<CancellationException> {
+            useCase()
+        }
+
+        assertSame(cancellation, caught)
         assertEquals(listOf(userId), requestedUserIds)
     }
 

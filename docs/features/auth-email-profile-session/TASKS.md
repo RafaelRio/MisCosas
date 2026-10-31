@@ -636,10 +636,29 @@ comprueba y se registra evidencia en vez de rehacerlo.
   terminó en `BUILD SUCCESSFUL`. Añadí también
   `propagatesRemoteProfileLookupFailureInsteadOfReturningProfilePending`, que
   comprueba la propagación de la misma excepción y el UID consultado. Volví a
-  ejecutar el mismo comando; terminó en `BUILD SUCCESSFUL`. Siguen pendientes
-  cancelación remota, prioridad del perfil local, cierre por `NoSession`,
-  comprobaciones Android adicionales e integración de composición; AUTH-T16
-  sigue pendiente.
+  ejecutar el mismo comando; terminó en `BUILD SUCCESSFUL`. Añadí
+  `propagatesRemoteProfileLookupCancellation`, que comprueba que la misma
+  `CancellationException` se propaga y que se consulta el UID esperado. Ejecuté
+  otra vez `:sharedLogic:testAndroidHostTest --tests
+  "com.rafario.miscosas.domain.usecase.GetSessionStateUseCaseTest" --console=plain`;
+  terminó en `BUILD SUCCESSFUL`. También actualicé los tests comunes para
+  comprobar que un perfil local listo no consulta el remoto y que `NoSession`
+  cierra el proveedor exactamente una vez. Ejecuté la clase Host de nuevo y
+  terminó en `BUILD SUCCESSFUL`. Añadí
+  `RoomUserRepositoryProviderAndroidTest.sessionStateUsesAndroidRoomPartitionForEachAuthenticatedUid`,
+  que integra el caso de uso con la factoría Android y Room real, y verifica
+  `Ready(A) → Ready(B) → Ready(A)` sin consulta remota. Ejecuté
+  `:sharedLogic:connectedAndroidDeviceTest --console=plain`: los 313 tests
+  terminaron en `BUILD SUCCESSFUL` en Pixel 10 AVD. Volví a ejecutar
+  `:sharedLogic:iosSimulatorArm64Test --tests
+  "com.rafario.miscosas.data.repository.RoomUserRepositoryProviderTest" --console=plain`;
+  terminó en `BUILD SUCCESSFUL`. Estos tests validan la lógica y los
+  proveedores Room reales en Android/iOS; no prueban Firebase iOS ni que las
+  composiciones raíz de ambas apps estén conectadas al caso de uso. Ejecuté
+  además `:sharedLogic:testAndroidHostTest --console=plain` y
+  `:sharedLogic:iosSimulatorArm64Test --console=plain`; ambas suites terminaron
+  en `BUILD SUCCESSFUL`. AUTH-T16 sigue pendiente de revisar la composición
+  raíz y las validaciones finales.
 - **Estado:** Pendiente.
 
 ### AUTH-T17 — Persistir y refrescar verificación ligada al UID
