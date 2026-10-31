@@ -5,6 +5,7 @@ import com.rafario.miscosas.domain.model.SessionState
 import com.rafario.miscosas.domain.model.User
 import com.rafario.miscosas.domain.model.UserId
 import com.rafario.miscosas.domain.repository.AuthenticationRepository
+import com.rafario.miscosas.domain.repository.RemoteUserProfileRepository
 import com.rafario.miscosas.domain.repository.UserRepository
 import com.rafario.miscosas.domain.repository.UserRepositoryProvider
 import kotlinx.coroutines.CancellationException
@@ -228,10 +229,11 @@ class GetSessionStateUseCaseTest {
                 isEmailVerified = true,
             )
         )
-
+        val remoteUserProfileRepository = FakeRemoteUserProfileRepository(userA)
         val useCase = GetSessionStateUseCase(
             repository = authenticationRepository,
             userRepositoryProvider = userRepositoryProvider,
+            remoteUserProfileRepository = remoteUserProfileRepository,
         )
 
         val result = useCase()
@@ -242,9 +244,60 @@ class GetSessionStateUseCaseTest {
         assertEquals(emptyList(), repositoryB.requestedUserIds)
     }
 
+    @Test
+    fun restoresRemoteProfileWhenAuthenticatedUserHasNoLocalProfile() = runTest {
+        val userId = UserId("firebase-user-restored-remotely")
+        val remoteUser = User(
+            id = userId,
+            displayName = "Perfil remoto",
+            createdAt = Instant.parse("2026-08-27T09:00:00.000000500Z"),
+            updatedAt = Instant.parse("2026-08-27T09:10:00.000000500Z"),
+        )
+        val localProfiles = mutableMapOf<UserId, User>()
+        val appliedSnapshots = mutableListOf<User>()
+        val localUserRepository = object : UserRepository {
+            override suspend fun findById(userId: UserId): User? = localProfiles[userId]
+
+            override suspend fun save(user: User) {
+                error("La restauración remota no debe encolar un guardado local")
+            }
+
+            override suspend fun applyRemoteSnapshot(user: User) {
+                appliedSnapshots += user
+                localProfiles[user.id] = user
+            }
+        }
+        val userRepositoryProvider = object : UserRepositoryProvider {
+            override fun forUser(userId: UserId): UserRepository = localUserRepository
+
+            override fun closeCurrent() = Unit
+        }
+        val remoteUserProfileRepository = FakeRemoteUserProfileRepository(remoteUser)
+        val authenticationRepository = FakeAuthenticationRepository(
+            result = AuthenticationSessionResult.Authenticated(
+                userId = userId,
+                isEmailVerified = true,
+            )
+        )
+        val useCase = GetSessionStateUseCase(
+            repository = authenticationRepository,
+            userRepositoryProvider = userRepositoryProvider,
+            remoteUserProfileRepository = remoteUserProfileRepository,
+        )
+
+        val result = useCase()
+
+        assertEquals(SessionState.Ready(remoteUser), result)
+        assertEquals(listOf(userId), remoteUserProfileRepository.requestedUserIds)
+        assertEquals(listOf(remoteUser), appliedSnapshots)
+        assertEquals(remoteUser, localProfiles[userId])
+    }
+
     private fun createUseCase(
         authenticationRepository: AuthenticationRepository,
         userRepository: UserRepository,
+        remoteUserProfileRepository: RemoteUserProfileRepository =
+            FakeRemoteUserProfileRepository(user = null),
     ): GetSessionStateUseCase = GetSessionStateUseCase(
         repository = authenticationRepository,
         userRepositoryProvider = object : UserRepositoryProvider {
@@ -252,6 +305,7 @@ class GetSessionStateUseCaseTest {
 
             override fun closeCurrent() = Unit
         },
+        remoteUserProfileRepository = remoteUserProfileRepository,
     )
 
     private class FakeAuthenticationRepository(
@@ -308,6 +362,21 @@ class GetSessionStateUseCaseTest {
 
         override suspend fun applyRemoteSnapshot(user: User) {
             error("applyRemoteSnapshot no se espera en este test")
+        }
+    }
+
+    private class FakeRemoteUserProfileRepository(
+        private val user: User?,
+    ) : RemoteUserProfileRepository {
+        val requestedUserIds = mutableListOf<UserId>()
+
+        override suspend fun findById(userId: UserId): User? {
+            requestedUserIds += userId
+            return user?.takeIf { it.id == userId }
+        }
+
+        override suspend fun upsert(user: User) {
+            error("No se espera escribir en el repositorio remoto")
         }
     }
 }

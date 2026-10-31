@@ -6,6 +6,7 @@ import com.rafario.miscosas.domain.model.SessionState
 import com.rafario.miscosas.domain.model.User
 import com.rafario.miscosas.domain.model.UserId
 import com.rafario.miscosas.domain.repository.AuthenticationRepository
+import com.rafario.miscosas.domain.repository.RemoteUserProfileRepository
 import com.rafario.miscosas.domain.usecase.GetSessionStateUseCase
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -43,6 +44,13 @@ class RoomUserRepositoryProviderTest {
             val useCase = GetSessionStateUseCase(
                 repository = authenticationRepository,
                 userRepositoryProvider = userRepositoryProvider,
+                remoteUserProfileRepository = object : RemoteUserProfileRepository {
+                    override suspend fun findById(userId: UserId): User? = null
+
+                    override suspend fun upsert(user: User) {
+                        error("No se espera escribir en el repositorio remoto")
+                    }
+                },
             )
 
             userRepositoryProvider.forUser(userAId).save(userA)

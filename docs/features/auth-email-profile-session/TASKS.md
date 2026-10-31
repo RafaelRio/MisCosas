@@ -620,8 +620,17 @@ comprueba y se registra evidencia en vez de rehacerlo.
   Room; guarda perfiles de dos UID y comprueba `Ready(A) → Ready(B) → Ready(A)`.
   Esto verifica la selección real de partición Room por UID en el caso de uso
   compartido dentro del test KMP iOS. No valida Firebase/Auth iOS en runtime,
-  recuperación de perfil remoto, cierre por `NoSession` ni las comprobaciones
-  Android descritas arriba; AUTH-T16 sigue pendiente.
+  cierre por `NoSession` ni las comprobaciones Android descritas arriba.
+  Después se añadió la dependencia remota al caso de
+  uso y el test común `restoresRemoteProfileWhenAuthenticatedUserHasNoLocalProfile`,
+  que comprueba que un perfil remoto recuperado se aplica mediante
+  `applyRemoteSnapshot` y produce `SessionState.Ready`. Rafael comunicó en
+  verde `:sharedLogic:testAndroidHostTest --tests
+  "com.rafario.miscosas.domain.usecase.GetSessionStateUseCaseTest" --console=plain`.
+  Esta evidencia usa un repositorio remoto falso; no valida Firebase real.
+  Siguen pendientes los casos de ausencia/error/cancelación remota, prioridad
+  del perfil local, cierre por `NoSession`, comprobaciones Android adicionales
+  e integración de composición; AUTH-T16 sigue pendiente.
 - **Estado:** Pendiente.
 
 ### AUTH-T17 — Persistir y refrescar verificación ligada al UID
