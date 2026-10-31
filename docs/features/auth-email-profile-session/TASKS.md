@@ -628,12 +628,16 @@ comprueba y se registra evidencia en vez de rehacerlo.
   verde `:sharedLogic:testAndroidHostTest --tests
   "com.rafario.miscosas.domain.usecase.GetSessionStateUseCaseTest" --console=plain`.
   Esta evidencia usa un repositorio remoto falso; no valida Firebase real.
-  Se añadió además `profilePending`, que verifica que la ausencia remota
-  confirmada produce `SessionState.ProfilePending` y consulta el UID autenticado.
+  Se añadió además `returnsProfilePendingWhenRemoteProfileIsConfirmedAbsent`,
+  que verifica que la ausencia remota confirmada produce
+  `SessionState.ProfilePending` y consulta el UID autenticado.
   Ejecuté `:sharedLogic:testAndroidHostTest --tests
   "com.rafario.miscosas.domain.usecase.GetSessionStateUseCaseTest" --console=plain`;
-  terminó en `BUILD SUCCESSFUL`. Siguen pendientes los casos de
-  error/cancelación remota, prioridad del perfil local, cierre por `NoSession`,
+  terminó en `BUILD SUCCESSFUL`. Añadí también
+  `propagatesRemoteProfileLookupFailureInsteadOfReturningProfilePending`, que
+  comprueba la propagación de la misma excepción y el UID consultado. Volví a
+  ejecutar el mismo comando; terminó en `BUILD SUCCESSFUL`. Siguen pendientes
+  cancelación remota, prioridad del perfil local, cierre por `NoSession`,
   comprobaciones Android adicionales e integración de composición; AUTH-T16
   sigue pendiente.
 - **Estado:** Pendiente.

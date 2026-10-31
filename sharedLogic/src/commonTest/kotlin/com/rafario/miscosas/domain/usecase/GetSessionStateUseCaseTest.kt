@@ -294,7 +294,7 @@ class GetSessionStateUseCaseTest {
     }
 
     @Test
-    fun profilePending() = runTest {
+    fun returnsProfilePendingWhenRemoteProfileIsConfirmedAbsent() = runTest {
         val userId = UserId("firebase-user-unverified")
         val authenticationRepository = FakeAuthenticationRepository(
             result = AuthenticationSessionResult.Authenticated(
@@ -320,6 +320,41 @@ class GetSessionStateUseCaseTest {
 
         assertEquals(SessionState.ProfilePending(userId), result)
         assertEquals(userId, repository.requestedUserIds.first())
+    }
+
+    @Test
+    fun propagatesRemoteProfileLookupFailureInsteadOfReturningProfilePending() = runTest {
+        val userId = UserId("firebase-user-remote-error")
+        val failure = IllegalStateException("No se pudo consultar el perfil remoto")
+        val requestedUserIds = mutableListOf<UserId>()
+        val remoteUserProfileRepository = object : RemoteUserProfileRepository {
+            override suspend fun findById(userId: UserId): User? {
+                requestedUserIds += userId
+                throw failure
+            }
+
+            override suspend fun upsert(user: User) {
+                error("No se espera escribir en el repositorio remoto")
+            }
+        }
+        val authenticationRepository = FakeAuthenticationRepository(
+            result = AuthenticationSessionResult.Authenticated(
+                userId = userId,
+                isEmailVerified = true,
+            )
+        )
+        val useCase = createUseCase(
+            authenticationRepository = authenticationRepository,
+            userRepository = FakeUserRepository(),
+            remoteUserProfileRepository = remoteUserProfileRepository,
+        )
+
+        val caught = assertFailsWith<IllegalStateException> {
+            useCase()
+        }
+
+        assertSame(failure, caught)
+        assertEquals(listOf(userId), requestedUserIds)
     }
 
     private fun createUseCase(
