@@ -536,7 +536,14 @@ comprueba y se registra evidencia en vez de rehacerlo.
   Android: lee `users/{uid}`, distingue documento ausente de error, mapea el
   perfil y hace upsert con el esquema validado. Rafael comunicó
   `:androidApp:compileDebugKotlin` en verde. La prueba de esas operaciones SDK
-  desde Android contra Firestore Emulator sigue pendiente.
+  desde Android, `FirestoreRemoteUserProfileRepositoryTest`, registra UID en
+  Auth Emulator, confirma ausencia, crea/lee/actualiza el perfil propio y
+  comprueba que un UID ajeno produce `PERMISSION_DENIED`. Ejecuté
+  `:androidApp:connectedDebugAndroidTest --console=plain` con Auth y Firestore
+  Emulator en una sola instancia; los 13 tests pasaron en Pixel 10 AVD. Falta
+  probar que una ausencia no se infiere de caché durante un error de red:
+  actualmente `findById` usa `get()` por defecto, que puede recurrir a caché.
+  Debe requerirse fuente servidor antes de declarar CA-14 satisfecho.
 - **Estado:** Pendiente.
 
 ### AUTH-T15-IOS — Leer y escribir el perfil remoto por UID en iOS
