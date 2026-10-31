@@ -532,7 +532,11 @@ comprueba y se registra evidencia en vez de rehacerlo.
   perfil, tipos, longitud del nombre y orden de timestamps. Rafael comunicó
   `npm test` en `firebase-rules-tests` en verde contra Firestore Emulator;
   cubre lectura/creación/actualización propias, perfiles inválidos, UID ajeno
-  y rutas denegadas. La integración SDK Android sigue pendiente.
+  y rutas denegadas. Se implementó `FirestoreRemoteUserProfileRepository` en
+  Android: lee `users/{uid}`, distingue documento ausente de error, mapea el
+  perfil y hace upsert con el esquema validado. Rafael comunicó
+  `:androidApp:compileDebugKotlin` en verde. La prueba de esas operaciones SDK
+  desde Android contra Firestore Emulator sigue pendiente.
 - **Estado:** Pendiente.
 
 ### AUTH-T15-IOS — Leer y escribir el perfil remoto por UID en iOS
