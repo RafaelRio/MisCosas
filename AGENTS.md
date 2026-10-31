@@ -22,13 +22,18 @@
   PLAN, TASKS y estado cuando corresponda al proceso acordado. No hace falta
   pedir autorización por cada edición documental dentro de ese ámbito. Este
   permiso no autoriza inventar o aprobar decisiones de producto, avanzar de
-  fase sin acuerdo, modificar código o pruebas, ejecutar comandos que alteren
-  el proyecto ni realizar operaciones Git. Mantener los cambios documentales
-  mínimos, preservar el contenido histórico y comunicar qué se cambió para
-  que Rafael pueda revisarlo.
-- Rafael realiza personalmente los cambios de código y pruebas; el asistente
-  revisa el resultado compartido y guía las correcciones sin editar esos
-  archivos. Rafael también gestiona Git: el asistente no modifica el índice ni
+  fase sin acuerdo, modificar código o pruebas salvo petición explícita, ni
+  ejecutar comandos que alteren el proyecto fuera de la autorización de tests
+  descrita abajo, ni realizar operaciones Git. Mantener los cambios
+  documentales mínimos, preservar el contenido histórico y comunicar qué se
+  cambió para que Rafael pueda revisarlo.
+- Rafael realiza personalmente los cambios de código y pruebas salvo que pida
+  explícitamente al asistente que implemente una prueba o un cambio. Cuando la
+  validación acordada requiera tests, el asistente ejecuta automáticamente los
+  comandos de test pertinentes y comunica el resultado; no pide a Rafael que
+  los ejecute. Si Rafael pide expresamente solo instrucciones o un comando para
+  ejecutarlo él, se respeta esa indicación. Rafael también gestiona Git: el
+  asistente no modifica el índice ni
   realiza commits o push. El asistente debe recomendar proactivamente un
   commit cuando haya un incremento coherente y revisado, por ejemplo, una
   porción pequeña cuya comprobación acordada haya pasado, antes de cambiar de
@@ -63,9 +68,11 @@
   trazadas las demás cuestiones; no recorrer los P- automáticamente en orden.
   Recomendar el siguiente incremento según las dependencias y el estado real
   del código, distinguiendo una recomendación de una decisión aprobada.
-- Al orientar una prueba, indicar el comando y qué resultado comprobar.
-  Rafael lo ejecuta y comparte la salida; el asistente ayuda a interpretarla.
-  No afirmar que una prueba se ejecutó si no hay evidencia del resultado.
+- Al orientar una prueba, ejecutar automáticamente el comando pertinente
+  cuando la ejecución esté autorizada por la solicitud o por la regla
+  permanente de tests, e informar del comando y resultado observado. Si el
+  entorno impide ejecutarlo, dar a Rafael el comando y explicar el bloqueo.
+  Nunca afirmar que una prueba se ejecutó sin evidencia.
 - Los agentes especializados solo analizan, asesoran y revisan en modo de
   solo lectura. No modifican archivos, ejecutan cambios ni operaciones Git.
 - Indicar qué agente intervino, qué revisó y sus hallazgos. Tener un archivo
@@ -216,16 +223,19 @@ una sesión nueva.
    Rafael un paso pequeño cada vez: objetivo, ruta exacta, cambios que debe
    realizar y código de referencia cuando corresponda. Rafael hace los
    cambios manualmente. Después, revisar el resultado que comparta y guiar
-   las correcciones sin editar archivos. Aplicar TDD cuando proceda: Rafael
-   escribe y ejecuta el test, comparte el resultado y luego implementa el
-   cambio mínimo. Si el comportamiento ya existe, reconocerlo; no fingir un
-   ciclo rojo-verde ni introducir fallos artificiales.
-6. **Validación y cierre:** indicar a Rafael las comprobaciones adecuadas,
-   sus comandos y qué evidencia aportar. Rafael ejecuta las comprobaciones.
-   Revisar los resultados compartidos y distinguir lo validado de lo
-   pendiente. Actualizar TASKS y DEVELOPMENT_STATUS cuando reflejen trabajo
-   acordado o evidencia comprobada, dentro del permiso documental permanente,
-   e informar a Rafael de los cambios. Rafael realiza personalmente las
+   las correcciones sin editar archivos, salvo petición explícita. Aplicar TDD
+   cuando proceda: ejecutar automáticamente el test pertinente después de
+   que esté escrito; revisar el resultado y luego guiar el cambio mínimo. Si
+   el comportamiento ya existe, reconocerlo; no fingir un ciclo rojo-verde ni
+   introducir fallos artificiales.
+6. **Validación y cierre:** elegir comprobaciones adecuadas e indicar qué
+   evidencia se espera. Ejecutar automáticamente los tests pertinentes según
+   la autorización vigente; revisar los
+   resultados y distinguir lo validado de lo pendiente. Para builds u otros
+   comandos que alteren el proyecto, seguir la petición específica de Rafael.
+   Actualizar TASKS y DEVELOPMENT_STATUS cuando reflejen trabajo acordado o
+   evidencia comprobada, dentro del permiso documental permanente, e informar
+   a Rafael de los cambios. Rafael realiza personalmente las
    operaciones de Git; el asistente no modifica el índice ni crea commits o
    hace push. Al alcanzar un checkpoint coherente y revisado, recomendar el
    commit correspondiente sin esperar al cierre de toda la funcionalidad;
@@ -278,10 +288,10 @@ funcionalidad aprobada ni afirmar que se revisó un diseño inaccesible.
 
 ## Validación y comandos
 
-Proponer comprobaciones proporcionales a la tarea e indicar a Rafael sus
-comandos desde la raíz del proyecto. Rafael los ejecuta y comparte los
-resultados para su revisión. El asistente puede realizar inspecciones de solo
-lectura, pero no ejecuta pruebas ni comandos que cambien el proyecto.
+Proponer comprobaciones proporcionales a la tarea. El asistente ejecuta
+automáticamente los comandos de tests pertinentes y comunica la salida. Para
+comandos de build u otras acciones que alteren el proyecto, respetar la
+autorización específica de Rafael. No realizar operaciones Git.
 
 
 Comandos de referencia del proyecto:
