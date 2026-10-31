@@ -54,6 +54,7 @@ class FirestoreRemoteUserProfileRepositoryTest {
                 "An offline read must not be treated as confirmed remote absence",
                 offlineReadFailure,
             )
+            assertEquals(userId.value, firebaseAuth.currentUser?.uid)
 
             val foreignReadFailure = try {
                 repository.findById(UserId("another-test-user"))

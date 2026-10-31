@@ -2,6 +2,7 @@ package com.rafario.miscosas.data.profile
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Source
 import com.rafario.miscosas.domain.model.User
 import com.rafario.miscosas.domain.model.UserId
 import com.rafario.miscosas.domain.repository.RemoteUserProfileRepository
@@ -12,7 +13,8 @@ internal class FirestoreRemoteUserProfileRepository(
     private val firestore: FirebaseFirestore
 ) : RemoteUserProfileRepository {
     override suspend fun findById(userId: UserId): User? {
-        val snapshot = firestore.collection("users").document(userId.value).get().await()
+        val snapshot =
+            firestore.collection("users").document(userId.value).get(Source.SERVER).await()
 
         if (!snapshot.exists()) return null
 

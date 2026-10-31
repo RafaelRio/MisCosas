@@ -542,12 +542,15 @@ comprueba y se registra evidencia en vez de rehacerlo.
   `:androidApp:connectedDebugAndroidTest --console=plain` con Auth y Firestore
   Emulator en una sola instancia; los 13 tests pasaron en Pixel 10 AVD. La
   prueba desactiva la red después de una respuesta remota de ausencia y verifica
-  que la lectura produce un error, no `null`. Para garantizarlo en general,
-  `findById` debe pedir `Source.SERVER`: el `get()` predeterminado puede recurrir
-  a caché. La suite no prueba una ausencia obsoleta cacheada tras un cambio
-  remoto; CA-14 requiere que solo una respuesta confirmada del servidor dé
-  `null`.
-- **Estado:** Pendiente.
+  que la lectura produce un error, no `null`, y que la sesión Auth conserva el
+  UID. `findById` usa `Source.SERVER` para que `null` represente una ausencia
+  confirmada por el servidor. Tras ese cambio ejecuté otra vez la suite
+  instrumentada completa; los 13 tests pasaron en Pixel 10 AVD. Cubre ausencia,
+  lectura/creación/actualización propia, rechazo por UID ajeno y error remoto
+  sin perder sesión.
+- **Estado:** Completada — adaptador Android compilado e integración probada
+  contra Auth y Firestore Emulator. Su composición con la restauración real
+  pertenece a AUTH-T16.
 
 ### AUTH-T15-IOS — Leer y escribir el perfil remoto por UID en iOS
 
@@ -783,8 +786,8 @@ AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 
 ## Registro de progreso
 
-AUTH-T01–AUTH-T11 y AUTH-T13–AUTH-T14 están completadas con la evidencia
-registrada en cada tarea; AUTH-T12 y AUTH-T15–AUTH-T25 siguen pendientes. AUTH-T11 incluye también el reenvío común
+AUTH-T01–AUTH-T11, AUTH-T13–AUTH-T14 y AUTH-T15-ANDROID están completadas con
+la evidencia registrada en cada tarea; AUTH-T12, AUTH-T15-IOS y AUTH-T16–AUTH-T25 siguen pendientes. AUTH-T11 incluye también el reenvío común
 de la solicitud de verificación comprobado con un falso en Android Host. AUTH-T04 acredita persistencia Room
 Android por UID y pruebas instrumentadas en Pixel 10, pero no integra el ciclo
 real de sesión. Sus tests verifican `UserEntity`; AUTH-T06 verifica además
