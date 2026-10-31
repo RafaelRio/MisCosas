@@ -612,8 +612,16 @@ comprueba y se registra evidencia en vez de rehacerlo.
   "com.rafario.miscosas.domain.usecase.GetSessionStateUseCaseTest" --console=plain`
   exitoso; la prueba `usesRepositoryForAuthenticatedUid` comprueba que solo se
   selecciona y consulta el repositorio del UID autenticado. Esto valida la
-  selección con falsos, no la composición por UID con Room real. La tarea sigue
-  pendiente hasta completar la composición y las comprobaciones descritas arriba.
+  selección con falsos. Después, Rafael comunicó en verde
+  `:sharedLogic:iosSimulatorArm64Test --tests
+  "com.rafario.miscosas.data.repository.RoomUserRepositoryProviderTest" --console=plain`.
+  `switchingAuthenticatedUidUsesAndRestoresEachRoomPartition` conecta
+  `GetSessionStateUseCase` a `RoomUserRepositoryProvider` y a la factoría iOS de
+  Room; guarda perfiles de dos UID y comprueba `Ready(A) → Ready(B) → Ready(A)`.
+  Esto verifica la selección real de partición Room por UID en el caso de uso
+  compartido dentro del test KMP iOS. No valida Firebase/Auth iOS en runtime,
+  recuperación de perfil remoto, cierre por `NoSession` ni las comprobaciones
+  Android descritas arriba; AUTH-T16 sigue pendiente.
 - **Estado:** Pendiente.
 
 ### AUTH-T17 — Persistir y refrescar verificación ligada al UID
