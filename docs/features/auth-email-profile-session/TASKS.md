@@ -461,7 +461,10 @@ comprueba y se registra evidencia en vez de rehacerlo.
 - **Finalización:** se implementa el adaptador y compila el consumidor Swift;
   no se declara equivalencia funcional con Android sin evidencia de ejecución.
   Registrar la limitación de validación iOS.
-- **Estado:** Pendiente.
+- **Estado:** Completada — el adaptador Firebase Auth iOS y el consumidor
+  Swift compilan en el target `iosApp`, según BUILD SUCCEEDED comunicado por
+  Rafael el 31 de octubre de 2026. No se ejecutaron tests ni recorridos de la
+  app iOS; el comportamiento Firebase iOS queda sin validar en runtime.
 
 ### AUTH-T13 — Aplicar snapshots remotos del perfil sin generar outbox
 
@@ -574,7 +577,11 @@ comprueba y se registra evidencia en vez de rehacerlo.
 - **Finalización:** el adaptador queda implementado y compila; no se afirma que
   el comportamiento iOS esté validado ni que sea equivalente al Android. Toda
   aplicación local pasa por AUTH-T14.
-- **Estado:** Pendiente.
+- **Estado:** Completada — `FirestoreRemoteUserProfileRepository` y el
+  consumidor Swift compilan en el target `iosApp`, según BUILD SUCCEEDED
+  comunicado por Rafael el 31 de octubre de 2026. Las reglas se validaron
+  fuera de iOS en AUTH-T10; la integración Firestore iOS no se probó en
+  runtime. La composición de restauración queda en AUTH-T16.
 
 ## Fase D — restauración, verificación y experiencia nativa
 
@@ -784,8 +791,8 @@ AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 
 ## Registro de progreso
 
-AUTH-T01–AUTH-T11, AUTH-T13–AUTH-T14 y AUTH-T15-ANDROID están completadas con
-la evidencia registrada en cada tarea; AUTH-T12, AUTH-T15-IOS y AUTH-T16–AUTH-T25 siguen pendientes. AUTH-T11 incluye también el reenvío común
+AUTH-T01–AUTH-T14, AUTH-T15-ANDROID y AUTH-T15-IOS están completadas
+con la evidencia registrada en cada tarea; AUTH-T16–AUTH-T25 siguen pendientes. AUTH-T11 incluye también el reenvío común
 de la solicitud de verificación comprobado con un falso en Android Host. AUTH-T04 acredita persistencia Room
 Android por UID y pruebas instrumentadas en Pixel 10, pero no integra el ciclo
 real de sesión. Sus tests verifican `UserEntity`; AUTH-T06 verifica además
