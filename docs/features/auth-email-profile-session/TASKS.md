@@ -606,6 +606,14 @@ comprueba y se registra evidencia en vez de rehacerlo.
   cubren estados compartidos, aislamiento Room y conservación del outbox donde
   corresponda. Se compila la composición iOS; el comportamiento Firebase/UI de
   la app iOS no se comprueba. No inferir conservación del outbox solo del perfil.
+- **Progreso/evidencia:** el caso de uso selecciona `UserRepository` por el UID
+  autenticado y cierra el proveedor al confirmar que no hay sesión. Rafael
+  comunicó `:sharedLogic:testAndroidHostTest --tests
+  "com.rafario.miscosas.domain.usecase.GetSessionStateUseCaseTest" --console=plain`
+  exitoso; la prueba `usesRepositoryForAuthenticatedUid` comprueba que solo se
+  selecciona y consulta el repositorio del UID autenticado. Esto valida la
+  selección con falsos, no la composición por UID con Room real. La tarea sigue
+  pendiente hasta completar la composición y las comprobaciones descritas arriba.
 - **Estado:** Pendiente.
 
 ### AUTH-T17 — Persistir y refrescar verificación ligada al UID
