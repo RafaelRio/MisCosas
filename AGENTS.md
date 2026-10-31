@@ -48,6 +48,14 @@
 - Avanzar un paso cada vez. No entregar una lista extensa de trabajo para
   ejecutar en bloque; explicar los conceptos necesarios para que Rafael
   entienda lo que está construyendo.
+- Seguir el formato y el alcance que Rafael pide de forma explícita. Si pide
+  pasos, dar instrucciones procedimentales y no sustituirlas por código hecho;
+  entregar código solo si lo pide. No saltar ni reordenar los pasos acordados,
+  ni inferir una petición de implementación a partir de una solicitud de guía.
+- Antes de indicar un paso, comprobar que se puede realizar con el estado
+  actual del repositorio. Si depende de una API o contrato aún inexistente,
+  explicarlo y ajustar la secuencia para no dejar trabajo deliberadamente
+  imposible de compilar o ejecutar.
 - Trabajar por incrementos funcionales pequeños. No exigir resolver todas las
   cuestiones P- de V1 antes de empezar a desarrollar: para cada incremento,
   identificar solo las decisiones que afecten materialmente a su alcance,
