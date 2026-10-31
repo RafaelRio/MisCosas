@@ -6,8 +6,14 @@
 se refleja individualmente según la evidencia revisada.
 
 Este desglose deriva únicamente de la SPEC y el PLAN aprobados. La existencia
-de código previo no cuenta como evidencia de finalización. Rafael implementa y
-prueba cada tarea personalmente; se revisa una tarea cada vez. La autorización
+de código previo no cuenta como evidencia de finalización. Rafael implementa cada tarea personalmente; se revisa una tarea cada vez.
+Política vigente: se mantienen y ejecutan las pruebas KMP de
+`sharedLogic/src/iosTest/`, incluidas las de integración Room, con
+`:sharedLogic:iosSimulatorArm64Test` cuando correspondan. No se añaden tests al
+target `iosAppTests`/Swift XCTest ni se hacen recorridos manuales de la app
+iOS. Compilar `iosApp` no valida su comportamiento. Las evidencias anteriores
+de `iosTest` son históricas, pero las pruebas correspondientes deben seguir
+formando parte de las comprobaciones de tareas afectadas. La autorización
 para crear este documento no autoriza implementar, ejecutar pruebas ni avanzar
 a otra fase.
 
@@ -38,14 +44,12 @@ comprueba y se registra evidencia en vez de rehacerlo.
   (por ejemplo, `ContentView.swift`); configuración del proyecto Xcode solo si
   el consumo real lo requiere.
 - **RF/CA:** RF-10; prerrequisito técnico para CA-21.
-- **Comprobar:** compilar y ejecutar el framework/consumidor iOS; invocar desde
-  Swift la función suspendida, observar éxito y error y verificar cómo se
-  representan sus tipos. No consolidar aún la API final de Auth.
-- **Finalización:** Rafael aporta la llamada Swift real y el resultado observado
-  en el simulador/dispositivo, registra límites de exportación y, si hace
-  falta, la forma mínima de un adaptador Swift delgado. Las reglas de negocio
-  permanecen en KMP. Una compilación del framework sin consumirlo desde Swift
-  no basta.
+- **Comprobar:** esta tarea ya tiene evidencia histórica de consumo desde
+  Swift. No repetir la ejecución iOS. Para futuros cambios del puente, limitar
+  la comprobación a compilar el framework y el consumidor Swift.
+- **Finalización:** conservar como antecedente la llamada Swift y sus resultados
+  ya comunicados. La compilación futura solo acredita compatibilidad de
+  compilación; no ejecutar pruebas ni recorridos manuales iOS.
 - **Progreso/evidencia:** Rafael confirmó que `/usr/libexec/java_home -v 21`
   detecta OpenJDK 21.0.13 y comunicó que el Build de Xcode terminó con éxito.
   La inspección de solo lectura del header generado muestra
@@ -210,12 +214,13 @@ comprueba y se registra evidencia en vez de rehacerlo.
 - **Archivos candidatos:** `sharedLogic/src/iosMain/.../MisCosasDatabaseBuilder.ios.kt`,
   composición de `iosApp/iosApp/App/`.
 - **RF/CA:** RF-08, RF-09; CA-16, CA-18–CA-20, CA-22.
-- **Comprobar:** integración Room real con UID A/B; verificar apertura,
-  persistencia al cerrar/reabrir, aislamiento entre bases y que no se abre la
-  base legacy. No usar solo la compilación del framework como evidencia.
-- **Finalización:** pruebas de iOS demuestran persistencia aislada por UID.
-  Restauración autenticada, cierre de sesión y cambio de identidad real se
-  conectan y validan en AUTH-T16/AUTH-T25.
+- **Comprobar:** tests de integración Room en `sharedLogic/src/iosTest/` para
+  UID A/B, persistencia tras cierre/reapertura y aislamiento; compilar el
+  framework iOS. No se requiere prueba manual de la app SwiftUI.
+- **Finalización:** `:sharedLogic:iosSimulatorArm64Test` demuestra persistencia
+  Room por UID. Restauración autenticada, cierre de sesión y cambio real de
+  identidad quedan en AUTH-T16/AUTH-T25; se validan con tests KMP/Room cuando
+  aplique, sin XCTest ni recorrido manual de la app iOS.
 - **Progreso/evidencia:** Rafael adaptó `createIosDatabaseBuilder` para
   recibir `UserId`, derivar el nombre del archivo mediante SHA-256 de sus bytes
   UTF-8 y guardarlo en `Application Support`; añadió
@@ -243,8 +248,9 @@ comprueba y se registra evidencia en vez de rehacerlo.
 - **Objetivo:** demostrar de extremo a extremo que cada cuenta solo ve su base,
   perfil y operaciones pendientes, conservando los datos al cerrar sesión.
 - **Dependencias:** AUTH-T04, AUTH-T05.
-- **Archivos candidatos:** tests de `sharedLogic/src/iosTest/` y pruebas de
-  composición/ciclo de cuenta en `androidApp/` e `iosApp/`.
+- **Archivos candidatos:** tests comunes/Android y tests Room en
+  `sharedLogic/src/iosTest/`, además de composición de ciclo de cuenta en
+  `androidApp/` e `iosApp/`. No añadir XCTest en `iosAppTests`.
 - **RF/CA:** RF-09; CA-19, CA-20.
 - **Comprobar:** usar UID sintéticos y el proveedor local para sembrar perfil,
   otro dato y una operación de outbox de A; cerrar ese contexto y abrir B.
@@ -253,10 +259,10 @@ comprueba y se registra evidencia en vez de rehacerlo.
   borra ni marca como sincronizada la operación y que la base legacy no se abre
   ni se reasigna. No se necesita Firebase Authentication real en esta tarea;
   la conexión del UID de sesión se valida en AUTH-T16.
-- **Finalización:** pruebas de integración en ambas plataformas demuestran la
-  partición de datos y outbox por UID, conservación de A y ausencia de borrado
-  o falsa sincronización. La comprobación de perfil de AUTH-T04 no cuenta como
-  evidencia de persistencia del outbox.
+- **Finalización:** tests de integración Android y `sharedLogic/src/iosTest/`
+  demuestran la partición de datos/outbox y conservación de A. No se requiere
+  XCTest ni recorrido manual de la app iOS. La comprobación de perfil de AUTH-T04
+  no cuenta como evidencia de persistencia del outbox.
 - **Progreso/evidencia:** Rafael añadió en
   `sharedLogic/src/androidDeviceTest/.../AndroidUserDatabaseProviderTest.kt`
   una prueba instrumentada que siembra perfil, hogar y operación pendiente en
@@ -299,8 +305,8 @@ comprueba y se registra evidencia en vez de rehacerlo.
   `sharedLogic/src/commonMain/`.
 - **RF/CA:** RF-03, RF-04, RF-06–RF-10; CA-06–CA-22, CA-27–CA-29.
 - **Comprobar:** tests comunes para estados/resultados, errores y cancelación;
-  desde Swift consumir el contrato que vaya a usarse realmente y comprobar
-  async/resultado/error antes de extenderlo.
+  compilar el framework y consumidor Swift para comprobar interoperabilidad de
+  compilación. No ejecutar pruebas ni recorridos manuales en iOS.
 - **Finalización:** estados no confunden error remoto con ausencia, cancelación
   con error, ni sesión no verificada con acceso listo; API exportada resulta
   consumible sin duplicar reglas de negocio en Swift.
@@ -449,12 +455,12 @@ comprueba y se registra evidencia en vez de rehacerlo.
   `sharedLogic/src/iosMain/` si el diseño aprobado lo requiere.
 - **RF/CA:** RF-01–RF-04, RF-08, RF-10; CA-01–CA-08, CA-10–CA-11, CA-16,
   CA-21, CA-27, CA-29.
-- **Comprobar:** integración con Firebase/Auth Emulator según soporte del SDK,
-  y recorrido iOS controlado de restauración, registro, acceso y errores.
-  Compilar y consumir la API desde el target SwiftUI real.
-- **Finalización:** el comportamiento y categorías de errores son coherentes
-  con Android; se registra por separado qué se validó en Emulator y qué exigió
-  dispositivo/simulador o servicio controlado.
+- **Comprobar:** compilar el framework y el target SwiftUI real. No ejecutar
+  tests Firebase, otros tests ni recorridos manuales en iOS. La integración
+  funcional de iOS queda expresamente sin validar.
+- **Finalización:** se implementa el adaptador y compila el consumidor Swift;
+  no se declara equivalencia funcional con Android sin evidencia de ejecución.
+  Registrar la limitación de validación iOS.
 - **Estado:** Pendiente.
 
 ### AUTH-T13 — Aplicar snapshots remotos del perfil sin generar outbox
@@ -463,12 +469,12 @@ comprueba y se registra evidencia en vez de rehacerlo.
   diferenciado de `save()` local sincronizable.
 - **Dependencias:** AUTH-T03, AUTH-T07.
 - **Archivos candidatos:** `UserRepository.kt`, `RoomUserRepository.kt`,
-  `UserDao.kt`, `SyncOutboxDao.kt` y tests de integración Room en
-  `sharedLogic/src/iosTest/`.
+  `UserDao.kt`, `SyncOutboxDao.kt` y tests Room de
+  `sharedLogic/src/iosTest/`; no añadir tests Firebase/XCTest en `iosAppTests`.
 - **RF/CA:** RF-06, RF-08; CA-12–CA-15, CA-28.
-- **Comprobar:** integración Room real: snapshot remoto sin pendiente actualiza
-  el perfil sin crear outbox; `save()` local sigue encolando dato y outbox de
-  forma atómica.
+- **Comprobar:** `:sharedLogic:iosSimulatorArm64Test` para validar con Room
+  iOS que el snapshot sin pendiente persiste sin outbox y que `save()` conserva
+  su escritura atómica. No ejecutar XCTest ni pruebas manuales de la app iOS.
 - **Progreso/evidencia:** `RoomUserRepository.applyRemoteSnapshot()` valida
   acceso al UID autenticado y escribe el perfil en Room mediante una
   transacción, sin generar outbox. El test iOS comprueba el perfil persistido,
@@ -488,12 +494,12 @@ comprueba y se registra evidencia en vez de rehacerlo.
   un snapshot del mismo perfil.
 - **Dependencias:** AUTH-T13.
 - **Archivos candidatos:** `RoomUserRepository.kt`, `SyncOutboxDao.kt` y tests
-  Room en `sharedLogic/src/iosTest/`.
+  Room de `sharedLogic/src/iosTest/`; no añadir tests XCTest en `iosAppTests`.
 - **RF/CA:** RF-06, RF-08; CA-12, CA-14–CA-15.
-- **Comprobar:** crear perfil local y outbox pendiente; intentar aplicar un
-  snapshot remoto distinto; confirmar que la transacción conserva íntegros
-  tanto el perfil local como la operación pendiente y no los marca como
-  sincronizados. También probar snapshot sin operación pendiente.
+- **Comprobar:** `:sharedLogic:iosSimulatorArm64Test` valida con Room iOS que
+  perfil local y outbox pendiente se conservan ante snapshot antiguo y que un
+  snapshot sin pendiente se aplica sin crear outbox. No ejecutar XCTest ni
+  recorridos manuales de la app iOS.
 - **Progreso/evidencia:** `RoomUserRepository.applyRemoteSnapshot()` consulta
   el outbox por UID/perfil dentro de la misma transacción de escritura. Si hay
   una mutación local pendiente, conserva el perfil y la operación sin cambios;
@@ -520,8 +526,8 @@ comprueba y se registra evidencia en vez de rehacerlo.
   confirmada; el fallo conserva la sesión.
 - **Finalización:** ninguna consulta usa UID del formulario; las reglas
   deniegan otros perfiles y recursos fuera del alcance en Emulator. Snapshot
-  pasa por AUTH-T14. La integración iOS se comprueba por separado en
-  AUTH-T15-IOS.
+  pasa por AUTH-T14. La implementación iOS se gestiona por separado en
+  AUTH-T15-IOS y solo se comprueba mediante compilación.
 - **Progreso/evidencia:** Firebase Firestore Android está añadido al catálogo
   de versiones y a `androidApp`, usando el BoM existente. Rafael comunicó
   `:androidApp:assembleDebug` en verde. Se creó el contrato neutral público
@@ -561,14 +567,13 @@ comprueba y se registra evidencia en vez de rehacerlo.
   `sharedLogic/src/iosMain/`, modelo de mapeo privado y configuración Firebase
   iOS local.
 - **RF/CA:** RF-05–RF-08, RF-10; CA-09, CA-12–CA-15, CA-17, CA-21, CA-28.
-- **Comprobar:** consumir el puerto desde SwiftUI real; comprobar lectura,
-  ausencia confirmada, error remoto y escritura del perfil propio. Validar las
-  reglas con Firestore Rules Emulator donde el flujo iOS lo permita y contrastar
-  el rechazo de un UID ajeno.
-- **Finalización:** iOS conserva la misma semántica Android sin duplicar reglas
-  de negocio; no usa UID de formulario y toda aplicación local pasa por
-  AUTH-T14. Registrar qué casos necesitaron una comprobación controlada fuera
-  de Emulator.
+- **Comprobar:** compilar el framework y el target SwiftUI consumidor. No
+  ejecutar tests de Firebase ni otros tests en iOS y no hacer recorridos
+  manuales en iOS. Las reglas Firestore se validan en Emulator fuera de iOS;
+  esto no prueba el adaptador iOS.
+- **Finalización:** el adaptador queda implementado y compila; no se afirma que
+  el comportamiento iOS esté validado ni que sea equivalente al Android. Toda
+  aplicación local pasa por AUTH-T14.
 - **Estado:** Pendiente.
 
 ## Fase D — restauración, verificación y experiencia nativa
@@ -586,20 +591,14 @@ comprueba y se registra evidencia en vez de rehacerlo.
 - **Archivos candidatos:** `GetSessionStateUseCase.kt`, repositorios, factorías
   por plataforma y composición raíz Android/iOS.
 - **RF/CA:** RF-06, RF-08, RF-09; CA-12–CA-20, CA-28.
-- **Comprobar:** tests comunes para perfil local/remoto/ausente, error remoto y
-  cancelación; integración Android/iOS de sesión existente y arranque en frío.
-  Verificar que el UID actual abre solo su partición; logout cierra/inutiliza
-  ese contexto sin borrar archivos/outbox; el cambio A→B nunca deja accesible
-  ni reutiliza un contexto de A; volver a A recupera su partición y pendientes,
-  siempre sujeto a permisos vigentes. Comprobar callbacks tardíos y errores de
-  restauración sin repoblar estado de la identidad anterior.
-- **Finalización:** los estados de sesión/perfil son observables y coherentes;
-  un error remoto no crea perfil/cuenta ni descarta un perfil local válido. La
-  composición de ambas plataformas usa Room para el UID autenticado, y los
-  recorridos de restauración, cierre y cambio de UID prueban que no se conserva
-  ni expone contexto anterior. La conservación de outbox debe tener evidencia
-  explícita (AUTH-T06 o esta tarea); no inferirla de persistir una fila de
-  perfil.
+- **Comprobar:** tests comunes y Android para perfil local/remoto/ausente,
+  error remoto y cancelación; tests `sharedLogic/src/iosTest/` para cambios de
+  Room/partición. Compilar `iosApp` cuando cambie su composición, sin XCTest ni
+  recorrido manual de la app iOS. Firebase/Auth iOS queda sin validar en runtime.
+- **Finalización:** los tests comunes/Android y `sharedLogic/src/iosTest/`
+  cubren estados compartidos, aislamiento Room y conservación del outbox donde
+  corresponda. Se compila la composición iOS; el comportamiento Firebase/UI de
+  la app iOS no se comprueba. No inferir conservación del outbox solo del perfil.
 - **Estado:** Pendiente.
 
 ### AUTH-T17 — Persistir y refrescar verificación ligada al UID
@@ -608,14 +607,15 @@ comprueba y se registra evidencia en vez de rehacerlo.
   confirmada y refrescarla al recuperar conexión.
 - **Dependencias:** AUTH-T11, AUTH-T12, AUTH-T16.
 - **Archivos candidatos:** modelo/almacenamiento local de verificación bajo
-  `sharedLogic/`, adaptadores Firebase nativos y tests comunes/por plataforma.
+  `sharedLogic/`, adaptadores Firebase nativos, tests comunes y KMP `iosTest`;
+  no tests XCTest en `iosAppTests`.
 - **RF/CA:** RF-04, RF-08; CA-11, CA-16, CA-22.
-- **Comprobar:** prueba con dos UID, cuenta verificada previamente, no verificada
-  y sin evidencia local; reiniciar offline y volver online. Solo la UID correcta
-  restaura evidencia y esta no habilita por sí sola hogares/inventario.
-- **Finalización:** tests e integración Android/iOS reflejan los estados
-  aprobados y la confirmación online; sin información fiable, se mantiene
-  acceso limitado.
+- **Comprobar:** tests comunes y Android para proveedor/refresh; tests KMP en
+  `iosTest` para persistencia o reglas compartidas de verificación si se
+  modifican. Compilar `iosApp` cuando cambie su integración nativa. No añadir
+  XCTest ni recorridos manuales de la app iOS.
+- **Finalización:** tests permitidos cubren el estado compartido y su persistencia;
+  el proveedor Firebase/UI iOS queda sin validación de runtime.
 - **Estado:** Pendiente.
 
 ### AUTH-T18 — Enlace de verificación y actualización en Android
@@ -643,9 +643,9 @@ comprueba y se registra evidencia en vez de rehacerlo.
   `AuthenticationFlowView.swift`, pantalla de verificación, Associated Domains
   y configuración de dominio/AASA según corresponda.
 - **RF/CA:** RF-04, RF-08, RF-10; CA-08, CA-10–CA-11, CA-21, CA-29.
-- **Comprobar:** navegación con enlaces válidos, inválidos y caducados en
-  simulador/dispositivo y dominio de prueba; comprobar regreso al estado
-  verificado solo tras confirmación Firebase.
+- **Comprobar:** compilar iOS tras implementar Universal Links. No probar
+  enlaces, estados ni errores en simulador/dispositivo iOS, ni manualmente.
+  El comportamiento queda sin validar.
 - **Finalización:** la pantalla usa enlace, no un código solicitado al usuario;
   los estados y errores son equivalentes funcionalmente a Android y coherentes
   visualmente con SwiftUI.
@@ -679,9 +679,10 @@ comprueba y se registra evidencia en vez de rehacerlo.
   `Presentation/Login/LoginView.swift`, destinos de registro/perfil/verificación,
   `ContentView.swift` y composición iOS.
 - **RF/CA:** RF-01–RF-08, RF-10–RF-11; CA-01–CA-17, CA-21, CA-23–CA-29.
-- **Comprobar:** consumidor Swift real; pruebas UI/manuales en simulador o
-  dispositivo para los estados y errores; comparar resultados funcionales con
-  Android. Acordar con Rafael cómo presentar acciones Figma fuera de esta SPEC.
+- **Comprobar:** compilar el framework y el target SwiftUI consumidor. No
+  ejecutar tests ni recorridos manuales en iOS. La compilación no valida estados
+  ni errores; registrar el comportamiento iOS como no validado. Acordar con
+  Rafael cómo presentar acciones Figma fuera de esta SPEC.
 - **Finalización:** SwiftUI comunica estados correctos y conserva datos solo
   según RF-11; reglas de negocio siguen en KMP; el diseño adapta código a
   enlace sin añadir nuevos requisitos.
@@ -728,34 +729,31 @@ comprueba y se registra evidencia en vez de rehacerlo.
 - **Archivos candidatos:** pantalla de verificación/perfil SwiftUI,
   `AuthenticationFlowView.swift` y consumidor de estado compartido.
 - **RF/CA:** RF-09–RF-10; CA-18–CA-21.
-- **Comprobar:** recorrido en simulador/dispositivo online/offline con y sin
-  pendientes; cancelar, confirmar y cambiar de identidad; volver a la cuenta
-  original y verificar conservación.
+- **Comprobar:** compilar iOS. No hacer recorridos de logout ni pruebas de
+  comportamiento en simulador/dispositivo iOS. La conservación y aislamiento
+  funcional iOS quedan sin validar.
 - **Finalización:** no se muestran datos de la cuenta tras logout y los
   pendientes no se descartan ni se intentan sincronizar.
 - **Estado:** Pendiente.
 
-### AUTH-T25 — Recorrido de aceptación y regresión de ambas plataformas
+### AUTH-T25 — Validación permitida y regresión del incremento
 
-- **Objetivo:** comprobar la matriz completa aplicable de la SPEC y documentar
-  evidencia Android e iOS antes de declarar terminado el incremento.
+- **Objetivo:** comprobar la matriz con lógica común, Android y tests KMP/Room
+  de `sharedLogic/src/iosTest/`; documentar por separado la app iOS nativa, que
+  no se somete a XCTest ni a recorridos manuales.
 - **Dependencias:** AUTH-T01–AUTH-T24, AUTH-T15-ANDROID y AUTH-T15-IOS.
-- **Archivos candidatos:** tests existentes/nuevos de `sharedLogic`, pruebas
-  Android e iOS y registro de evidencia/estado del incremento.
+- **Archivos candidatos:** tests comunes/Android, tests KMP afectados en
+  `sharedLogic/src/iosTest/` y registro de evidencia/estado. No añadir ni
+  ejecutar tests del target `iosAppTests`.
 - **RF/CA:** RF-01–RF-11; CA-01–CA-29. CA-30 está diferido y no aplica.
-- **Comprobar:** regresión de casos de uso, Room real en iOS, Firebase Auth y
-  Firestore Rules Emulator, recorridos UI, ciclo de vida, enlaces, offline y
-  cambio de UID. Verificar en ambas plataformas restauración, logout y cambio
-  A→B→A sin reutilizar contexto de la identidad anterior, y conservación del
-  outbox sin borrarlo ni presentarlo como sincronizado. Completar CA-01–CA-29
-  por la matriz del PLAN; no usar el resultado de una plataforma como evidencia
-  de la otra.
-- **Finalización:** solo se completa cuando CA-01 a CA-29 están comprobados
-  satisfactoriamente con evidencia observada en las plataformas que aplican.
-  Un CA fallido o bloqueado puede registrarse con su motivo y siguiente paso,
-  pero impide declarar AUTH-T25 y el incremento como completados/validados.
-  CA-30 permanece diferido y no se prueba en este incremento. Revisar
-  discrepancias Figma y documentar diferencias nativas admitidas.
+- **Comprobar:** regresión de casos comunes/Android y ejecutar
+  `:sharedLogic:iosSimulatorArm64Test` para los tests KMP/Room afectados.
+  Compilar `iosApp` si cambia su código; no ejecutar XCTest de `iosAppTests` ni
+  recorridos manuales de la app iOS. Firebase nativo y UI SwiftUI quedan sin
+  validación de runtime.
+- **Finalización:** documentar separadamente la evidencia de common/Android,
+  Room/KMP iOS y compilación de `iosApp`. No presentar un build como evidencia
+  de comportamiento Firebase/UI iOS. CA-30 permanece diferido.
 - **Estado:** Pendiente.
 
 ## Dependencias críticas y límites
@@ -763,10 +761,10 @@ comprueba y se registra evidencia en vez de rehacerlo.
 ```text
 AUTH-T01 → AUTH-T07 → AUTH-T08 → adaptadores Firebase → perfil remoto/restauración
 AUTH-T01 → AUTH-T02 (inventario deseable, no bloqueante)
-AUTH-T01 + preservación/aislamiento legacy → AUTH-T03 → AUTH-T04/AUTH-T05 → AUTH-T06
-AUTH-T10 → AUTH-T11/AUTH-T12 → AUTH-T15-ANDROID/AUTH-T15-IOS
+AUTH-T01 + preservación/aislamiento legacy → AUTH-T03 → AUTH-T04/AUTH-T05 → AUTH-T06 (Room/KMP iOS validado con iosTest; sin XCTest/manual de app)
+AUTH-T10 → AUTH-T11/AUTH-T12 → AUTH-T15-ANDROID/AUTH-T15-IOS (Firebase iOS build-only)
 AUTH-T13 → AUTH-T14 → AUTH-T15-ANDROID/AUTH-T15-IOS
-AUTH-T06 + AUTH-T08 + AUTH-T11/T12 + AUTH-T13/T14 + AUTH-T15-ANDROID/IOS → AUTH-T16 → verificación y pantallas
+AUTH-T06 + AUTH-T08 + AUTH-T11/T12 + AUTH-T13/T14 + AUTH-T15-ANDROID/IOS → AUTH-T16 → verificación y pantallas (Room/KMP iosTest permitido; Firebase/UI iOS build-only)
 AUTH-T16 → AUTH-T17/AUTH-T18/AUTH-T19 → AUTH-T25
 AUTH-T22 → AUTH-T23/AUTH-T24 → AUTH-T25
 ```
@@ -791,7 +789,7 @@ la evidencia registrada en cada tarea; AUTH-T12, AUTH-T15-IOS y AUTH-T16–AUTH-
 de la solicitud de verificación comprobado con un falso en Android Host. AUTH-T04 acredita persistencia Room
 Android por UID y pruebas instrumentadas en Pixel 10, pero no integra el ciclo
 real de sesión. Sus tests verifican `UserEntity`; AUTH-T06 verifica además
-perfil, hogar y conservación de outbox en ambas plataformas. AUTH-T16 tiene asignado conectar la factoría al
+perfil, hogar y conservación de outbox en ambas plataformas, según evidencia histórica. No repetir validaciones de comportamiento iOS. AUTH-T16 tiene asignado conectar la factoría al
 ciclo real de restauración/cierre/cambio de UID y comprobar que no se reutilice
 ni exponga el contexto anterior; AUTH-T25 conserva la validación final de los
 criterios aplicables. Al revisar trabajo de Rafael, actualizar solo la tarea

@@ -111,7 +111,7 @@ implementar todas las funcionalidades de una vez.
 | `sharedLogic/src/commonMain/` | Dominio, persistencia compartida y contratos de integración. |
 | `sharedLogic/src/androidMain/`, `sharedLogic/src/iosMain/` | Código específico de plataforma del módulo compartido. |
 | `sharedLogic/src/commonTest/` | Pruebas compartidas de lógica y adaptadores. |
-| `sharedLogic/src/iosTest/` | Pruebas de integración Room en iOS. |
+| `sharedLogic/src/iosTest/` | Pruebas de integración KMP/Room para la implementación iOS; mantenerlas y ejecutarlas cuando correspondan. |
 
 - No hay UI compartida. Mantener las interfaces nativas de ambas aplicaciones.
 - El dominio contiene modelos, contratos de repositorio y casos de uso; no
@@ -285,7 +285,7 @@ Comandos de referencia del proyecto:
 # Tests del módulo compartido en Android Host.
 ./gradlew :sharedLogic:testAndroidHostTest --console=plain
 
-# Tests comunes e integración iOS; requiere entorno Apple compatible.
+# Tests KMP/Room del source set iosTest.
 ./gradlew :sharedLogic:iosSimulatorArm64Test --console=plain
 
 # Comprobar el framework compartido para el simulador iOS.
@@ -296,12 +296,19 @@ Comandos de referencia del proyecto:
 ```
 
 - `sharedLogic` usa el plugin Android KMP con HostTest: su tarea es
-  `testAndroidHostTest`, no `testDebugUnitTest`.
-- Android Host no ejecuta las pruebas Room ubicadas en `iosTest`. Compilar
-  el framework iOS tampoco compila ni valida la aplicación SwiftUI completa.
-- Al cambiar una API pública consumida por Swift, planificar también la
-  compilación y comprobación del consumidor iOS; verificar su esquema y entorno
-  reales antes de indicar comandos Xcode. No asumir rutas locales universales.
+  `testAndroidHostTest`, no `testDebugUnitTest`. Sus tests de `iosTest` se
+  ejecutan con `iosSimulatorArm64Test` en simulador iOS.
+- Mantener y ejecutar los tests de `sharedLogic/src/iosTest/` (incluida la
+  integración Room) cuando los cambios afecten a esa capa; usar
+  `:sharedLogic:iosSimulatorArm64Test`. No añadir ni solicitar tests del target
+  `iosAppTests`/Swift XCTest ni recorridos manuales de la app iOS. Para cambios
+  nativos de `iosApp`, limitar la validación a compilación y documentar que no
+  demuestra el comportamiento de la app. Reflejar esta separación en SPEC,
+  PLAN y TASKS.
+- Android Host no ejecuta las pruebas Room ubicadas en `iosTest`. Al cambiar
+  una API pública consumida por Swift, planificar la compilación del framework
+  y del consumidor iOS; verificar su esquema y entorno reales antes de indicar
+  comandos Xcode. No asumir rutas locales universales.
 - Para cambios documentales basta revisar contenido, enlaces y coherencia;
   no exigir builds ni tests artificiales. Los comandos anteriores no son una
   lista que deba ejecutarse tras cada micro-paso.

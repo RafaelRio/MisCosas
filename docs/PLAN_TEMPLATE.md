@@ -83,10 +83,15 @@ con el proyecto y justifica las incorporaciones. No agregues dependencias por de
 - [PENDIENTE]
 ## Estrategia de validación
 
-<!-- Una fila por criterio de la spec. Selecciona el método capaz de demostrarlo:
-test unitario, integración, UI o prueba manual. No todos requieren todos los métodos.
-Identifica tests existentes y separa los nuevos propuestos. Incluye regresiones relevantes.
-Una captura aislada no demuestra persistencia ni ausencia de peticiones de red. -->
+<!-- Una fila por criterio de la spec. Selecciona el método permitido por el
+proyecto y capaz de demostrarlo: test unitario, integración, UI, prueba manual
+u otra comprobación técnica. No todos requieren todos los métodos. Identifica
+los tests existentes y separa los nuevos propuestos. Incluye regresiones
+relevantes y las limitaciones por plataforma. Respeta las políticas del proyecto;
+para MisCosas pueden planificarse tests de `sharedLogic/src/iosTest/`, pero no
+Swift XCTest del target `iosAppTests` ni recorridos manuales de la app iOS.
+Una compilación iOS no demuestra comportamiento de `iosApp`. Una captura aislada no demuestra
+persistencia ni ausencia de peticiones de red. -->
 | Criterio | Método y test existente o propuesto | Entorno y datos necesarios | Evidencia prevista |
 | --- | --- | --- | --- |
 | CA-01 | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] |
@@ -96,7 +101,7 @@ Una captura aislada no demuestra persistencia ni ausencia de peticiones de red. 
 
 **Comandos verificados para compilar y ejecutar tests:** [PENDIENTE]
 
-**Pruebas en dispositivo, emulador o simulador:** [escenarios y entorno adecuado; indicar cuándo hace falta hardware real]
+**Pruebas en dispositivo, emulador o simulador:** [escenarios permitidos según la política del proyecto; en MisCosas, `iosTest` de sharedLogic sí, `iosAppTests` y recorridos manuales iOS no]
 **Limitaciones del entorno:** [qué no podrá comprobarse aquí y cómo quedará pendiente]
 
 <!-- Esta sección planifica la validación. Durante la implementación, registra

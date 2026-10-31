@@ -16,6 +16,6 @@ Al crear una especificación, tener en cuenta los siguientes puntos y aplicar lo
 - Trabajo en segundo plano: cuando aplique, contemplar que una tarea pueda retrasarse o interrumpirse. Definir cómo se reanuda y cómo se evitan efectos duplicados.
 - Privacidad y seguridad: considerar qué información se almacena, transmite o muestra, cómo se protege y cuándo se elimina. Evitar datos sensibles en logs y mensajes de error.
 - Idiomas y formatos: cuando aplique, contemplar traducciones, longitud de textos, fechas, zonas horarias, números y unidades.
-- Validación en mobile: incluir pruebas de los escenarios relevantes, como interrupciones, reapertura, cambios de conectividad, permisos y distintos tamaños de pantalla. Complementar los tests automatizados con comprobaciones en dispositivo, emulador o simulador según lo que se necesite validar.
+- Validación en mobile: definir comprobaciones proporcionales a los escenarios relevantes, como interrupciones, reapertura, cambios de conectividad, permisos y distintos tamaños de pantalla, respetando las políticas del proyecto. En MisCosas se mantienen los tests KMP de `sharedLogic/src/iosTest/` (incluidos los de Room). No se añaden tests al target `iosAppTests`/Swift XCTest ni recorridos manuales de la app iOS; los cambios nativos de `iosApp` se comprueban mediante compilación, que no demuestra comportamiento.
 
 Estos puntos no amplían automáticamente el alcance. Incorporar al SPEC.md los requisitos, decisiones técnicas y criterios de aceptación que se deriven de los puntos aplicables y de las decisiones confirmadas.

@@ -306,13 +306,16 @@ completo esté implementado o validado.
 | CA-12–CA-17, CA-28 | Sesión restaurada con perfil local, perfil remoto, ausencia remota confirmada y error remoto; completar/reintentar perfil tras alta aceptada. | Se conserva UID, se recupera o completa el perfil según el resultado real y no se duplican cuentas/perfiles. |
 | CA-16 | Inicio en frío con sesión ausente, válida, carga aún en curso y error de consulta. | Cada estado se presenta de forma distinta y recuperable, sin falsos estados de registro. |
 | CA-18–CA-20 | Cierre conectado/desconectado, con o sin operaciones pendientes; cancelar o confirmar el cierre; cambiar identidad después del cierre. | La sesión se cierra solo al confirmar; los pendientes se conservan asociados al UID y no se muestran ni procesan desde otra cuenta o se presentan como sincronizados. No se intenta sincronizar en este incremento. |
-| CA-21 | Recorrido de los casos equivalentes en dispositivos o simuladores Android e iOS. | Resultados funcionales coherentes; se registran diferencias visuales nativas permitidas. |
+| CA-21 | Tests comunes/KMP y `sharedLogic/src/iosTest/` para lógica compartida; compilación iOS. Sin XCTest de `iosAppTests` ni recorrido manual de la app iOS. | Los tests KMP acreditan solo la lógica/adaptadores cubiertos; la UI SwiftUI queda sin validar. |
 | CA-22 | Restaurar offline una sesión verificada previamente, una cuenta no verificada y otra UID en el mismo dispositivo; después recuperar conexión. | El estado previo se reconoce solo para la UID correcta; sin prueba local fiable no se asume verificación; al volver la red se actualizan verificación y permisos. |
 | CA-23–CA-25 | Navegar atrás/adelante durante registro, acceso y perfil; simular errores recuperables, éxito, cierre de sesión y terminación/reapertura de la app. | Campos no secretos se conservan solo durante el flujo activo; contraseñas se limitan al formulario activo y no son persistentes; al reabrir se restaura únicamente sesión/perfil guardados. |
 
-Los instrumentos, tipos de tests, entornos de autenticación y comandos se
-definirán en el PLAN. Los criterios que requieran Firebase real o simuladores
-no se considerarán validados por tests con falsos.
+Los tipos de comprobación, entornos y comandos se definen en el PLAN. Se
+mantienen los tests KMP de `sharedLogic/src/iosTest/`, incluidos los de Room.
+No se añadirán ni ejecutarán tests de `iosAppTests`/Swift XCTest ni recorridos
+manuales de la app iOS. La compilación de `iosApp` comprueba compatibilidad,
+pero no valida su comportamiento. Los criterios que requieran Firebase real no
+se consideran validados por tests con falsos.
 
 ## Decisiones pendientes
 
@@ -336,9 +339,10 @@ no cambia el requisito funcional.
   CA-30 mantiene la trazabilidad y no aplica a la validación de esta SPEC.
 - La recuperación de un perfil remoto debe persistirlo localmente sin
   convertir una descarga en una mutación pendiente de subida.
-- Debe comprobarse en Android e iOS que la sesión y el retorno desde el enlace
-  de verificación producen estados recuperables, respetando cancelación y
-  errores del proveedor.
+- Los criterios funcionales siguen aplicando a Android e iOS. Se permiten
+  tests KMP en `sharedLogic/src/iosTest/` para lógica compartida y adaptadores
+  Room. No planificar tests de `iosAppTests`/Swift XCTest ni recorridos manuales
+  de la app iOS; compilar `iosApp` no acredita su comportamiento.
 
 <!-- ANTES DE SOLICITAR APROBACIÓN
 Comprueba que el alcance está acordado, los flujos son coherentes, los puntos
