@@ -540,10 +540,13 @@ comprueba y se registra evidencia en vez de rehacerlo.
   Auth Emulator, confirma ausencia, crea/lee/actualiza el perfil propio y
   comprueba que un UID ajeno produce `PERMISSION_DENIED`. Ejecuté
   `:androidApp:connectedDebugAndroidTest --console=plain` con Auth y Firestore
-  Emulator en una sola instancia; los 13 tests pasaron en Pixel 10 AVD. Falta
-  probar que una ausencia no se infiere de caché durante un error de red:
-  actualmente `findById` usa `get()` por defecto, que puede recurrir a caché.
-  Debe requerirse fuente servidor antes de declarar CA-14 satisfecho.
+  Emulator en una sola instancia; los 13 tests pasaron en Pixel 10 AVD. La
+  prueba desactiva la red después de una respuesta remota de ausencia y verifica
+  que la lectura produce un error, no `null`. Para garantizarlo en general,
+  `findById` debe pedir `Source.SERVER`: el `get()` predeterminado puede recurrir
+  a caché. La suite no prueba una ausencia obsoleta cacheada tras un cambio
+  remoto; CA-14 requiere que solo una respuesta confirmada del servidor dé
+  `null`.
 - **Estado:** Pendiente.
 
 ### AUTH-T15-IOS — Leer y escribir el perfil remoto por UID en iOS

@@ -10,6 +10,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,6 +40,20 @@ class FirestoreRemoteUserProfileRepositoryTest {
             )
 
             assertNull(repository.findById(userId))
+
+            firestore.disableNetwork().await()
+            val offlineReadFailure = try {
+                repository.findById(userId)
+                null
+            } catch (exception: FirebaseFirestoreException) {
+                exception
+            } finally {
+                firestore.enableNetwork().await()
+            }
+            assertNotNull(
+                "An offline read must not be treated as confirmed remote absence",
+                offlineReadFailure,
+            )
 
             val foreignReadFailure = try {
                 repository.findById(UserId("another-test-user"))
