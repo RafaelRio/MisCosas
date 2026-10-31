@@ -293,6 +293,35 @@ class GetSessionStateUseCaseTest {
         assertEquals(remoteUser, localProfiles[userId])
     }
 
+    @Test
+    fun profilePending() = runTest {
+        val userId = UserId("firebase-user-unverified")
+        val authenticationRepository = FakeAuthenticationRepository(
+            result = AuthenticationSessionResult.Authenticated(
+                userId = userId,
+                isEmailVerified = true,
+            )
+        )
+        val repository = FakeRemoteUserProfileRepository(
+            user = null
+        )
+        val userRepositoryProvider = object : UserRepositoryProvider {
+            override fun forUser(userId: UserId): UserRepository = FakeUserRepository()
+
+            override fun closeCurrent() = Unit
+        }
+
+        val useCase = GetSessionStateUseCase(
+            repository = authenticationRepository,
+            userRepositoryProvider = userRepositoryProvider,
+            remoteUserProfileRepository = repository
+        )
+        val result = useCase()
+
+        assertEquals(SessionState.ProfilePending(userId), result)
+        assertEquals(userId, repository.requestedUserIds.first())
+    }
+
     private fun createUseCase(
         authenticationRepository: AuthenticationRepository,
         userRepository: UserRepository,

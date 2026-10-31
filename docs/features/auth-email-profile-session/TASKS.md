@@ -628,9 +628,14 @@ comprueba y se registra evidencia en vez de rehacerlo.
   verde `:sharedLogic:testAndroidHostTest --tests
   "com.rafario.miscosas.domain.usecase.GetSessionStateUseCaseTest" --console=plain`.
   Esta evidencia usa un repositorio remoto falso; no valida Firebase real.
-  Siguen pendientes los casos de ausencia/error/cancelación remota, prioridad
-  del perfil local, cierre por `NoSession`, comprobaciones Android adicionales
-  e integración de composición; AUTH-T16 sigue pendiente.
+  Se añadió además `profilePending`, que verifica que la ausencia remota
+  confirmada produce `SessionState.ProfilePending` y consulta el UID autenticado.
+  Ejecuté `:sharedLogic:testAndroidHostTest --tests
+  "com.rafario.miscosas.domain.usecase.GetSessionStateUseCaseTest" --console=plain`;
+  terminó en `BUILD SUCCESSFUL`. Siguen pendientes los casos de
+  error/cancelación remota, prioridad del perfil local, cierre por `NoSession`,
+  comprobaciones Android adicionales e integración de composición; AUTH-T16
+  sigue pendiente.
 - **Estado:** Pendiente.
 
 ### AUTH-T17 — Persistir y refrescar verificación ligada al UID
