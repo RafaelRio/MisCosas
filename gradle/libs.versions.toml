@@ -23,6 +23,7 @@ sqlite = "2.7.0"
 cryptography = "0.6.0"
 firebase-bom = "35.1.0"
 google-services = "4.5.0"
+androidx-lifecycle = "2.11.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -58,6 +59,7 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
+androidx-lifecycle = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
