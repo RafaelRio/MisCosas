@@ -674,7 +674,23 @@ comprueba y se registra evidencia en vez de rehacerlo.
   `SessionRestorationComposition` de `iosApp`, que llama a la fábrica desde
   Swift. Rafael comunicó que el target `iosApp` compiló correctamente. Esto
   valida el consumo Swift en compilación, no el comportamiento Firebase en
-  runtime. La fachada todavía no está conectada a la UI.
+  runtime. La fachada todavía no está conectada a la UI. Se añadieron dos
+  pruebas deterministas en
+  `sharedLogic/src/commonTest/kotlin/com/rafario/miscosas/api/session/SessionRestorationFacadeTest.kt`
+  para una solicitud A cancelada al solicitar B y para cancelación en una
+  barrera previa a aplicar el snapshot. Rafael comunicó
+  `BUILD SUCCESSFUL` para
+  `:sharedLogic:testAndroidHostTest --tests
+  "com.rafario.miscosas.api.session.SessionRestorationFacadeTest" --console=plain`.
+  Las pruebas usan dobles y señales controladas: comprueban que A se cancela,
+  que no se registra su snapshot y que B devuelve `Ready(B)`. No prueban una
+  transacción Room real. Después, Rafael comunicó `BUILD SUCCESSFUL` para
+  `:sharedLogic:iosSimulatorArm64Test --tests
+  "com.rafario.miscosas.api.session.SessionRestorationFacadeTest" --console=plain`.
+  Esto valida la prueba común en el target Kotlin/Native; no ejecuta XCTest ni
+  valida Firebase o la UI iOS. La fachada serializa el caso de uso y cancela la
+  solicitud anterior; la integración con propietarios de estado y la
+  protección frente a resultados obsoletos al publicarlos siguen pendientes.
 - **Estado:** Pendiente.
 
 ### AUTH-T17 — Persistir y refrescar verificación ligada al UID
