@@ -664,7 +664,11 @@ comprueba y se registra evidencia en vez de rehacerlo.
   `:sharedLogic:compileAndroidMain` y
   `:sharedLogic:linkDebugFrameworkIosSimulatorArm64`. Esta evidencia valida la
   compilación de `sharedLogic`, pero no el consumo desde Swift ni la composición
-  de las factorías de plataforma. La fachada todavía no está conectada a la UI.
+  de las factorías de plataforma. Se añadió
+  `createAndroidSessionRestorationFacade` en `androidMain`, que compone las
+  dependencias internas aprobadas; Rafael comunicó `BUILD SUCCESSFUL` para
+  `:sharedLogic:compileAndroidMain`. La fachada todavía no está conectada a la
+  UI.
 - **Estado:** Pendiente.
 
 ### AUTH-T17 — Persistir y refrescar verificación ligada al UID
