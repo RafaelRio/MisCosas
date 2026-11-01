@@ -667,8 +667,11 @@ comprueba y se registra evidencia en vez de rehacerlo.
   de las factorías de plataforma. Se añadió
   `createAndroidSessionRestorationFacade` en `androidMain`, que compone las
   dependencias internas aprobadas; Rafael comunicó `BUILD SUCCESSFUL` para
-  `:sharedLogic:compileAndroidMain`. La fachada todavía no está conectada a la
-  UI.
+  `:sharedLogic:compileAndroidMain`. Se añadió la fábrica equivalente
+  `createIosSessionRestorationFacade` en `iosMain`; Rafael comunicó
+  `BUILD SUCCESSFUL` para `:sharedLogic:linkDebugFrameworkIosSimulatorArm64`.
+  El enlace valida el framework, pero no una llamada Swift a la fábrica. La
+  fachada todavía no está conectada a la UI.
 - **Estado:** Pendiente.
 
 ### AUTH-T17 — Persistir y refrescar verificación ligada al UID
