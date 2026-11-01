@@ -658,7 +658,13 @@ comprueba y se registra evidencia en vez de rehacerlo.
   además `:sharedLogic:testAndroidHostTest --console=plain` y
   `:sharedLogic:iosSimulatorArm64Test --console=plain`; ambas suites terminaron
   en `BUILD SUCCESSFUL`. AUTH-T16 sigue pendiente de revisar la composición
-  raíz y las validaciones finales.
+  raíz y las validaciones finales. Se añadió la API común
+  `SessionRestorationFacade` con constructor interno y delegación a
+  `GetSessionStateUseCase`; Rafael comunicó `BUILD SUCCESSFUL` para
+  `:sharedLogic:compileAndroidMain` y
+  `:sharedLogic:linkDebugFrameworkIosSimulatorArm64`. Esta evidencia valida la
+  compilación de `sharedLogic`, pero no el consumo desde Swift ni la composición
+  de las factorías de plataforma. La fachada todavía no está conectada a la UI.
 - **Estado:** Pendiente.
 
 ### AUTH-T17 — Persistir y refrescar verificación ligada al UID
