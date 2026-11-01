@@ -670,8 +670,11 @@ comprueba y se registra evidencia en vez de rehacerlo.
   `:sharedLogic:compileAndroidMain`. Se añadió la fábrica equivalente
   `createIosSessionRestorationFacade` en `iosMain`; Rafael comunicó
   `BUILD SUCCESSFUL` para `:sharedLogic:linkDebugFrameworkIosSimulatorArm64`.
-  El enlace valida el framework, pero no una llamada Swift a la fábrica. La
-  fachada todavía no está conectada a la UI.
+  Después se completó, a petición de Rafael, la clase no visual
+  `SessionRestorationComposition` de `iosApp`, que llama a la fábrica desde
+  Swift. Rafael comunicó que el target `iosApp` compiló correctamente. Esto
+  valida el consumo Swift en compilación, no el comportamiento Firebase en
+  runtime. La fachada todavía no está conectada a la UI.
 - **Estado:** Pendiente.
 
 ### AUTH-T17 — Persistir y refrescar verificación ligada al UID
