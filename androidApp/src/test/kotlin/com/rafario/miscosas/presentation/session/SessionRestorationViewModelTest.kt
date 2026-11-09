@@ -21,6 +21,26 @@ class SessionRestorationViewModelTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
+    fun currentRestoreFailureEmitsRecoverableError() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        Dispatchers.setMain(testDispatcher)
+
+        try {
+            val viewModel = SessionRestorationViewModel {
+                throw IllegalStateException("Temporary session restoration failure")
+            }
+
+            viewModel.restore()
+            runCurrent()
+
+            assertEquals(SessionState.RecoverableError, viewModel.sessionState.value)
+        } finally {
+            Dispatchers.resetMain()
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
     fun lateErrorFromCancelledRestoreDoesNotReplaceNewestSession() = runTest {
         val userB = createUser("firebase-user-b", "Usuario B")
         val firstRestoreStarted = CompletableDeferred<Unit>()

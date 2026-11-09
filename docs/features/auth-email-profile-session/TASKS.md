@@ -691,7 +691,20 @@ comprueba y se registra evidencia en vez de rehacerlo.
   valida Firebase o la UI iOS. La fachada serializa el caso de uso y cancela la
   solicitud anterior; la integración con propietarios de estado y la
   protección frente a resultados obsoletos al publicarlos siguen pendientes.
-- **Estado:** Pendiente.
+  El 9 de noviembre de 2026 se añadió en Android `SessionRestorationViewModel`,
+  con `StateFlow`, cancelación de la petición anterior, identificador de
+  vigencia y propagación de `CancellationException`. Sus dos pruebas
+  deterministas comprueban que ni un `Ready(A)` ni un error tardío de A
+  sustituyen `Ready(B)`. Ejecuté
+  `:androidApp:testDebugUnitTest --tests
+  "com.rafario.miscosas.presentation.session.SessionRestorationViewModelTest"
+  --console=plain`; terminó en `BUILD SUCCESSFUL`. El ViewModel todavía no está
+  conectado a la composición de producción ni a la UI y no observa cambios
+  externos de Firebase. Se añadió `currentRestoreFailureEmitsRecoverableError`
+  para verificar que un error de la petición vigente se representa como
+  `SessionState.RecoverableError`; la misma clase de tests volvió a terminar en
+  `BUILD SUCCESSFUL`.
+- **Estado:** En curso.
 
 ### AUTH-T17 — Persistir y refrescar verificación ligada al UID
 
