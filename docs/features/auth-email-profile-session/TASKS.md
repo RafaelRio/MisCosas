@@ -700,10 +700,14 @@ comprueba y se registra evidencia en vez de rehacerlo.
   "com.rafario.miscosas.presentation.session.SessionRestorationViewModelTest"
   --console=plain`; terminó en `BUILD SUCCESSFUL`. El ViewModel todavía no está
   conectado a la composición de producción ni a la UI y no observa cambios
-  externos de Firebase. Se añadió `currentRestoreFailureEmitsRecoverableError`
-  para verificar que un error de la petición vigente se representa como
-  `SessionState.RecoverableError`; la misma clase de tests volvió a terminar en
-  `BUILD SUCCESSFUL`.
+  externos de Firebase. La composición de producción Android se añadió en
+  `MisCosasApplication`, conserva la fachada con inicialización diferida y está
+  registrada en `AndroidManifest.xml`; ejecuté
+  `:androidApp:assembleDebug --console=plain` y terminó en `BUILD SUCCESSFUL`.
+  El ViewModel todavía no consume esa composición. Se añadió
+  `currentRestoreFailureEmitsRecoverableError` para verificar que un error de
+  la petición vigente se representa como `SessionState.RecoverableError`; la
+  misma clase de tests volvió a terminar en `BUILD SUCCESSFUL`.
 - **Estado:** En curso.
 
 ### AUTH-T17 — Persistir y refrescar verificación ligada al UID
